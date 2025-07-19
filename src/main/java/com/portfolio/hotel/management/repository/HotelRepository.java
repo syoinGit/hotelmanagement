@@ -4,6 +4,7 @@ import com.portfolio.hotel.management.data.booking.Booking;
 import com.portfolio.hotel.management.data.booking.BookingDto;
 import com.portfolio.hotel.management.data.guest.Guest;
 import com.portfolio.hotel.management.data.guest.GuestDto;
+import com.portfolio.hotel.management.data.guest.GuestSearchDto;
 import com.portfolio.hotel.management.data.reservation.Reservation;
 import com.portfolio.hotel.management.data.reservation.ReservationDto;
 import com.portfolio.hotel.management.data.reservation.ReservationStatus;
@@ -28,10 +29,10 @@ public interface HotelRepository {
   List<GuestDto> searchGuest(@Param("guest") GuestDto guestDto);
 
   // 宿泊予約IDから、宿泊予約を検索
-  Reservation searchReservation(@Param("id")String id);
+  Reservation searchReservation(@Param("id") String id);
 
   // 宿泊者IDから宿泊者を完全一致検索
-  GuestDto matchGuest(@Param("guest") Guest guest);
+  GuestDto matchGuest(GuestSearchDto guestSearchDto);
 
   // 宿泊プランIDから金額を検索
   BigDecimal findTotalPriceById(@Param("id") String id);

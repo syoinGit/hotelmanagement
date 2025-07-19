@@ -4,6 +4,7 @@ import com.portfolio.hotel.management.data.booking.BookingDto;
 import com.portfolio.hotel.management.data.guest.Guest;
 import com.portfolio.hotel.management.data.guest.GuestDetailDto;
 import com.portfolio.hotel.management.data.guest.GuestDto;
+import com.portfolio.hotel.management.data.guest.GuestSearchDto;
 import com.portfolio.hotel.management.data.reservation.ReservationDto;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,21 +43,16 @@ public class HotelConverter {
     return guestDetailDtos;
   }
 
-  public GuestDto toGuestDto(Guest guest) {
-    if (guest == null) return null;
+  public GuestDto toGuestDto(GuestSearchDto guestSearchDto) {
+    if (guestSearchDto == null) {
+      return null;
+    }
     GuestDto dto = new GuestDto();
-    dto.setId(guest.getId());
-    dto.setName(guest.getName());
-    dto.setKanaName(guest.getKanaName());
-    dto.setGender(guest.getGender());
-    dto.setAge(guest.getAge());
-    dto.setRegion(guest.getRegion());
-    dto.setEmail(guest.getEmail());
-    dto.setPhone(guest.getPhone());
+    dto.setName(guestSearchDto.getName());
+    dto.setKanaName(guestSearchDto.getKanaName());
+    dto.setPhone(guestSearchDto.getPhone());
     return dto;
   }
-
-
 
 
 }

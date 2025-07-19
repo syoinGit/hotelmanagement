@@ -38,7 +38,7 @@ class HotelControllerTest {
   private final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
   @Test
-  void 宿泊者情報の全件検索ができて_からのリストが帰ってくること() throws Exception {
+  void 宿泊者情報の全件検索ができて_空のリストが帰ってくること() throws Exception {
     mockMvc.perform(get("/guestList")).andExpect(status().isOk()).andExpect(content().json("[]"));
     verify(service, times(1)).getAllGuest();
   }

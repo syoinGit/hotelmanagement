@@ -4,6 +4,7 @@ import com.portfolio.hotel.management.data.booking.Booking;
 import com.portfolio.hotel.management.data.guest.Guest;
 import com.portfolio.hotel.management.data.guest.GuestDetailDto;
 import com.portfolio.hotel.management.data.guest.GuestDto;
+import com.portfolio.hotel.management.data.guest.GuestSearchDto;
 import com.portfolio.hotel.management.data.reservation.Reservation;
 import com.portfolio.hotel.management.data.reservation.ReservationDto;
 import com.portfolio.hotel.management.data.reservation.ReservationStatus;
@@ -44,13 +45,13 @@ public class HotelService {
   }
 
   // 宿泊者の完全一致検索
-  public GuestDetailDto matchGuest(Guest guest) {
-    GuestDto guestDto = repository.matchGuest(guest);
+  public GuestDetailDto matchGuest(GuestSearchDto guestSearchDto) {
+    GuestDto guestDto = repository.matchGuest(guestSearchDto);
     GuestDetailDto dto = new GuestDetailDto();
 
     // 一致するものがなかった場合、guestの数値を入れる。
     if (guestDto == null) {
-      dto.setGuest(converter.toGuestDto(guest));
+      dto.setGuest(converter.toGuestDto(guestSearchDto));
       // 一致した場合、取得したguestDtoを入れる。
     } else {
       dto.setGuest(guestDto);

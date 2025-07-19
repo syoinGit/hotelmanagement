@@ -6,6 +6,7 @@ import com.portfolio.hotel.management.data.booking.Booking;
 import com.portfolio.hotel.management.data.booking.BookingDto;
 import com.portfolio.hotel.management.data.guest.Guest;
 import com.portfolio.hotel.management.data.guest.GuestDto;
+import com.portfolio.hotel.management.data.guest.GuestSearchDto;
 import com.portfolio.hotel.management.data.reservation.Reservation;
 import com.portfolio.hotel.management.data.reservation.ReservationDto;
 import com.portfolio.hotel.management.data.reservation.ReservationStatus;
@@ -70,11 +71,11 @@ class HotelRepositoryTest {
 
   @Test
   void 宿泊者の完全一致検索_名前_かな名_電話番号の組み合わせから宿泊者を検索できるか確認() {
-    Guest guest = new Guest();
-    guest.setName("佐藤花子");
-    guest.setKanaName("サトウハナコ");
-    guest.setPhone("08098765432");
-    GuestDto actual = sut.matchGuest(guest);
+    GuestSearchDto guestSearchDto = new GuestSearchDto();
+    guestSearchDto.setName("佐藤花子");
+    guestSearchDto.setKanaName("サトウハナコ");
+    guestSearchDto.setPhone("08098765432");
+    GuestDto actual = sut.matchGuest(guestSearchDto);
 
     assertThat(actual.getId()).isEqualTo("11111111-1111-1111-1111-111111111111");
     assertThat(actual.getGender()).isEqualTo("FEMALE");

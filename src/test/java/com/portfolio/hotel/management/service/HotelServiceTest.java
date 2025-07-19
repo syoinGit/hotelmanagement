@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.portfolio.hotel.management.data.guest.GuestSearchDto;
 import com.portfolio.hotel.management.service.converter.HotelConverter;
 import com.portfolio.hotel.management.data.booking.Booking;
 import com.portfolio.hotel.management.data.booking.BookingDto;
@@ -102,16 +103,16 @@ class HotelServiceTest {
   void 宿泊者情報の完全一致致検索_名前_ふりがな_電話番号から宿泊者情報が呼び出せていること() {
     HotelService sut = new HotelService(repository, converter);
 
-    Guest guest = new Guest();
+    GuestSearchDto guestSearchDto = new GuestSearchDto();
     GuestDto guestDto = new GuestDto();
-    guest.setName("佐藤花子");
-    guest.setKanaName("サトウハナコ");
-    guest.setPhone("08098765432");
+    guestSearchDto.setName("佐藤花子");
+    guestSearchDto.setKanaName("サトウハナコ");
+    guestSearchDto.setPhone("08098765432");
 
-    when(repository.matchGuest(guest)).thenReturn(guestDto);
-    GuestDetailDto actual = sut.matchGuest(guest);
+    when(repository.matchGuest(guestSearchDto)).thenReturn(guestDto);
+    GuestDetailDto actual = sut.matchGuest(guestSearchDto);
 
-    verify(repository, Mockito.times(1)).matchGuest(guest);
+    verify(repository, Mockito.times(1)).matchGuest(guestSearchDto);
     verify(converter, Mockito.never()).toGuestDto(Mockito.any());
 
     assertNotNull(actual);
@@ -122,19 +123,19 @@ class HotelServiceTest {
   void 宿泊者情報の完全一致致検索_完全一致するものがなく条件分岐しているかの確認() {
     HotelService sut = new HotelService(repository, converter);
 
-    Guest guest = new Guest();
+    GuestSearchDto guestSearchDto = new GuestSearchDto();
     GuestDto guestDto = new GuestDto();
 
-    guest.setName("佐藤花子");
-    guest.setKanaName("サトウハナコ");
+    guestSearchDto.setName("佐藤花子");
+    guestSearchDto.setKanaName("サトウハナコ");
 
-    when(repository.matchGuest(guest)).thenReturn(null);
-    when(converter.toGuestDto(guest)).thenReturn(guestDto);
+    when(repository.matchGuest(guestSearchDto)).thenReturn(null);
+    when(converter.toGuestDto(guestSearchDto)).thenReturn(guestDto);
 
-    GuestDetailDto actual = sut.matchGuest(guest);
+    GuestDetailDto actual = sut.matchGuest(guestSearchDto);
 
-    verify(repository, Mockito.times(1)).matchGuest(guest);
-    verify(converter, Mockito.times(1)).toGuestDto(guest);
+    verify(repository, Mockito.times(1)).matchGuest(guestSearchDto);
+    verify(converter, Mockito.times(1)).toGuestDto(guestSearchDto);
 
     assertNotNull(actual);
     assertEquals(guestDto, actual.getGuest());
