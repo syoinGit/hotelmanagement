@@ -48,7 +48,6 @@ public class HotelService {
   public GuestDetailDto matchGuest(GuestSearchDto guestSearchDto) {
     GuestDto guestDto = repository.matchGuest(guestSearchDto);
     GuestDetailDto dto = new GuestDetailDto();
-
     // 一致するものがなかった場合、guestの数値を入れる。
     if (guestDto == null) {
       dto.setGuest(converter.toGuestDto(guestSearchDto));
@@ -61,6 +60,7 @@ public class HotelService {
 
   // ゲスト情報の登録
   public void insertGuest(GuestDetailDto guestDetailDto) {
+  // 直前の検索で一致する宿泊者がなかった場合新規登録
     if (guestDetailDto.getGuest().getId() == null) {
       guestDetailDto.getGuest().setId(UUID.randomUUID().toString());
       repository.insertGuest(guestDetailDto.getGuest());
