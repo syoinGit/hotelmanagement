@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class HotelConverter {
 
+  // 宿泊者、宿泊プラン、宿泊予約を宿泊者情報に統合
   public List<GuestDetailDto> convertGuestDetailDto(List<GuestDto> guestDtos,
       List<BookingDto> bookingDtos, List<ReservationDto> reservationDtos) {
 
@@ -43,16 +44,12 @@ public class HotelConverter {
     return guestDetailDtos;
   }
 
+  // 宿泊者検索から宿泊者に変換
   public GuestDto toGuestDto(GuestSearchDto guestSearchDto) {
-    if (guestSearchDto == null) {
-      return null;
-    }
-    GuestDto dto = new GuestDto();
-    dto.setName(guestSearchDto.getName());
-    dto.setKanaName(guestSearchDto.getKanaName());
-    dto.setPhone(guestSearchDto.getPhone());
-    return dto;
+    GuestDto guestDto = new GuestDto();
+    guestDto.setName(guestSearchDto.getName());
+    guestDto.setKanaName(guestSearchDto.getKanaName());
+    guestDto.setPhone(guestSearchDto.getPhone());
+    return guestDto;
   }
-
-
 }

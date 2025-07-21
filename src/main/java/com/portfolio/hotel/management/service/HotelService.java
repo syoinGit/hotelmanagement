@@ -59,7 +59,7 @@ public class HotelService {
     return dto;
   }
 
-  // ゲストの登録
+  // ゲスト情報の登録
   public void insertGuest(GuestDetailDto guestDetailDto) {
     if (guestDetailDto.getGuest().getId() == null) {
       guestDetailDto.getGuest().setId(UUID.randomUUID().toString());

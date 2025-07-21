@@ -9,17 +9,14 @@ import com.portfolio.hotel.management.data.reservation.Reservation;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.portfolio.hotel.management.service.HotelService;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
@@ -39,26 +36,26 @@ public class HotelController {
 
   @Operation(summary = "単一検索", description = "ID、名前、ふりがな、電話番号から宿泊者情報を検索します。")
   @GetMapping("/searchGuest")
-  public List<GuestDetailDto> searchGuest(@ModelAttribute GuestDto guestDto) {
+  public List<GuestDetailDto> searchGuest(@RequestBody GuestDto guestDto) {
     return service.searchGuest(guestDto);
   }
 
   @Operation(summary = "完全一致検索", description = "名前、ふりがな、電話番号から宿泊者情報を完全一致検索します。ここで完全位一致したデータは宿泊者情報登録の際に使われます")
   @GetMapping("/matchGuest")
-  public GuestDetailDto matchGuestForInsert(@ModelAttribute @Valid GuestSearchDto guestSearchDto) {
+  public GuestDetailDto matchGuestForInsert(@RequestBody @Valid GuestSearchDto guestSearchDto) {
     return service.matchGuest(guestSearchDto);
   }
 
   @Operation(summary = "宿泊者情報登録", description = "宿泊者情報を入力し、宿泊者情報を登録します。")
   @PutMapping("/insertGuest")
-  public ResponseEntity<String> registerGuest(@RequestBody @Valid GuestDetailDto guestDetailDto) {
+  public ResponseEntity<String> registerBooking(@RequestBody @Valid GuestDetailDto guestDetailDto) {
     service.insertGuest(guestDetailDto);
     return ResponseEntity.ok("宿泊者情報の登録が完了しました。");
   }
 
   @Operation(summary = "宿泊プラン登録", description = "宿泊プランを入力し、登録します。")
   @PutMapping("/insertBooking")
-  public ResponseEntity<String> registerGuest(@RequestBody @Valid Booking booking) {
+  public ResponseEntity<String> registerBooking(@RequestBody @Valid Booking booking) {
     service.insertBooking(booking);
     return ResponseEntity.ok("宿泊プランの登録が完了しました。");
   }
@@ -92,6 +89,4 @@ public class HotelController {
     service.checkOut(reservationsId);
     return ResponseEntity.ok(guestName + "様のチェックアウトが完了しました。");
   }
-
-
 }

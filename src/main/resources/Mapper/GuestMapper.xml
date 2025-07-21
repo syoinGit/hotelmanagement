@@ -40,6 +40,7 @@
     </where>
   </select>
 
+  <!-- 宿泊予約IDから、宿泊予約を検索 -->
   <select id="searchReservation"
     resultType="com.portfolio.hotel.management.data.reservation.Reservation"
     parameterType="string">
