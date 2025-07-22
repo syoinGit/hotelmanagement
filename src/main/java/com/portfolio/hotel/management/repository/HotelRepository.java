@@ -47,7 +47,7 @@ public interface HotelRepository {
   void insertBooking(@Param("booking") Booking booking);
 
   // 宿泊予約の登録
-  void insertReservation(@Param("list") List<ReservationDto> reservationList);
+  void insertReservation(ReservationDto reservationDto);
 
   // 宿泊者情報の変更
   void editGuest(Guest guest);

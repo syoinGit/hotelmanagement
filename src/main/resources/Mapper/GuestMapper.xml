@@ -114,29 +114,27 @@
 
   <!-- 宿泊予約を登録 -->
   <insert id="insertReservation">
-    <foreach collection="list" item="item" separator=";">
-      INSERT INTO reservation (
-      id,
-      guest_id,
-      booking_id,
-      check_in_date,
-      stay_days,
-      total_price,
-      status,
-      memo,
-      created_at
-      ) VALUES (
-      #{item.id},
-      #{item.guestId},
-      #{item.bookingId},
-      #{item.checkInDate},
-      #{item.stayDays},
-      #{item.totalPrice},
-      #{item.status},
-      #{item.memo},
-      #{item.createdAt}
-      )
-    </foreach>
+    INSERT INTO reservation (
+    id,
+    guest_id,
+    booking_id,
+    check_in_date,
+    stay_days,
+    total_price,
+    status,
+    memo,
+    created_at
+    ) VALUES (
+    #{id},
+    #{guestId},
+    #{bookingId},
+    #{checkInDate},
+    #{stayDays},
+    #{totalPrice},
+    #{status},
+    #{memo},
+    #{createdAt}
+    )
   </insert>
 
   <!-- 宿泊者を変更 -->

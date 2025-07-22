@@ -1,15 +1,17 @@
 package com.portfolio.hotel.management.service;
 
 import com.portfolio.hotel.management.data.booking.Booking;
+import com.portfolio.hotel.management.data.booking.BookingDto;
 import com.portfolio.hotel.management.data.guest.Guest;
 import com.portfolio.hotel.management.data.guest.GuestDetailDto;
 import com.portfolio.hotel.management.data.guest.GuestDto;
+import com.portfolio.hotel.management.data.guest.GuestRegistrationDto;
 import com.portfolio.hotel.management.data.guest.GuestSearchDto;
 import com.portfolio.hotel.management.data.reservation.Reservation;
 import com.portfolio.hotel.management.data.reservation.ReservationDto;
 import com.portfolio.hotel.management.data.reservation.ReservationStatus;
+import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
@@ -28,13 +30,19 @@ public class HotelService {
 
   }
 
-  // 宿泊者情報の全権取得
+  // 宿泊者情報の全件取得
   public List<GuestDetailDto> getAllGuest() {
     return converter.convertGuestDetailDto(
         repository.findAllGuest(),
         repository.findAllBooking(),
         repository.findAllReservation());
   }
+
+  // 宿泊コースの全件取得
+  public List<BookingDto> getAllBooking() {
+    return repository.findAllBooking();
+  }
+
 
   // 宿泊者情報の単一検索
   public List<GuestDetailDto> searchGuest(GuestDto guestDto) {
@@ -59,34 +67,33 @@ public class HotelService {
   }
 
   // ゲスト情報の登録
-  public void insertGuest(GuestDetailDto guestDetailDto) {
-  // 直前の検索で一致する宿泊者がなかった場合新規登録
-    if (guestDetailDto.getGuest().getId() == null) {
-      guestDetailDto.getGuest().setId(UUID.randomUUID().toString());
-      repository.insertGuest(guestDetailDto.getGuest());
+  public void insertGuest(GuestRegistrationDto guestRegistrationDto) {
+    // 直前の検索で一致する宿泊者がなかった場合新規登録
+    if (guestRegistrationDto.getGuest().getId() == null) {
+      guestRegistrationDto.getGuest().setId(UUID.randomUUID().toString());
+      repository.insertGuest(guestRegistrationDto.getGuest());
     }
-    initReservation(guestDetailDto);
+    initReservation(guestRegistrationDto);
   }
 
   // 宿泊予約の登録
-  private void initReservation(GuestDetailDto guestDetailDto) {
-    String guestId = guestDetailDto.getGuest().getId();
-    List<ReservationDto> reservationDto = guestDetailDto.getBookings().stream()
-        .map(s -> {
-          ReservationDto r = new ReservationDto();
-          r.setId(UUID.randomUUID().toString());
-          r.setGuestId(guestId);
-          r.setBookingId(s.getId());
-          r.setCheckInDate(LocalDate.now().plusDays(1));
-          r.setStayDays(0);
-          r.setTotalPrice(repository.findTotalPriceById(r.getBookingId()));
-          r.setMemo("");
-          r.setStatus(ReservationStatus.TEMPORARY);
-          r.setCreatedAt(LocalDateTime.now());
-          return r;
-        })
-        .toList();
-    repository.insertReservation(reservationDto);
+  private void initReservation(GuestRegistrationDto guestRegistrationDto) {
+    ReservationDto dto = new ReservationDto();
+
+    dto.setId(UUID.randomUUID().toString());
+    dto.setGuestId(guestRegistrationDto.getGuest().getId());
+    dto.setBookingId(guestRegistrationDto.getId());
+    dto.setCheckInDate(guestRegistrationDto.getCheckInDate());
+    dto.setStayDays(guestRegistrationDto.getStayDays());
+
+    BigDecimal price = repository.findTotalPriceById(dto.getBookingId());
+    BigDecimal total = price.multiply(BigDecimal.valueOf(dto.getStayDays()));
+    dto.setTotalPrice(total);
+    dto.setMemo(guestRegistrationDto.getMemo());
+    dto.setStatus(ReservationStatus.TEMPORARY);
+    dto.setCheckInDate(LocalDate.now());
+
+    repository.insertReservation(dto);
   }
 
   // 宿泊プランの登録
