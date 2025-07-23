@@ -114,7 +114,7 @@ class HotelRepositoryTest {
 
   @Test
   void 宿泊情報の登録_宿泊情報が登録されているか確認() {
-    List<ReservationDto> reservationDto = getReservationDto();
+    ReservationDto reservationDto = getReservationDto();
     sut.insertReservation(reservationDto);
 
     List<ReservationDto> actual = sut.findAllReservation();
@@ -197,21 +197,18 @@ class HotelRepositoryTest {
     return booking;
   }
 
-  private List<ReservationDto> getReservationDto() {
-    List<ReservationDto> reservationsDto = new ArrayList<>();
+  private ReservationDto getReservationDto() {
+    ReservationDto reservationDto = new ReservationDto();
+    reservationDto.setId("aaaaaaa5-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+    reservationDto.setGuestId("11111111-1111-1111-1111-111111111111");
+    reservationDto.setBookingId("aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+    reservationDto.setTotalPrice(BigDecimal.valueOf(1000));
+    reservationDto.setCheckInDate(LocalDate.now());
+    reservationDto.setStayDays(1);
+    reservationDto.setStatus(ReservationStatus.TEMPORARY);
+    reservationDto.setMemo("");
 
-    ReservationDto reservation = new ReservationDto();
-    reservation.setId("aaaaaaa5-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
-    reservation.setGuestId("11111111-1111-1111-1111-111111111111");
-    reservation.setBookingId("aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
-    reservation.setTotalPrice(BigDecimal.valueOf(1000));
-    reservation.setCheckInDate(LocalDate.now());
-    reservation.setStayDays(1);
-    reservation.setStatus(ReservationStatus.TEMPORARY);
-    reservation.setMemo("");
-
-    reservationsDto.add(reservation);
-    return reservationsDto;
+    return reservationDto;
   }
 
   private Reservation getReservation() {

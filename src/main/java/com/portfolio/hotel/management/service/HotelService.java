@@ -38,6 +38,16 @@ public class HotelService {
         repository.findAllReservation());
   }
 
+  // 本日チェックインの宿泊者を取得
+  public List<GuestDetailDto> getChackInToday() {
+
+    List<GuestDto> guestDtoList = repository.findGuestsTodayCheckIn();
+    List<ReservationDto> reservationDtoList = repository.findReservationTodayCheckIn();
+
+    return converter.convertGuestDetailDto(repository.findGuestsTodayCheckIn(),
+        repository.findAllBooking(), repository.findReservationTodayCheckIn());
+  }
+
   // 宿泊コースの全件取得
   public List<BookingDto> getAllBooking() {
     return repository.findAllBooking();
@@ -82,7 +92,7 @@ public class HotelService {
 
     dto.setId(UUID.randomUUID().toString());
     dto.setGuestId(guestRegistrationDto.getGuest().getId());
-    dto.setBookingId(guestRegistrationDto.getId());
+    dto.setBookingId(guestRegistrationDto.getBookingId());
     dto.setCheckInDate(guestRegistrationDto.getCheckInDate());
     dto.setStayDays(guestRegistrationDto.getStayDays());
 

@@ -25,6 +25,12 @@ public interface HotelRepository {
   // 宿泊予約の全件検索
   List<ReservationDto> findAllReservation();
 
+  // 本日チェックイン予定の宿泊者を検索
+  List<GuestDto> findGuestsTodayCheckIn();
+
+  // 本日チェックイン予定の宿泊予約を検索
+  List<ReservationDto> findReservationTodayCheckIn();
+
   // 宿泊者ID、名前、かな名、電話番号から宿泊者を検索
   List<GuestDto> searchGuest(@Param("guest") GuestDto guestDto);
 

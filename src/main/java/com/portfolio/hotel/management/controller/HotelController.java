@@ -11,6 +11,7 @@ import com.portfolio.hotel.management.data.reservation.Reservation;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import java.util.List;
+import javax.security.auth.Subject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,6 +44,13 @@ public class HotelController {
   public List<BookingDto> getAllBooking() {
     return service.getAllBooking();
   }
+
+  @Operation(summary = "本日宿泊の宿泊予約を全件検索", description = "本日宿泊予定の宿泊予約を全件検索します")
+  @GetMapping("/getChackInToday")
+  public List<GuestDetailDto> getChackInToday() {
+    return service.getChackInToday();
+  }
+
 
   @Operation(summary = "単一検索", description = "ID、名前、ふりがな、電話番号から宿泊者情報を検索します。")
   @GetMapping("/searchGuest")

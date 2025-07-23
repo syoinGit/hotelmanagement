@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.portfolio.hotel.management.data.guest.GuestRegistrationDto;
 import com.portfolio.hotel.management.data.guest.GuestSearchDto;
 import com.portfolio.hotel.management.service.converter.HotelConverter;
 import com.portfolio.hotel.management.data.booking.Booking;
@@ -17,6 +18,7 @@ import com.portfolio.hotel.management.data.reservation.ReservationDto;
 import com.portfolio.hotel.management.data.reservation.ReservationStatus;
 import com.portfolio.hotel.management.repository.HotelRepository;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
@@ -144,36 +146,40 @@ class HotelServiceTest {
   @Test
   void ゲスト情報登録_登録が行われているか確認() {
     HotelService sut = new HotelService(repository, converter);
+    crateRegistrationDto();
 
-    GuestDetailDto actual = getGuestDetailDto();
+    when(repository.findTotalPriceById("aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaaa"))
+        .thenReturn(new BigDecimal("10000"));
+    GuestRegistrationDto actual = crateRegistrationDto();
     sut.insertGuest(actual);
 
     ArgumentCaptor<GuestDto> guestCaptor = ArgumentCaptor.forClass(GuestDto.class);
     verify(repository).insertGuest(guestCaptor.capture());
 
-    @SuppressWarnings("unchecked")
-    ArgumentCaptor<List<ReservationDto>> reservationCaptor = ArgumentCaptor.forClass(
-        List.class);
+    ArgumentCaptor<ReservationDto> reservationCaptor = ArgumentCaptor.forClass(
+        ReservationDto.class);
     verify(repository).insertReservation(reservationCaptor.capture());
 
     GuestDto updateGuest = guestCaptor.getValue();
-    List<ReservationDto> updateReservation = reservationCaptor.getValue();
+    ReservationDto updateReservation = reservationCaptor.getValue();
 
     assertEquals("山田太郎", updateGuest.getName());
-    assertEquals("3822609c-5651-11f0-b59f-a75edf46bde3",
-        updateReservation.getFirst().getBookingId());
+    assertEquals("aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        updateReservation.getBookingId());
   }
 
   @Test
   void ゲスト情報登録_IDが登録済みの場合登録が行われないか確認() {
     HotelService sut = new HotelService(repository, converter);
 
-    GuestDetailDto actual = getGuestDetailDto();
-    actual.getGuest().setId("3822609c-5651-11f0-b59f-a75edf46bde3");
+GuestRegistrationDto guestRegistrationDto = crateRegistrationDto();
+guestRegistrationDto.getGuest().setId("11111111-1111-1111-1111-111111111111");
+    when(repository.findTotalPriceById("aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaaa"))
+        .thenReturn(new BigDecimal("10000"));
+
+    GuestRegistrationDto actual = guestRegistrationDto;
     sut.insertGuest(actual);
-
     verify(repository, Mockito.times(0)).insertGuest(actual.getGuest());
-
   }
 
   @Test
@@ -312,4 +318,16 @@ class HotelServiceTest {
     return booking;
   }
 
+  private GuestRegistrationDto crateRegistrationDto() {
+    GuestRegistrationDto guestRegistrationDto = new GuestRegistrationDto();
+    GuestDto guestDto = createGuestDto();
+
+    guestRegistrationDto.setGuest(guestDto);
+    guestRegistrationDto.setBookingId("aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+    guestRegistrationDto.setCheckInDate(LocalDate.now());
+    guestRegistrationDto.setStayDays(1);
+    guestRegistrationDto.setMemo("備考なし");
+
+    return guestRegistrationDto;
+  }
 }
