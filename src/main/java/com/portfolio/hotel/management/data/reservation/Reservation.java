@@ -43,11 +43,11 @@ public class Reservation {
   @NotNull(message = "総額は必須です")
   private BigDecimal totalPrice;
 
-  @NotBlank(message = "滞在状況は必須です")
+  @NotNull(message = "滞在状況は必須です")
   private ReservationStatus status;
 
   private String memo;
 
-  @NotBlank
+  @NotNull
   private LocalDateTime createdAt = LocalDateTime.now();
 }
