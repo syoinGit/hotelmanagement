@@ -78,7 +78,7 @@ class HotelControllerTest {
 
     when(service.matchGuest(any())).thenReturn(guestDetailDto);
 
-    mockMvc.perform(MockMvcRequestBuilders.get("/matchGuest")
+    mockMvc.perform(MockMvcRequestBuilders.post("/matchGuest")
             .contentType(MediaType.APPLICATION_JSON)
             .content("""
                   {
@@ -108,12 +108,10 @@ class HotelControllerTest {
                     "email": "hanako@example.com",
                     "phone": "08098765432"
                   },
-                  "booking": {
-                    "name": "朝食付きプラン",
-                    "description": "和洋朝食が選べるプラン",
-                    "price": 10000,
-                    "available": true
-                  }
+                  "bookingId": "123e4567-e89b-12d3-a456-426614174000",
+                  "stayDays": 2,
+                  "checkInDate": "2025-07-25",
+                  "memo": "観光で利用"
                 }
                 """))
         .andExpect(status().isOk())
