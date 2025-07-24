@@ -11,19 +11,34 @@ import com.portfolio.hotel.management.data.reservation.Reservation;
 import com.portfolio.hotel.management.data.reservation.ReservationDto;
 import com.portfolio.hotel.management.data.reservation.ReservationStatus;
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.time.ZoneId;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 
 
 @MybatisTest
+@Import(HotelRepositoryTest.TestConfig.class)
 class HotelRepositoryTest {
 
   @Autowired
   HotelRepository sut;
+
+  @TestConfiguration
+  static class TestConfig {
+
+    @Bean
+    public Clock fixedClock() {
+      return Clock.fixed(LocalDate.of(2025, 7, 24).atStartOfDay(ZoneId.systemDefault()).toInstant(),
+          ZoneId.systemDefault());
+    }
+  }
 
   @Test
   void 宿泊者の全件検索ができること() {
@@ -43,6 +58,12 @@ class HotelRepositoryTest {
     List<ReservationDto> actual = sut.findAllReservation();
     assertThat(actual.size()).isEqualTo(2);
 
+  }
+
+  @Test
+  void 本日チェックイン予定の宿泊者を検索() {
+    List<ReservationDto> actual = sut.findReservationTodayCheckIn();
+    assertThat(actual.size()).isEqualTo(1);
   }
 
   @Test

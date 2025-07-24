@@ -11,7 +11,6 @@ import com.portfolio.hotel.management.data.reservation.Reservation;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import java.util.List;
-import javax.security.auth.Subject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -87,10 +86,10 @@ public class HotelController {
   }
 
   @Operation(summary = "宿泊情報の変更", description = "宿泊情報の変更を行います。")
-  @PutMapping("/editReservation")
+  @PutMapping("/updateReservation")
   public ResponseEntity<String> editReservation(@RequestBody Reservation reservation) {
     service.editReservation(reservation);
-    return ResponseEntity.ok("宿泊情報の変更が完了しました");
+    return ResponseEntity.ok("宿泊情報の変更が完了しました。");
   }
 
   @Operation(summary = "チェックイン", description = "宿泊客のチェックインを行います。")

@@ -11,6 +11,7 @@ import com.portfolio.hotel.management.data.reservation.Reservation;
 import com.portfolio.hotel.management.data.reservation.ReservationDto;
 import com.portfolio.hotel.management.data.reservation.ReservationStatus;
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -23,11 +24,12 @@ public class HotelService {
 
   private final HotelRepository repository;
   private final HotelConverter converter;
+  private final Clock clock;
 
-  public HotelService(HotelRepository repository, HotelConverter converter) {
+  public HotelService(HotelRepository repository, HotelConverter converter, Clock clock) {
     this.repository = repository;
     this.converter = converter;
-
+    this.clock = clock;
   }
 
   // 宿泊者情報の全件取得
@@ -40,10 +42,6 @@ public class HotelService {
 
   // 本日チェックインの宿泊者を取得
   public List<GuestDetailDto> getChackInToday() {
-
-    List<GuestDto> guestDtoList = repository.findGuestsTodayCheckIn();
-    List<ReservationDto> reservationDtoList = repository.findReservationTodayCheckIn();
-
     return converter.convertGuestDetailDto(repository.findGuestsTodayCheckIn(),
         repository.findAllBooking(), repository.findReservationTodayCheckIn());
   }
@@ -52,7 +50,6 @@ public class HotelService {
   public List<BookingDto> getAllBooking() {
     return repository.findAllBooking();
   }
-
 
   // 宿泊者情報の単一検索
   public List<GuestDetailDto> searchGuest(GuestDto guestDto) {

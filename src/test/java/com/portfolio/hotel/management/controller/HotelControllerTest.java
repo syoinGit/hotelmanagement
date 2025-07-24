@@ -1,6 +1,7 @@
 package com.portfolio.hotel.management.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -38,9 +39,16 @@ class HotelControllerTest {
   private final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
   @Test
-  void 宿泊者情報の全件検索ができて_空のリストが帰ってくること() throws Exception {
+  void 宿泊者情報の全件検索_空のリストが帰ってくること() throws Exception {
     mockMvc.perform(get("/guestList")).andExpect(status().isOk()).andExpect(content().json("[]"));
     verify(service, times(1)).getAllGuest();
+  }
+
+  @Test
+  void 本日チェックイン予定の宿泊者情報検索_空のリストが帰ってくること() throws Exception {
+    mockMvc.perform(get("/getChackInToday")).andExpect(status().isOk())
+        .andExpect(content().json("[]"));
+    verify(service, times(1)).getChackInToday();
   }
 
   @Test
@@ -78,7 +86,7 @@ class HotelControllerTest {
 
     when(service.matchGuest(any())).thenReturn(guestDetailDto);
 
-    mockMvc.perform(MockMvcRequestBuilders.get("/matchGuest")
+    mockMvc.perform(MockMvcRequestBuilders.post("/matchGuest")
             .contentType(MediaType.APPLICATION_JSON)
             .content("""
                   {
@@ -108,12 +116,10 @@ class HotelControllerTest {
                     "email": "hanako@example.com",
                     "phone": "08098765432"
                   },
-                  "booking": {
-                    "name": "朝食付きプラン",
-                    "description": "和洋朝食が選べるプラン",
-                    "price": 10000,
-                    "available": true
-                  }
+                  "bookingId": "123e4567-e89b-12d3-a456-426614174000",
+                  "stayDays": 2,
+                  "checkInDate": "2025-07-25",
+                  "memo": "観光で利用"
                 }
                 """))
         .andExpect(status().isOk())
@@ -137,7 +143,7 @@ class HotelControllerTest {
 
   @Test
   void 宿泊者の変更_宿泊者が変更できているかの確認() throws Exception {
-    mockMvc.perform(put("/editGuest")
+    mockMvc.perform(put("/updateGuest")
             .contentType(MediaType.APPLICATION_JSON)
             .content("""
                 {
@@ -159,7 +165,7 @@ class HotelControllerTest {
   @Test
   void 宿泊情報の編集_宿泊情報が変更できているかの確認() throws Exception {
 
-    mockMvc.perform(put("/editGuest")
+    mockMvc.perform(put("/updateReservation")
             .contentType(MediaType.APPLICATION_JSON)
             .content("""
                 {
@@ -175,7 +181,7 @@ class HotelControllerTest {
                 }
                 """))
         .andExpect(status().isOk())
-        .andExpect(content().string("宿泊者の変更が完了しました。"));
+        .andExpect(content().string("宿泊情報の変更が完了しました。"));
   }
 
   @Test
