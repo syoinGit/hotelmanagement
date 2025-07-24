@@ -14,7 +14,7 @@ VALUES
 INSERT INTO reservation (id, guest_id, booking_id, check_in_date, stay_days, total_price, status, memo, created_at)
 VALUES
   ('rsv00001-aaaa-bbbb-cccc-000000000001', '11111111-1111-1111-1111-111111111111', 'aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-   '2025-07-15', 2, 20000.00, 'NOT_CHECKED_IN', '観光で利用', '2025-07-01 10:00:00'),
+   '2025-07-15', 2, 20000.00, 'CHECKED_IN', '観光で利用', '2025-07-01 10:00:00'),
 
   ('rsv00002-bbbb-cccc-dddd-000000000002', '22222222-2222-2222-2222-222222222222', 'aaaaaaa2-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-   '2025-07-18', 1, 7000.00, 'CHECKED_IN', '出張で利用', '2025-07-02 15:30:00');
+   '2025-07-24', 1, 7000.00, 'NOT_CHECKED_IN', '出張で利用', '2025-07-02 15:30:00');

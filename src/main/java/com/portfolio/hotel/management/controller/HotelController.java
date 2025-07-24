@@ -44,6 +44,13 @@ public class HotelController {
     return service.getAllBooking();
   }
 
+  @Operation(summary = "本日宿泊の宿泊予約を全件検索", description = "本日宿泊予定の宿泊予約を全件検索します")
+  @GetMapping("/getChackInToday")
+  public List<GuestDetailDto> getChackInToday() {
+    return service.getChackInToday();
+  }
+
+
   @Operation(summary = "単一検索", description = "ID、名前、ふりがな、電話番号から宿泊者情報を検索します。")
   @GetMapping("/searchGuest")
   public List<GuestDetailDto> searchGuest(@ModelAttribute GuestDto guestDto) {
@@ -79,10 +86,10 @@ public class HotelController {
   }
 
   @Operation(summary = "宿泊情報の変更", description = "宿泊情報の変更を行います。")
-  @PutMapping("/editReservation")
+  @PutMapping("/updateReservation")
   public ResponseEntity<String> editReservation(@RequestBody Reservation reservation) {
     service.editReservation(reservation);
-    return ResponseEntity.ok("宿泊情報の変更が完了しました");
+    return ResponseEntity.ok("宿泊情報の変更が完了しました。");
   }
 
   @Operation(summary = "チェックイン", description = "宿泊客のチェックインを行います。")

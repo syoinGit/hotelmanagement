@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.portfolio.hotel.management.data.guest.GuestRegistrationDto;
 import com.portfolio.hotel.management.data.guest.GuestSearchDto;
 import com.portfolio.hotel.management.service.converter.HotelConverter;
 import com.portfolio.hotel.management.data.booking.Booking;
@@ -17,6 +18,8 @@ import com.portfolio.hotel.management.data.reservation.ReservationDto;
 import com.portfolio.hotel.management.data.reservation.ReservationStatus;
 import com.portfolio.hotel.management.repository.HotelRepository;
 import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
@@ -39,9 +42,12 @@ class HotelServiceTest {
   @Mock
   private HotelConverter converter;
 
+  @Mock
+  Clock clock;
+
   @Test
   void 宿泊者情報の全件検索機能_リポジトリとコンバーターが呼び出せていること() {
-    HotelService sut = new HotelService(repository, converter);
+    HotelService sut = new HotelService(repository, converter, clock);
 
     List<GuestDto> guestDto = new ArrayList<>();
     List<BookingDto> bookingDto = new ArrayList<>();
@@ -70,7 +76,7 @@ class HotelServiceTest {
 
   @Test
   void 宿泊者情報の単一検索機能_ID_名前_かな名_電話番号から宿泊者情報が呼び出せていること() {
-    HotelService sut = new HotelService(repository, converter);
+    HotelService sut = new HotelService(repository, converter, clock);
 
     GuestDto guest = new GuestDto();
     List<GuestDto> guestDto = new ArrayList<>();
@@ -101,7 +107,7 @@ class HotelServiceTest {
 
   @Test
   void 宿泊者情報の完全一致致検索_名前_ふりがな_電話番号から宿泊者情報が呼び出せていること() {
-    HotelService sut = new HotelService(repository, converter);
+    HotelService sut = new HotelService(repository, converter, clock);
 
     GuestSearchDto guestSearchDto = new GuestSearchDto();
     GuestDto guestDto = new GuestDto();
@@ -121,7 +127,7 @@ class HotelServiceTest {
 
   @Test
   void 宿泊者情報の完全一致致検索_完全一致するものがなく条件分岐しているかの確認() {
-    HotelService sut = new HotelService(repository, converter);
+    HotelService sut = new HotelService(repository, converter, clock);
 
     GuestSearchDto guestSearchDto = new GuestSearchDto();
     GuestDto guestDto = new GuestDto();
@@ -142,43 +148,69 @@ class HotelServiceTest {
   }
 
   @Test
-  void ゲスト情報登録_登録が行われているか確認() {
-    HotelService sut = new HotelService(repository, converter);
+  void 本日チェックインの宿泊者情報を取得_リポジトリとコンバータが呼び出せていること() {
+    HotelService sut = new HotelService(repository, converter, clock);
 
-    GuestDetailDto actual = getGuestDetailDto();
+    List<GuestDto> guestDto = new ArrayList<>();
+    List<BookingDto> bookingDto = new ArrayList<>();
+    List<ReservationDto> reservationDto = new ArrayList<>();
+    List<GuestDetailDto> converted = new ArrayList<>();
+
+    when(repository.findGuestsTodayCheckIn()).thenReturn(guestDto);
+    when(repository.findAllBooking()).thenReturn(bookingDto);
+    when(repository.findReservationTodayCheckIn()).thenReturn(reservationDto);
+    when(converter.convertGuestDetailDto(guestDto, bookingDto, reservationDto))
+        .thenReturn(converted);
+
+    List<GuestDetailDto> actual = sut.getChackInToday();
+
+    assertNotNull(actual);
+    assertEquals(actual, converted);
+
+  }
+
+  @Test
+  void ゲスト情報登録_登録が行われているか確認() {
+    HotelService sut = new HotelService(repository, converter, clock);
+    crateRegistrationDto();
+
+    when(repository.findTotalPriceById("aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaaa"))
+        .thenReturn(new BigDecimal("10000"));
+    GuestRegistrationDto actual = crateRegistrationDto();
     sut.insertGuest(actual);
 
     ArgumentCaptor<GuestDto> guestCaptor = ArgumentCaptor.forClass(GuestDto.class);
     verify(repository).insertGuest(guestCaptor.capture());
 
-    @SuppressWarnings("unchecked")
-    ArgumentCaptor<List<ReservationDto>> reservationCaptor = ArgumentCaptor.forClass(
-        List.class);
+    ArgumentCaptor<ReservationDto> reservationCaptor = ArgumentCaptor.forClass(
+        ReservationDto.class);
     verify(repository).insertReservation(reservationCaptor.capture());
 
     GuestDto updateGuest = guestCaptor.getValue();
-    List<ReservationDto> updateReservation = reservationCaptor.getValue();
+    ReservationDto updateReservation = reservationCaptor.getValue();
 
     assertEquals("山田太郎", updateGuest.getName());
-    assertEquals("3822609c-5651-11f0-b59f-a75edf46bde3",
-        updateReservation.getFirst().getBookingId());
+    assertEquals("aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        updateReservation.getBookingId());
   }
 
   @Test
   void ゲスト情報登録_IDが登録済みの場合登録が行われないか確認() {
-    HotelService sut = new HotelService(repository, converter);
+    HotelService sut = new HotelService(repository, converter, clock);
 
-    GuestDetailDto actual = getGuestDetailDto();
-    actual.getGuest().setId("3822609c-5651-11f0-b59f-a75edf46bde3");
+    GuestRegistrationDto guestRegistrationDto = crateRegistrationDto();
+    guestRegistrationDto.getGuest().setId("11111111-1111-1111-1111-111111111111");
+    when(repository.findTotalPriceById("aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaaa"))
+        .thenReturn(new BigDecimal("10000"));
+
+    GuestRegistrationDto actual = guestRegistrationDto;
     sut.insertGuest(actual);
-
     verify(repository, Mockito.times(0)).insertGuest(actual.getGuest());
-
   }
 
   @Test
   void 宿泊プランの登録_登録が行われているか確認() {
-    HotelService sut = new HotelService(repository, converter);
+    HotelService sut = new HotelService(repository, converter, clock);
     Booking booking = createBooking();
     sut.insertBooking(booking);
 
@@ -191,7 +223,7 @@ class HotelServiceTest {
 
   @Test
   void 宿泊プランの変更_宿泊情報が変更されているか確認() {
-    HotelService sut = new HotelService(repository, converter);
+    HotelService sut = new HotelService(repository, converter, clock);
     Guest actual = new Guest();
     actual.setName("山田太郎");
 
@@ -207,7 +239,7 @@ class HotelServiceTest {
 
   @Test
   void 宿泊プランの変更_宿泊予約が変更されているか確認() {
-    HotelService sut = new HotelService(repository, converter);
+    HotelService sut = new HotelService(repository, converter, clock);
     Reservation actual = new Reservation();
     actual.setTotalPrice(BigDecimal.valueOf(1000));
 
@@ -223,7 +255,7 @@ class HotelServiceTest {
 
   @Test
   void チェックイン処理の作成_チェックインが行われているかの確認() {
-    HotelService sut = new HotelService(repository, converter);
+    HotelService sut = new HotelService(repository, converter, clock);
     String reservationId = "3822609c-5651-11f0-b59f-a75edf46bde3";
     when(repository.findStatusById(reservationId))
         .thenReturn(ReservationStatus.NOT_CHECKED_IN);
@@ -235,7 +267,7 @@ class HotelServiceTest {
 
   @Test
   void チェックイン処理の作成_ステータスが未チェックイン以外の場合エラーが発生するかの確認() {
-    HotelService sut = new HotelService(repository, converter);
+    HotelService sut = new HotelService(repository, converter, clock);
     String reservationId = "3822609c-5651-11f0-b59f-a75edf46bde3";
     when(repository.findStatusById(reservationId))
         .thenReturn(ReservationStatus.CHECKED_IN);
@@ -249,7 +281,7 @@ class HotelServiceTest {
 
   @Test
   void チェックアウト処理の作成_チェックアウトが行われているかの確認() {
-    HotelService sut = new HotelService(repository, converter);
+    HotelService sut = new HotelService(repository, converter, clock);
     String reservationId = "3822609c-5651-11f0-b59f-a75edf46bde3";
     when(repository.findStatusById(reservationId))
         .thenReturn(ReservationStatus.CHECKED_IN);
@@ -260,7 +292,7 @@ class HotelServiceTest {
 
   @Test
   void チェックアウト処理の作成_ステータスがチェックイン済み以外の場合エラーが発生するかの確認() {
-    HotelService sut = new HotelService(repository, converter);
+    HotelService sut = new HotelService(repository, converter, clock);
     String reservationId = "3822609c-5651-11f0-b59f-a75edf46bde3";
     when(repository.findStatusById(reservationId))
         .thenReturn(ReservationStatus.CHECKED_OUT);
@@ -312,4 +344,16 @@ class HotelServiceTest {
     return booking;
   }
 
+  private GuestRegistrationDto crateRegistrationDto() {
+    GuestRegistrationDto guestRegistrationDto = new GuestRegistrationDto();
+    GuestDto guestDto = createGuestDto();
+
+    guestRegistrationDto.setGuest(guestDto);
+    guestRegistrationDto.setBookingId("aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+    guestRegistrationDto.setCheckInDate(LocalDate.now());
+    guestRegistrationDto.setStayDays(1);
+    guestRegistrationDto.setMemo("備考なし");
+
+    return guestRegistrationDto;
+  }
 }
