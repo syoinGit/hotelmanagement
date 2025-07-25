@@ -9,6 +9,7 @@ import com.portfolio.hotel.management.data.reservation.Reservation;
 import com.portfolio.hotel.management.data.reservation.ReservationDto;
 import com.portfolio.hotel.management.data.reservation.ReservationStatus;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -26,10 +27,16 @@ public interface HotelRepository {
   List<ReservationDto> findAllReservation();
 
   // 本日チェックイン予定の宿泊者を検索
-  List<GuestDto> findGuestsTodayCheckIn();
+  List<GuestDto> findGuestsTodayCheckIn(@Param("today")LocalDate today);
 
   // 本日チェックイン予定の宿泊予約を検索
-  List<ReservationDto> findReservationTodayCheckIn();
+  List<ReservationDto> findReservationTodayCheckIn(@Param("today") LocalDate today);
+
+  // 本日チェックアウト予定の宿泊車情報を検索
+  List<GuestDto> findGuestsTodayCheckOut(@Param("today") LocalDate today);
+
+  // 本日チェックアウト予定の宿泊予約を検索
+  List<ReservationDto> findReservationTodayCheckOut(@Param("today") LocalDate today);
 
   // 宿泊者ID、名前、かな名、電話番号から宿泊者を検索
   List<GuestDto> searchGuest(@Param("guest") GuestDto guestDto);

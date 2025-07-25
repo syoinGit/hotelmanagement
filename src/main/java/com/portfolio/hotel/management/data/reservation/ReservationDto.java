@@ -40,6 +40,10 @@ public class ReservationDto {
   @FutureOrPresent(message = "チェックイン日に過去の日付は使用できません")
   private LocalDate checkInDate;
 
+  @NotBlank
+  @FutureOrPresent(message = "チェックアウト日に過去の日付は使用できません")
+  private LocalDate checkOutDate;
+
   @NotNull(message = "滞在日は必須です")
   private Integer stayDays;
 

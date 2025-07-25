@@ -10,6 +10,7 @@ import com.portfolio.hotel.management.data.guest.GuestSearchDto;
 import com.portfolio.hotel.management.data.reservation.Reservation;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import java.time.LocalDate;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -45,11 +46,18 @@ public class HotelController {
   }
 
   @Operation(summary = "本日宿泊の宿泊予約を全件検索", description = "本日宿泊予定の宿泊予約を全件検索します")
-  @GetMapping("/getChackInToday")
+  @GetMapping("/getCheckInToday")
   public List<GuestDetailDto> getChackInToday() {
-    return service.getChackInToday();
+    LocalDate today = LocalDate.now();
+    return service.getChackInToday(today);
   }
 
+  @Operation(summary = "本日退館の宿泊予約を全件検索", description = "本日退館予定の宿泊予約を取得いします")
+  @GetMapping("/getCheckOutToday")
+  public List<GuestDetailDto> getCheckOutToday() {
+    LocalDate today = LocalDate.now();
+    return service.getChackOutToday(today);
+  }
 
   @Operation(summary = "単一検索", description = "ID、名前、ふりがな、電話番号から宿泊者情報を検索します。")
   @GetMapping("/searchGuest")

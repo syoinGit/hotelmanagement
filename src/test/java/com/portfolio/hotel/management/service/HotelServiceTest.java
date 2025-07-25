@@ -47,7 +47,7 @@ class HotelServiceTest {
 
   @Test
   void 宿泊者情報の全件検索機能_リポジトリとコンバーターが呼び出せていること() {
-    HotelService sut = new HotelService(repository, converter, clock);
+    HotelService sut = new HotelService(repository, converter);
 
     List<GuestDto> guestDto = new ArrayList<>();
     List<BookingDto> bookingDto = new ArrayList<>();
@@ -76,7 +76,7 @@ class HotelServiceTest {
 
   @Test
   void 宿泊者情報の単一検索機能_ID_名前_かな名_電話番号から宿泊者情報が呼び出せていること() {
-    HotelService sut = new HotelService(repository, converter, clock);
+    HotelService sut = new HotelService(repository, converter);
 
     GuestDto guest = new GuestDto();
     List<GuestDto> guestDto = new ArrayList<>();
@@ -107,7 +107,7 @@ class HotelServiceTest {
 
   @Test
   void 宿泊者情報の完全一致致検索_名前_ふりがな_電話番号から宿泊者情報が呼び出せていること() {
-    HotelService sut = new HotelService(repository, converter, clock);
+    HotelService sut = new HotelService(repository, converter);
 
     GuestSearchDto guestSearchDto = new GuestSearchDto();
     GuestDto guestDto = new GuestDto();
@@ -127,7 +127,7 @@ class HotelServiceTest {
 
   @Test
   void 宿泊者情報の完全一致致検索_完全一致するものがなく条件分岐しているかの確認() {
-    HotelService sut = new HotelService(repository, converter, clock);
+    HotelService sut = new HotelService(repository, converter);
 
     GuestSearchDto guestSearchDto = new GuestSearchDto();
     GuestDto guestDto = new GuestDto();
@@ -149,20 +149,21 @@ class HotelServiceTest {
 
   @Test
   void 本日チェックインの宿泊者情報を取得_リポジトリとコンバータが呼び出せていること() {
-    HotelService sut = new HotelService(repository, converter, clock);
+    HotelService sut = new HotelService(repository, converter);
 
     List<GuestDto> guestDto = new ArrayList<>();
     List<BookingDto> bookingDto = new ArrayList<>();
     List<ReservationDto> reservationDto = new ArrayList<>();
     List<GuestDetailDto> converted = new ArrayList<>();
+    LocalDate today = LocalDate.of(2025, 7, 24);
 
-    when(repository.findGuestsTodayCheckIn()).thenReturn(guestDto);
+    when(repository.findGuestsTodayCheckIn(today)).thenReturn(guestDto);
     when(repository.findAllBooking()).thenReturn(bookingDto);
-    when(repository.findReservationTodayCheckIn()).thenReturn(reservationDto);
+    when(repository.findReservationTodayCheckIn(today)).thenReturn(reservationDto);
     when(converter.convertGuestDetailDto(guestDto, bookingDto, reservationDto))
         .thenReturn(converted);
 
-    List<GuestDetailDto> actual = sut.getChackInToday();
+    List<GuestDetailDto> actual = sut.getChackInToday(today);
 
     assertNotNull(actual);
     assertEquals(actual, converted);
@@ -171,7 +172,7 @@ class HotelServiceTest {
 
   @Test
   void ゲスト情報登録_登録が行われているか確認() {
-    HotelService sut = new HotelService(repository, converter, clock);
+    HotelService sut = new HotelService(repository, converter);
     crateRegistrationDto();
 
     when(repository.findTotalPriceById("aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaaa"))
@@ -196,7 +197,7 @@ class HotelServiceTest {
 
   @Test
   void ゲスト情報登録_IDが登録済みの場合登録が行われないか確認() {
-    HotelService sut = new HotelService(repository, converter, clock);
+    HotelService sut = new HotelService(repository, converter);
 
     GuestRegistrationDto guestRegistrationDto = crateRegistrationDto();
     guestRegistrationDto.getGuest().setId("11111111-1111-1111-1111-111111111111");
@@ -210,7 +211,7 @@ class HotelServiceTest {
 
   @Test
   void 宿泊プランの登録_登録が行われているか確認() {
-    HotelService sut = new HotelService(repository, converter, clock);
+    HotelService sut = new HotelService(repository, converter);
     Booking booking = createBooking();
     sut.insertBooking(booking);
 
@@ -223,7 +224,7 @@ class HotelServiceTest {
 
   @Test
   void 宿泊プランの変更_宿泊情報が変更されているか確認() {
-    HotelService sut = new HotelService(repository, converter, clock);
+    HotelService sut = new HotelService(repository, converter);
     Guest actual = new Guest();
     actual.setName("山田太郎");
 
@@ -239,7 +240,7 @@ class HotelServiceTest {
 
   @Test
   void 宿泊プランの変更_宿泊予約が変更されているか確認() {
-    HotelService sut = new HotelService(repository, converter, clock);
+    HotelService sut = new HotelService(repository, converter);
     Reservation actual = new Reservation();
     actual.setTotalPrice(BigDecimal.valueOf(1000));
 
@@ -255,7 +256,7 @@ class HotelServiceTest {
 
   @Test
   void チェックイン処理の作成_チェックインが行われているかの確認() {
-    HotelService sut = new HotelService(repository, converter, clock);
+    HotelService sut = new HotelService(repository, converter);
     String reservationId = "3822609c-5651-11f0-b59f-a75edf46bde3";
     when(repository.findStatusById(reservationId))
         .thenReturn(ReservationStatus.NOT_CHECKED_IN);
@@ -267,7 +268,7 @@ class HotelServiceTest {
 
   @Test
   void チェックイン処理の作成_ステータスが未チェックイン以外の場合エラーが発生するかの確認() {
-    HotelService sut = new HotelService(repository, converter, clock);
+    HotelService sut = new HotelService(repository, converter);
     String reservationId = "3822609c-5651-11f0-b59f-a75edf46bde3";
     when(repository.findStatusById(reservationId))
         .thenReturn(ReservationStatus.CHECKED_IN);
@@ -281,7 +282,7 @@ class HotelServiceTest {
 
   @Test
   void チェックアウト処理の作成_チェックアウトが行われているかの確認() {
-    HotelService sut = new HotelService(repository, converter, clock);
+    HotelService sut = new HotelService(repository, converter);
     String reservationId = "3822609c-5651-11f0-b59f-a75edf46bde3";
     when(repository.findStatusById(reservationId))
         .thenReturn(ReservationStatus.CHECKED_IN);
@@ -292,7 +293,7 @@ class HotelServiceTest {
 
   @Test
   void チェックアウト処理の作成_ステータスがチェックイン済み以外の場合エラーが発生するかの確認() {
-    HotelService sut = new HotelService(repository, converter, clock);
+    HotelService sut = new HotelService(repository, converter);
     String reservationId = "3822609c-5651-11f0-b59f-a75edf46bde3";
     when(repository.findStatusById(reservationId))
         .thenReturn(ReservationStatus.CHECKED_OUT);

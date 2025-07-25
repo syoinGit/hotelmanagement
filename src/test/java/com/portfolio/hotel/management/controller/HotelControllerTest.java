@@ -1,7 +1,6 @@
 package com.portfolio.hotel.management.controller;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -17,6 +16,7 @@ import com.portfolio.hotel.management.data.guest.GuestDto;
 import com.portfolio.hotel.management.repository.HotelRepository;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
+import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,9 +46,10 @@ class HotelControllerTest {
 
   @Test
   void 本日チェックイン予定の宿泊者情報検索_空のリストが帰ってくること() throws Exception {
-    mockMvc.perform(get("/getChackInToday")).andExpect(status().isOk())
+    LocalDate today = LocalDate.of(2025, 7, 25); // ← テ
+    mockMvc.perform(get("/getCheckInToday")).andExpect(status().isOk())
         .andExpect(content().json("[]"));
-    verify(service, times(1)).getChackInToday();
+    verify(service, times(1)).getChackInToday(today);
   }
 
   @Test
