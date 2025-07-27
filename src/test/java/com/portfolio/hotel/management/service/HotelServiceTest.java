@@ -213,7 +213,7 @@ class HotelServiceTest {
   void 宿泊プランの登録_登録が行われているか確認() {
     HotelService sut = new HotelService(repository, converter);
     Booking booking = createBooking();
-    sut.insertBooking(booking);
+    sut.registerBooking(booking);
 
     ArgumentCaptor<Booking> captor = ArgumentCaptor.forClass(Booking.class);
     verify(repository).insertBooking(captor.capture());
@@ -228,10 +228,10 @@ class HotelServiceTest {
     Guest actual = new Guest();
     actual.setName("山田太郎");
 
-    sut.editGuest(actual);
+    sut.updateGuest(actual);
 
     ArgumentCaptor<Guest> captor = ArgumentCaptor.forClass(Guest.class);
-    verify(repository).editGuest(captor.capture());
+    verify(repository).updateGuest(captor.capture());
     Guest update = captor.getValue();
 
     assertEquals("山田太郎", update.getName());
@@ -244,10 +244,10 @@ class HotelServiceTest {
     Reservation actual = new Reservation();
     actual.setTotalPrice(BigDecimal.valueOf(1000));
 
-    sut.editReservation(actual);
+    sut.updateReservation(actual);
 
     ArgumentCaptor<Reservation> captor = ArgumentCaptor.forClass(Reservation.class);
-    verify(repository).editReservation(captor.capture());
+    verify(repository).updateReservation(captor.capture());
     Reservation update = captor.getValue();
 
     assertEquals(BigDecimal.valueOf(1000), update.getTotalPrice());

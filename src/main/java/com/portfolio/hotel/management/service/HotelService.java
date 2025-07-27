@@ -77,7 +77,7 @@ public class HotelService {
   }
 
   // ゲスト情報の登録
-  public void insertGuest(GuestRegistrationDto guestRegistrationDto) {
+  public void registerGuest(GuestRegistrationDto guestRegistrationDto) {
     // 直前の検索で一致する宿泊者がなかった場合新規登録
     if (guestRegistrationDto.getGuest().getId() == null) {
       guestRegistrationDto.getGuest().setId(UUID.randomUUID().toString());
@@ -95,31 +95,31 @@ public class HotelService {
     dto.setBookingId(guestRegistrationDto.getBookingId());
     dto.setCheckInDate(guestRegistrationDto.getCheckInDate());
     dto.setStayDays(guestRegistrationDto.getStayDays());
-
+    dto.setCheckOutDate(dto.getCheckInDate().plusDays(guestRegistrationDto.getStayDays()));
     BigDecimal price = repository.findTotalPriceById(dto.getBookingId());
     BigDecimal total = price.multiply(BigDecimal.valueOf(dto.getStayDays()));
     dto.setTotalPrice(total);
     dto.setMemo(guestRegistrationDto.getMemo());
-    dto.setStatus(ReservationStatus.TEMPORARY);
+    dto.setStatus(ReservationStatus.NOT_CHECKED_IN);
     dto.setCheckInDate(LocalDate.now());
 
     repository.insertReservation(dto);
   }
 
   // 宿泊プランの登録
-  public void insertBooking(Booking booking) {
+  public void registerBooking(Booking booking) {
     booking.setId(UUID.randomUUID().toString());
     repository.insertBooking(booking);
   }
 
   // 宿泊者の編集
-  public void editGuest(Guest guest) {
-    repository.editGuest(guest);
+  public void updateGuest(Guest guest) {
+    repository.updateGuest(guest);
   }
 
   // 宿泊予約の編集
-  public void editReservation(Reservation reservation) {
-    repository.editReservation(reservation);
+  public void updateReservation(Reservation reservation) {
+    repository.updateReservation(reservation);
   }
 
   // チェックイン処理の作成
@@ -134,7 +134,6 @@ public class HotelService {
 
   // チェックアウト処理の作成
   public void checkOut(String reservationId) {
-    repository.checkOut(reservationId);
     ReservationStatus status = repository.findStatusById(reservationId);
     if (status == ReservationStatus.CHECKED_IN) {
       repository.checkOut(reservationId);

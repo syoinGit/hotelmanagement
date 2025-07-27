@@ -129,7 +129,7 @@ class HotelControllerTest {
 
   @Test
   void 宿泊プランの登録_宿泊プランが登録できること() throws Exception {
-    mockMvc.perform(put(("/insertBooking"))
+    mockMvc.perform(put(("/registerBooking"))
             .contentType(MediaType.APPLICATION_JSON)
             .content("""
                 {

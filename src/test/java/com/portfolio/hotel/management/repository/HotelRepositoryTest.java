@@ -137,7 +137,7 @@ class HotelRepositoryTest {
   void 宿泊者情報の変更_宿泊者情報が変更されている() {
     Guest guest = getGuest();
     guest.setId("11111111-1111-1111-1111-111111111111");
-    sut.editGuest(guest);
+    sut.updateGuest(guest);
 
     GuestDto guestDto = new GuestDto();
     guestDto.setName("佐藤華子");
@@ -150,7 +150,7 @@ class HotelRepositoryTest {
   void 宿泊予約の変更_宿泊予約が変更されていること() {
     Reservation reservation = getReservation();
     reservation.setId("rsv00001-aaaa-bbbb-cccc-000000000001");
-    sut.editReservation(reservation);
+    sut.updateReservation(reservation);
 
     Reservation actual = sut.searchReservation("rsv00001-aaaa-bbbb-cccc-000000000001");
     assertThat(actual.getStatus()).isEqualTo(reservation.getStatus());

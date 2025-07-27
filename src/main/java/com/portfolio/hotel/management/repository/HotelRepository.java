@@ -32,7 +32,7 @@ public interface HotelRepository {
   // 本日チェックイン予定の宿泊予約を検索
   List<ReservationDto> findReservationTodayCheckIn(@Param("today") LocalDate today);
 
-  // 本日チェックアウト予定の宿泊車情報を検索
+  // 本日チェックアウト予定の宿泊者情報を検索
   List<GuestDto> findGuestsTodayCheckOut(@Param("today") LocalDate today);
 
   // 本日チェックアウト予定の宿泊予約を検索
@@ -63,10 +63,10 @@ public interface HotelRepository {
   void insertReservation(ReservationDto reservationDto);
 
   // 宿泊者情報の変更
-  void editGuest(Guest guest);
+  void updateGuest(Guest guest);
 
   // 宿泊予約の変更
-  void editReservation(Reservation reservation);
+  void updateReservation(Reservation reservation);
 
   // チェックイン処理
   void checkIn(@Param("id") String id);

@@ -21,81 +21,81 @@
     SELECT * FROM reservation
   </select>
 
-    <!-- 今日チェックイン予定の宿泊者を取得 -->
-    <select id="findGuestsTodayCheckIn"
-      resultType="com.portfolio.hotel.management.data.guest.GuestDto">
-      SELECT
-      guest.id,
-      guest.name,
-      guest.kana_name,
-      guest.gender,
-      guest.age,
-      guest.region,
-      guest.email,
-      guest.phone,
-      guest.deleted
-      FROM guest
-      INNER JOIN reservation ON guest.id = reservation.guest_id
-      WHERE reservation.check_in_date = #{today}
-      AND reservation.status = 'NOT_CHECKED_IN'
-    </select>
+  <!-- 今日チェックイン予定の宿泊者を取得 -->
+  <select id="findGuestsTodayCheckIn"
+    resultType="com.portfolio.hotel.management.data.guest.GuestDto">
+    SELECT
+    guest.id,
+    guest.name,
+    guest.kana_name,
+    guest.gender,
+    guest.age,
+    guest.region,
+    guest.email,
+    guest.phone,
+    guest.deleted
+    FROM guest
+    INNER JOIN reservation ON guest.id = reservation.guest_id
+    WHERE reservation.check_in_date = #{today}
+    AND reservation.status = 'NOT_CHECKED_IN'
+  </select>
 
-    <!-- 本日チェックイン予定の予約を取得 -->
-    <select id="findReservationTodayCheckIn"
-      resultType="com.portfolio.hotel.management.data.reservation.ReservationDto">
-      SELECT
-      id,
-      guest_id,
-      booking_id,
-      check_in_date,
-      check_out_date,
-      stay_days,
-      total_price,
-      status,
-      memo,
-      created_at
-      FROM reservation
-      WHERE check_in_date = #{today}
-      AND status = 'NOT_CHECKED_IN'
-    </select>
+  <!-- 本日チェックイン予定の予約を取得 -->
+  <select id="findReservationTodayCheckIn"
+    resultType="com.portfolio.hotel.management.data.reservation.ReservationDto">
+    SELECT
+    id,
+    guest_id,
+    booking_id,
+    check_in_date,
+    check_out_date,
+    stay_days,
+    total_price,
+    status,
+    memo,
+    created_at
+    FROM reservation
+    WHERE check_in_date = #{today}
+    AND status = 'NOT_CHECKED_IN'
+  </select>
 
-    <!-- 今日チェックアウト予定の宿泊者を取得 -->
-    <select id="findGuestsTodayCheckOut"
-      resultType="com.portfolio.hotel.management.data.guest.GuestDto">
-      SELECT
-      guest.id,
-      guest.name,
-      guest.kana_name,
-      guest.gender,
-      guest.age,
-      guest.region,
-      guest.email,
-      guest.phone,
-      guest.deleted
-      FROM guest
-      INNER JOIN reservation ON guest.id = reservation.guest_id
-      WHERE reservation.check_out_date = #{today}
-      AND reservation.status = 'CHECKED_IN'
-    </select>
+  <!-- 今日チェックアウト予定の宿泊者を取得 -->
+  <select id="findGuestsTodayCheckOut"
+    resultType="com.portfolio.hotel.management.data.guest.GuestDto">
+    SELECT
+    guest.id,
+    guest.name,
+    guest.kana_name,
+    guest.gender,
+    guest.age,
+    guest.region,
+    guest.email,
+    guest.phone,
+    guest.deleted
+    FROM guest
+    INNER JOIN reservation ON guest.id = reservation.guest_id
+    WHERE reservation.check_out_date = #{today}
+    AND reservation.status = 'CHECKED_IN'
+  </select>
 
-    <!-- 本日チェックアウト予定の予約を取得 -->
-    <select id="findReservationTodayCheckOut"
-      resultType="com.portfolio.hotel.management.data.reservation.ReservationDto">
-      SELECT
-      id,
-      guest_id,
-      booking_id,
-      check_in_date,
-      check_out_date,
-      stay_days,
-      total_price,
-      status,
-      memo,
-      created_at
-      FROM reservation
-      WHERE check_out_date = #{today}
-      AND status = 'CHECKED_IN'
-    </select>
+  <!-- 本日チェックアウト予定の予約を取得 -->
+  <select id="findReservationTodayCheckOut"
+    resultType="com.portfolio.hotel.management.data.reservation.ReservationDto">
+    SELECT
+    id,
+    guest_id,
+    booking_id,
+    check_in_date,
+    check_out_date,
+    stay_days,
+    total_price,
+    status,
+    memo,
+    created_at
+    FROM reservation
+    WHERE check_out_date = #{today}
+    AND status = 'CHECKED_IN'
+  </select>
 
 
   <!-- 宿泊者を単一検索 -->
@@ -218,7 +218,7 @@
   </insert>
 
   <!-- 宿泊者を変更 -->
-  <update id="editGuest" parameterType="com.portfolio.hotel.management.data.guest.Guest">
+  <update id="updateGuest" parameterType="com.portfolio.hotel.management.data.guest.Guest">
     UPDATE guest
     SET
     name = #{name},
@@ -233,7 +233,7 @@
   </update>
 
   <!-- 宿泊予約を変更 -->
-  <update id="editReservation"
+  <update id="updateReservation"
     parameterType="com.portfolio.hotel.management.data.reservation.Reservation">
     UPDATE reservation
     SET
