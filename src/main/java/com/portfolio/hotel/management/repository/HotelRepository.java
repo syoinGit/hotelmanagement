@@ -1,12 +1,9 @@
 package com.portfolio.hotel.management.repository;
 
 import com.portfolio.hotel.management.data.booking.Booking;
-import com.portfolio.hotel.management.data.booking.BookingDto;
 import com.portfolio.hotel.management.data.guest.Guest;
-import com.portfolio.hotel.management.data.guest.GuestDto;
-import com.portfolio.hotel.management.data.guest.GuestSearchDto;
+import com.portfolio.hotel.management.data.guest.GuestSearch;
 import com.portfolio.hotel.management.data.reservation.Reservation;
-import com.portfolio.hotel.management.data.reservation.ReservationDto;
 import com.portfolio.hotel.management.data.reservation.ReservationStatus;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -18,34 +15,34 @@ import org.apache.ibatis.annotations.Param;
 public interface HotelRepository {
 
   // 宿泊者の全件検索
-  List<GuestDto> findAllGuest();
+  List<Guest> findAllGuest();
 
   // 宿泊プランの全件検索
-  List<BookingDto> findAllBooking();
+  List<Booking> findAllBooking();
 
   // 宿泊予約の全件検索
-  List<ReservationDto> findAllReservation();
+  List<Reservation> findAllReservation();
 
   // 本日チェックイン予定の宿泊者を検索
-  List<GuestDto> findGuestsTodayCheckIn(@Param("today")LocalDate today);
+  List<Guest> findGuestsTodayCheckIn(@Param("today")LocalDate today);
 
   // 本日チェックイン予定の宿泊予約を検索
-  List<ReservationDto> findReservationTodayCheckIn(@Param("today") LocalDate today);
+  List<Reservation> findReservationTodayCheckIn(@Param("today") LocalDate today);
 
   // 本日チェックアウト予定の宿泊者情報を検索
-  List<GuestDto> findGuestsTodayCheckOut(@Param("today") LocalDate today);
+  List<Guest> findGuestsTodayCheckOut(@Param("today") LocalDate today);
 
   // 本日チェックアウト予定の宿泊予約を検索
-  List<ReservationDto> findReservationTodayCheckOut(@Param("today") LocalDate today);
+  List<Reservation> findReservationTodayCheckOut(@Param("today") LocalDate today);
 
   // 宿泊者ID、名前、かな名、電話番号から宿泊者を検索
-  List<GuestDto> searchGuest(@Param("guest") GuestDto guestDto);
+  List<Guest> searchGuest(@Param("guest") Guest guest);
 
   // 宿泊予約IDから、宿泊予約を検索
   Reservation searchReservation(@Param("id") String id);
 
   // 宿泊者IDから宿泊者を完全一致検索
-  GuestDto matchGuest(GuestSearchDto guestSearchDto);
+  Guest matchGuest(GuestSearch guestSearch);
 
   // 宿泊プランIDから金額を検索
   BigDecimal findTotalPriceById(@Param("id") String id);
@@ -54,13 +51,13 @@ public interface HotelRepository {
   ReservationStatus findStatusById(@Param("id") String id);
 
   // 宿泊者の登録
-  void insertGuest(GuestDto guestDto);
+  void insertGuest(Guest guest);
 
   // 宿泊プランの登録
-  void insertBooking(@Param("booking") Booking booking);
+  void insertBooking(Booking booking);
 
   // 宿泊予約の登録
-  void insertReservation(ReservationDto reservationDto);
+  void insertReservation(Reservation reservation);
 
   // 宿泊者情報の変更
   void updateGuest(Guest guest);

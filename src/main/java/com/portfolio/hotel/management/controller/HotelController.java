@@ -1,12 +1,10 @@
 package com.portfolio.hotel.management.controller;
 
 import com.portfolio.hotel.management.data.booking.Booking;
-import com.portfolio.hotel.management.data.booking.BookingDto;
 import com.portfolio.hotel.management.data.guest.Guest;
-import com.portfolio.hotel.management.data.guest.GuestDetailDto;
-import com.portfolio.hotel.management.data.guest.GuestDto;
-import com.portfolio.hotel.management.data.guest.GuestRegistrationDto;
-import com.portfolio.hotel.management.data.guest.GuestSearchDto;
+import com.portfolio.hotel.management.data.guest.GuestDetail;
+import com.portfolio.hotel.management.data.guest.GuestRegistration;
+import com.portfolio.hotel.management.data.guest.GuestSearch;
 import com.portfolio.hotel.management.data.reservation.Reservation;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -35,47 +33,47 @@ public class HotelController {
 
   @Operation(summary = "全件検索", description = "宿泊者情報の全件検索を行います。")
   @GetMapping("/guestList")
-  public List<GuestDetailDto> getGuestList() {
+  public List<GuestDetail> getGuestList() {
     return service.getAllGuest();
   }
 
   @Operation(summary = "宿泊プラン一覧取得", description = "すべての宿泊プランを取得します。")
   @GetMapping("/getBookingList")
-  public List<BookingDto> getAllBooking() {
+  public List<Booking> getAllBooking() {
     return service.getAllBooking();
   }
 
   @Operation(summary = "本日宿泊の宿泊予約を全件検索", description = "本日宿泊予定の宿泊予約を全件検索します")
   @GetMapping("/getCheckInToday")
-  public List<GuestDetailDto> getChackInToday() {
+  public List<GuestDetail> getChackInToday() {
     LocalDate today = LocalDate.now();
     return service.getChackInToday(today);
   }
 
   @Operation(summary = "本日退館の宿泊予約を全件検索", description = "本日退館予定の宿泊予約を取得いします")
   @GetMapping("/getCheckOutToday")
-  public List<GuestDetailDto> getCheckOutToday() {
+  public List<GuestDetail> getCheckOutToday() {
     LocalDate today = LocalDate.now();
     return service.getChackOutToday(today);
   }
 
   @Operation(summary = "単一検索", description = "ID、名前、ふりがな、電話番号から宿泊者情報を検索します。")
   @GetMapping("/searchGuest")
-  public List<GuestDetailDto> searchGuest(@ModelAttribute GuestDto guestDto) {
-    return service.searchGuest(guestDto);
+  public List<GuestDetail> searchGuest(@ModelAttribute Guest guest) {
+    return service.searchGuest(guest);
   }
 
   @Operation(summary = "完全一致検索", description = "名前、ふりがな、電話番号から宿泊者情報を完全一致検索します。ここで完全位一致したデータは宿泊者情報登録の際に使われます")
   @PostMapping("/matchGuest")
-  public GuestDetailDto matchGuestForInsert(@RequestBody @Valid GuestSearchDto guestSearchDto) {
-    return service.matchGuest(guestSearchDto);
+  public GuestDetail matchGuestForInsert(@RequestBody @Valid GuestSearch guestSearch) {
+    return service.matchGuest(guestSearch);
   }
 
   @Operation(summary = "宿泊者情報登録", description = "宿泊者情報を入力し、宿泊者情報を登録します。")
   @PutMapping("/registerGuest")
   public ResponseEntity<String> registerGuest(
-      @RequestBody @Valid GuestRegistrationDto guestRegistrationDto) {
-    service.registerGuest(guestRegistrationDto);
+      @RequestBody @Valid GuestRegistration guestRegistration) {
+    service.registerGuest(guestRegistration);
     return ResponseEntity.ok("宿泊者情報の登録が完了しました。");
   }
 

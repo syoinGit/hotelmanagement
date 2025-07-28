@@ -2,11 +2,11 @@ package com.portfolio.hotel.management.service.converter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.portfolio.hotel.management.data.booking.BookingDto;
-import com.portfolio.hotel.management.data.guest.GuestDetailDto;
-import com.portfolio.hotel.management.data.guest.GuestDto;
-import com.portfolio.hotel.management.data.guest.GuestSearchDto;
-import com.portfolio.hotel.management.data.reservation.ReservationDto;
+import com.portfolio.hotel.management.data.booking.Booking;
+import com.portfolio.hotel.management.data.guest.Guest;
+import com.portfolio.hotel.management.data.guest.GuestDetail;
+import com.portfolio.hotel.management.data.guest.GuestSearch;
+import com.portfolio.hotel.management.data.reservation.Reservation;
 import com.portfolio.hotel.management.data.reservation.ReservationStatus;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -26,22 +26,22 @@ class HotelConverterTest {
 
   @Test
   void コンバーターを使用して宿泊者と宿泊プランと宿泊予約を統合した宿泊者情報が生成できる() {
-    GuestDto guestDto = getGuest();
-    guestDto.setId("11111111-1111-1111-1111-111111111111");
+    Guest guest = getGuest();
+    guest.setId("11111111-1111-1111-1111-111111111111");
 
-    BookingDto bookingDto = getBooking();
-    bookingDto.setId("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+    Booking booking = getBooking();
+    booking.setId("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
 
-    ReservationDto reservationDto = getReservationDto();
+    Reservation reservation = getReservation();
 
-    List<GuestDto> guestDtoList = List.of(guestDto);
-    List<BookingDto> bookingDtoList = List.of(bookingDto);
-    List<ReservationDto> reservationDtoList = List.of(reservationDto);
+    List<Guest> guestList = List.of(guest);
+    List<Booking> bookingList = List.of(booking);
+    List<Reservation> reservationList = List.of(reservation);
 
-    List<GuestDetailDto> actual = sut.convertGuestDetailDto(guestDtoList, bookingDtoList,
-        reservationDtoList);
+    List<GuestDetail> actual = sut.convertGuestDetail(guestList, bookingList,
+        reservationList);
 
-    GuestDetailDto result = new GuestDetailDto();
+    GuestDetail result = new GuestDetail();
     result.setGuest(actual.getFirst().getGuest());
     result.setBookings(actual.getFirst().getBookings());
     result.setReservations(actual.getFirst().getReservations());
@@ -53,50 +53,50 @@ class HotelConverterTest {
 
   @Test
   void コンバーターを使用して_宿泊者検索を宿泊者に変換できる() {
-    GuestSearchDto guestSearchDto = new GuestSearchDto();
-    guestSearchDto.setName("佐藤花子");
-    guestSearchDto.setKanaName("サトウハナコ");
-    guestSearchDto.setPhone("08098765432");
+    GuestSearch guestSearch = new GuestSearch();
+    guestSearch.setName("佐藤花子");
+    guestSearch.setKanaName("サトウハナコ");
+    guestSearch.setPhone("08098765432");
 
-    GuestDto actual = sut.toGuestDto(guestSearchDto);
+    Guest actual = sut.toGuest(guestSearch);
 
     assertThat(actual.getName()).isEqualTo("佐藤花子");
     assertThat(actual.getKanaName()).isEqualTo("サトウハナコ");
 
   }
 
-  private GuestDto getGuest() {
-    GuestDto guestDto = new GuestDto();
+  private Guest getGuest() {
+    Guest guest = new Guest();
 
-    guestDto.setName("佐藤花子");
-    guestDto.setKanaName("サトウハナコ");
-    guestDto.setGender("FEMALE");
-    guestDto.setAge(28);
-    guestDto.setRegion("東京");
-    guestDto.setEmail("hanako@example.com");
-    guestDto.setPhone("08098765432");
-    return guestDto;
+    guest.setName("佐藤花子");
+    guest.setKanaName("サトウハナコ");
+    guest.setGender("FEMALE");
+    guest.setAge(28);
+    guest.setRegion("東京");
+    guest.setEmail("hanako@example.com");
+    guest.setPhone("08098765432");
+    return guest;
   }
 
-  private BookingDto getBooking() {
-    BookingDto bookingDto = new BookingDto();
-    bookingDto.setName("和洋朝食付きプラン");
-    bookingDto.setDescription("和食・洋食が選べる朝食付きのプランです。");
-    bookingDto.setPrice(BigDecimal.valueOf(1000));
-    return bookingDto;
+  private Booking getBooking() {
+    Booking booking = new Booking();
+    booking.setName("和洋朝食付きプラン");
+    booking.setDescription("和食・洋食が選べる朝食付きのプランです。");
+    booking.setPrice(BigDecimal.valueOf(1000));
+    return booking;
   }
 
-  private ReservationDto getReservationDto() {
-    ReservationDto reservationDto = new ReservationDto();
-    reservationDto.setGuestId("11111111-1111-1111-1111-111111111111");
-    reservationDto.setBookingId("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
-    reservationDto.setCheckInDate(LocalDate.of(2025, 7, 22));
-    reservationDto.setStayDays(2);
-    reservationDto.setTotalPrice(BigDecimal.valueOf(1000));
-    reservationDto.setStatus(
+  private Reservation getReservation() {
+    Reservation reservation = new Reservation();
+    reservation.setGuestId("11111111-1111-1111-1111-111111111111");
+    reservation.setBookingId("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+    reservation.setCheckInDate(LocalDate.of(2025, 7, 22));
+    reservation.setStayDays(2);
+    reservation.setTotalPrice(BigDecimal.valueOf(1000));
+    reservation.setStatus(
         ReservationStatus.NOT_CHECKED_IN); // enum であれば ReservationStatus.NOT_CHECKED_IN など
-    reservationDto.setMemo("観光利用");
-    reservationDto.setCreatedAt(LocalDateTime.now());
-    return reservationDto;
+    reservation.setMemo("観光利用");
+    reservation.setCreatedAt(LocalDateTime.now());
+    return reservation;
   }
 }
