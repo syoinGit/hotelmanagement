@@ -25,6 +25,7 @@ CREATE TABLE reservation (
   guest_id CHAR(36) NOT NULL,
   booking_id CHAR(36) NOT NULL,
   check_in_date DATE NOT NULL,
+  check_out_date DATE,
   stay_days INT NOT NULL,
   total_price DECIMAL(10,2) NOT NULL,
   status VARCHAR(20) NOT NULL,

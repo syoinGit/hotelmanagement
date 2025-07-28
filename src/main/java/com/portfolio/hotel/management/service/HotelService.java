@@ -1,17 +1,13 @@
 package com.portfolio.hotel.management.service;
 
 import com.portfolio.hotel.management.data.booking.Booking;
-import com.portfolio.hotel.management.data.booking.BookingDto;
 import com.portfolio.hotel.management.data.guest.Guest;
-import com.portfolio.hotel.management.data.guest.GuestDetailDto;
-import com.portfolio.hotel.management.data.guest.GuestDto;
-import com.portfolio.hotel.management.data.guest.GuestRegistrationDto;
-import com.portfolio.hotel.management.data.guest.GuestSearchDto;
+import com.portfolio.hotel.management.data.guest.GuestDetail;
+import com.portfolio.hotel.management.data.guest.GuestRegistration;
+import com.portfolio.hotel.management.data.guest.GuestSearch;
 import com.portfolio.hotel.management.data.reservation.Reservation;
-import com.portfolio.hotel.management.data.reservation.ReservationDto;
 import com.portfolio.hotel.management.data.reservation.ReservationStatus;
 import java.math.BigDecimal;
-import java.time.Clock;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
@@ -24,99 +20,103 @@ public class HotelService {
 
   private final HotelRepository repository;
   private final HotelConverter converter;
-  private final Clock clock;
 
-  public HotelService(HotelRepository repository, HotelConverter converter, Clock clock) {
+  public HotelService(HotelRepository repository, HotelConverter converter) {
     this.repository = repository;
     this.converter = converter;
-    this.clock = clock;
   }
 
   // 宿泊者情報の全件取得
-  public List<GuestDetailDto> getAllGuest() {
-    return converter.convertGuestDetailDto(
+  public List<GuestDetail> getAllGuest() {
+    return converter.convertGuestDetail(
         repository.findAllGuest(),
         repository.findAllBooking(),
         repository.findAllReservation());
   }
 
   // 本日チェックインの宿泊者を取得
-  public List<GuestDetailDto> getChackInToday() {
-    return converter.convertGuestDetailDto(repository.findGuestsTodayCheckIn(),
-        repository.findAllBooking(), repository.findReservationTodayCheckIn());
+  public List<GuestDetail> getChackInToday(LocalDate today) {
+    return converter.convertGuestDetail(repository.findGuestsTodayCheckIn(today),
+        repository.findAllBooking(), repository.findReservationTodayCheckIn(today));
+  }
+
+  // 本日チェックアウトの宿泊者を取得
+  public List<GuestDetail> getChackOutToday(LocalDate today) {
+    return converter.convertGuestDetail(repository.findGuestsTodayCheckOut(today),
+        repository.findAllBooking(), repository.findReservationTodayCheckOut(today));
   }
 
   // 宿泊コースの全件取得
-  public List<BookingDto> getAllBooking() {
+  public List<Booking> getAllBooking() {
     return repository.findAllBooking();
   }
 
   // 宿泊者情報の単一検索
-  public List<GuestDetailDto> searchGuest(GuestDto guestDto) {
-    return converter.convertGuestDetailDto(
-        repository.searchGuest(guestDto),
+  public List<GuestDetail> searchGuest(Guest guest) {
+    return converter.convertGuestDetail(
+        repository.searchGuest(guest),
         repository.findAllBooking(),
         repository.findAllReservation());
   }
 
   // 宿泊者の完全一致検索
-  public GuestDetailDto matchGuest(GuestSearchDto guestSearchDto) {
-    GuestDto guestDto = repository.matchGuest(guestSearchDto);
-    GuestDetailDto dto = new GuestDetailDto();
+  public GuestDetail matchGuest(GuestSearch guestSearch) {
+    Guest guest = repository.matchGuest(guestSearch);
+    GuestDetail guestDetail = new GuestDetail();
     // 一致するものがなかった場合、guestの数値を入れる。
-    if (guestDto == null) {
-      dto.setGuest(converter.toGuestDto(guestSearchDto));
+    if (guest == null) {
+      guestDetail.setGuest(converter.toGuest(guestSearch));
       // 一致した場合、取得したguestDtoを入れる。
     } else {
-      dto.setGuest(guestDto);
+      guestDetail.setGuest(guest);
     }
-    return dto;
+    return guestDetail;
   }
 
   // ゲスト情報の登録
-  public void insertGuest(GuestRegistrationDto guestRegistrationDto) {
+  public void registerGuest(GuestRegistration guestRegistration) {
     // 直前の検索で一致する宿泊者がなかった場合新規登録
-    if (guestRegistrationDto.getGuest().getId() == null) {
-      guestRegistrationDto.getGuest().setId(UUID.randomUUID().toString());
-      repository.insertGuest(guestRegistrationDto.getGuest());
+    if (guestRegistration.getGuest().getId() == null) {
+      guestRegistration.getGuest().setId(UUID.randomUUID().toString());
+      repository.insertGuest(guestRegistration.getGuest());
     }
-    initReservation(guestRegistrationDto);
+    initReservation(guestRegistration);
   }
 
   // 宿泊予約の登録
-  private void initReservation(GuestRegistrationDto guestRegistrationDto) {
-    ReservationDto dto = new ReservationDto();
+  private void initReservation(GuestRegistration guestRegistration) {
+    Reservation reservation = new Reservation();
 
-    dto.setId(UUID.randomUUID().toString());
-    dto.setGuestId(guestRegistrationDto.getGuest().getId());
-    dto.setBookingId(guestRegistrationDto.getBookingId());
-    dto.setCheckInDate(guestRegistrationDto.getCheckInDate());
-    dto.setStayDays(guestRegistrationDto.getStayDays());
+    reservation.setId(UUID.randomUUID().toString());
+    reservation.setGuestId(guestRegistration.getGuest().getId());
+    reservation.setBookingId(guestRegistration.getBookingId());
+    reservation.setCheckInDate(guestRegistration.getCheckInDate());
+    reservation.setStayDays(guestRegistration.getStayDays());
+    reservation.setCheckOutDate(reservation.getCheckInDate().plusDays(guestRegistration.getStayDays()));
+    BigDecimal price = repository.findTotalPriceById(reservation.getBookingId());
+    BigDecimal total = price.multiply(BigDecimal.valueOf(reservation.getStayDays()));
+    reservation.setTotalPrice(total);
+    reservation.setMemo(guestRegistration.getMemo());
+    reservation.setStatus(ReservationStatus.NOT_CHECKED_IN);
+    reservation.setCheckInDate(LocalDate.now());
 
-    BigDecimal price = repository.findTotalPriceById(dto.getBookingId());
-    BigDecimal total = price.multiply(BigDecimal.valueOf(dto.getStayDays()));
-    dto.setTotalPrice(total);
-    dto.setMemo(guestRegistrationDto.getMemo());
-    dto.setStatus(ReservationStatus.TEMPORARY);
-    dto.setCheckInDate(LocalDate.now());
-
-    repository.insertReservation(dto);
+    repository.insertReservation(reservation);
   }
 
   // 宿泊プランの登録
-  public void insertBooking(Booking booking) {
+  public void registerBooking(Booking booking) {
     booking.setId(UUID.randomUUID().toString());
     repository.insertBooking(booking);
   }
 
   // 宿泊者の編集
-  public void editGuest(Guest guest) {
-    repository.editGuest(guest);
+  public void updateGuest(Guest guest) {
+    repository.updateGuest(guest);
   }
 
   // 宿泊予約の編集
-  public void editReservation(Reservation reservation) {
-    repository.editReservation(reservation);
+  public void updateReservation(Reservation reservation) {
+    repository.updateReservation(reservation);
   }
 
   // チェックイン処理の作成
@@ -131,7 +131,6 @@ public class HotelService {
 
   // チェックアウト処理の作成
   public void checkOut(String reservationId) {
-    repository.checkOut(reservationId);
     ReservationStatus status = repository.findStatusById(reservationId);
     if (status == ReservationStatus.CHECKED_IN) {
       repository.checkOut(reservationId);

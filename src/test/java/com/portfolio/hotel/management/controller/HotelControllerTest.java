@@ -1,7 +1,6 @@
 package com.portfolio.hotel.management.controller;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -11,12 +10,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.portfolio.hotel.management.data.guest.Guest;
 import com.portfolio.hotel.management.service.HotelService;
-import com.portfolio.hotel.management.data.guest.GuestDetailDto;
-import com.portfolio.hotel.management.data.guest.GuestDto;
+import com.portfolio.hotel.management.data.guest.GuestDetail;
 import com.portfolio.hotel.management.repository.HotelRepository;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
+import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,21 +46,32 @@ class HotelControllerTest {
 
   @Test
   void 本日チェックイン予定の宿泊者情報検索_空のリストが帰ってくること() throws Exception {
-    mockMvc.perform(get("/getChackInToday")).andExpect(status().isOk())
+    LocalDate today = LocalDate.now();
+
+    mockMvc.perform(get("/getCheckInToday")).andExpect(status().isOk())
         .andExpect(content().json("[]"));
-    verify(service, times(1)).getChackInToday();
+    verify(service, times(1)).getChackInToday(today);
+  }
+
+  @Test
+  void 本日チェックアウト予定の宿泊者検索_空のリストが帰ってくること() throws Exception {
+    LocalDate today = LocalDate.now();
+
+    mockMvc.perform(get("/getCheckOutToday")).andExpect(status().isOk())
+        .andExpect(content().json("[]"));
+    verify(service, times(1)).getChackOutToday(today);
   }
 
   @Test
   void 宿泊者情報の単一検索_宿泊者から宿泊者情報を検索できること() throws Exception {
-    GuestDto guestDto = new GuestDto();
-    guestDto.setName("佐藤花子");
-    guestDto.setKanaName("サトウハナコ");
-    guestDto.setPhone("08098765432");
+    Guest guest = new Guest();
+    guest.setName("佐藤花子");
+    guest.setKanaName("サトウハナコ");
+    guest.setPhone("08098765432");
 
-    GuestDetailDto guestDetailDto = new GuestDetailDto();
-    guestDetailDto.setGuest(guestDto);
-    when(service.searchGuest(any())).thenReturn(List.of(guestDetailDto));
+    GuestDetail guestDetail = new GuestDetail();
+    guestDetail.setGuest(guest);
+    when(service.searchGuest(any())).thenReturn(List.of(guestDetail));
 
     mockMvc.perform(MockMvcRequestBuilders.get("/searchGuest")
             .contentType(MediaType.APPLICATION_JSON)
@@ -77,14 +88,14 @@ class HotelControllerTest {
   @Test
   void 宿泊者情報の完全一致検索_名前_かな名_電話番号から宿泊者情報を検索できること()
       throws Exception {
-    GuestDto guestDto = new GuestDto();
-    guestDto.setGender("FEMALE");
-    guestDto.setAge(28);
+    Guest guest = new Guest();
+    guest.setGender("FEMALE");
+    guest.setAge(28);
 
-    GuestDetailDto guestDetailDto = new GuestDetailDto();
-    guestDetailDto.setGuest(guestDto);
+    GuestDetail guestDetail = new GuestDetail();
+    guestDetail.setGuest(guest);
 
-    when(service.matchGuest(any())).thenReturn(guestDetailDto);
+    when(service.matchGuest(any())).thenReturn(guestDetail);
 
     mockMvc.perform(MockMvcRequestBuilders.post("/matchGuest")
             .contentType(MediaType.APPLICATION_JSON)
@@ -103,7 +114,7 @@ class HotelControllerTest {
 
   @Test
   void 宿泊者情報の登録_宿泊者情報が登録できること() throws Exception {
-    mockMvc.perform(put("/insertGuest")
+    mockMvc.perform(put("/registerGuest")
             .contentType(MediaType.APPLICATION_JSON)
             .content("""
                 {
@@ -118,7 +129,7 @@ class HotelControllerTest {
                   },
                   "bookingId": "123e4567-e89b-12d3-a456-426614174000",
                   "stayDays": 2,
-                  "checkInDate": "2025-07-25",
+                  "checkInDate": "2025-07-31",
                   "memo": "観光で利用"
                 }
                 """))
@@ -128,7 +139,7 @@ class HotelControllerTest {
 
   @Test
   void 宿泊プランの登録_宿泊プランが登録できること() throws Exception {
-    mockMvc.perform(put(("/insertBooking"))
+    mockMvc.perform(put(("/registerBooking"))
             .contentType(MediaType.APPLICATION_JSON)
             .content("""
                 {
