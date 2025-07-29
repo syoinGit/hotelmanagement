@@ -3,7 +3,7 @@ package com.portfolio.hotel.management.service.converter;
 import com.portfolio.hotel.management.data.booking.Booking;
 import com.portfolio.hotel.management.data.guest.Guest;
 import com.portfolio.hotel.management.data.guest.GuestDetail;
-import com.portfolio.hotel.management.data.guest.GuestSearch;
+import com.portfolio.hotel.management.data.guest.GuestMatch;
 import com.portfolio.hotel.management.data.reservation.Reservation;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,11 +44,11 @@ public class HotelConverter {
   }
 
   // 宿泊者検索から宿泊者に変換
-  public Guest toGuest(GuestSearch guestSearch) {
+  public Guest toGuest(GuestMatch guestMatch) {
     Guest guest = new Guest();
-    guest.setName(guestSearch.getName());
-    guest.setKanaName(guestSearch.getKanaName());
-    guest.setPhone(guestSearch.getPhone());
+    guest.setName(guestMatch.getName());
+    guest.setKanaName(guestMatch.getKanaName());
+    guest.setPhone(guestMatch.getPhone());
     return guest;
   }
 }

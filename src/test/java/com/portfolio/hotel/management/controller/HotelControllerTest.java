@@ -77,7 +77,8 @@ class HotelControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content("""
                   {
-                  "name": "佐藤花子"
+                  "name": "佐藤花子",
+                  "checkInDate": "2025-07-15"
                   }
                 """
             ))

@@ -2,7 +2,8 @@ package com.portfolio.hotel.management.repository;
 
 import com.portfolio.hotel.management.data.booking.Booking;
 import com.portfolio.hotel.management.data.guest.Guest;
-import com.portfolio.hotel.management.data.guest.GuestSearch;
+import com.portfolio.hotel.management.data.guest.GuestMatch;
+import com.portfolio.hotel.management.data.guest.GuestSearchCondition;
 import com.portfolio.hotel.management.data.reservation.Reservation;
 import com.portfolio.hotel.management.data.reservation.ReservationStatus;
 import java.math.BigDecimal;
@@ -24,7 +25,7 @@ public interface HotelRepository {
   List<Reservation> findAllReservation();
 
   // 本日チェックイン予定の宿泊者を検索
-  List<Guest> findGuestsTodayCheckIn(@Param("today")LocalDate today);
+  List<Guest> findGuestsTodayCheckIn(@Param("today") LocalDate today);
 
   // 本日チェックイン予定の宿泊予約を検索
   List<Reservation> findReservationTodayCheckIn(@Param("today") LocalDate today);
@@ -36,13 +37,13 @@ public interface HotelRepository {
   List<Reservation> findReservationTodayCheckOut(@Param("today") LocalDate today);
 
   // 宿泊者ID、名前、かな名、電話番号から宿泊者を検索
-  List<Guest> searchGuest(@Param("guest") Guest guest);
+  List<Guest> searchGuest(@Param("guest") GuestSearchCondition guestSearchCondition);
 
   // 宿泊予約IDから、宿泊予約を検索
   Reservation searchReservation(@Param("id") String id);
 
   // 宿泊者IDから宿泊者を完全一致検索
-  Guest matchGuest(GuestSearch guestSearch);
+  Guest matchGuest(GuestMatch guestMatch);
 
   // 宿泊プランIDから金額を検索
   BigDecimal findTotalPriceById(@Param("id") String id);
