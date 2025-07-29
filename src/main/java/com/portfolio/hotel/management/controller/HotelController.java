@@ -85,33 +85,44 @@ public class HotelController {
     return ResponseEntity.ok("宿泊プランの登録が完了しました。");
   }
 
-  @Operation(summary = "宿泊者の変更", description = "宿泊者の変更を行います。")
+  @Operation(summary = "宿泊者の更新", description = "宿泊者の更新を行います。")
   @PutMapping("/updateGuest")
   public ResponseEntity<String> updateGuest(@RequestBody Guest guest) {
     service.updateGuest(guest);
-    return ResponseEntity.ok("宿泊者の変更が完了しました。");
+    return ResponseEntity.ok("宿泊者の更新が完了しました。");
   }
 
-  @Operation(summary = "宿泊情報の変更", description = "宿泊情報の変更を行います。")
+  @Operation(summary = "宿泊情報の更新", description = "宿泊情報の更新を行います。")
   @PutMapping("/updateReservation")
   public ResponseEntity<String> updateReservation(@RequestBody Reservation reservation) {
     service.updateReservation(reservation);
-    return ResponseEntity.ok("宿泊情報の変更が完了しました。");
+    return ResponseEntity.ok("宿泊情報の更新が完了しました。");
+  }
+
+  @Operation(summary = "宿泊者の論理削除", description = "宿泊者の削除フラグをtureにします。")
+  @PutMapping("/deleteGuest")
+  public ResponseEntity<String> logicalDeleteGuest(
+      @RequestParam String id,
+      @RequestParam String name) {
+    service.logicalDeleteGuest(id);
+    return ResponseEntity.ok(name + "様の情報を削除しました。");
   }
 
   @Operation(summary = "チェックイン", description = "宿泊客のチェックインを行います。")
   @PutMapping("/checkIn")
-  public ResponseEntity<String> checkIn(@RequestParam String reservationsId,
-      @RequestParam String guestName) {
-    service.checkIn(reservationsId);
-    return ResponseEntity.ok(guestName + "様のチェックインが完了しました。");
+  public ResponseEntity<String> checkIn(
+      @RequestParam String id,
+      @RequestParam String name) {
+    service.checkIn(id);
+    return ResponseEntity.ok(name + "様のチェックインが完了しました。");
   }
 
   @Operation(summary = "チェックアウト", description = "宿泊客のチェックアウトを行います。")
   @PutMapping("/checkOut")
-  public ResponseEntity<String> checkOut(@RequestParam String reservationsId,
-      @RequestParam String guestName) {
-    service.checkOut(reservationsId);
-    return ResponseEntity.ok(guestName + "様のチェックアウトが完了しました。");
+  public ResponseEntity<String> checkOut(
+      @RequestParam String id,
+      @RequestParam String name) {
+    service.checkOut(id);
+    return ResponseEntity.ok(name + "様のチェックアウトが完了しました。");
   }
 }
