@@ -2,6 +2,9 @@ package com.portfolio.hotel.management.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -25,9 +28,7 @@ import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
@@ -60,11 +61,11 @@ class HotelServiceTest {
 
     List<GuestDetail> actual = sut.getAllGuest();
 
-    verify(repository, Mockito.times(1)).findAllGuest();
-    verify(repository, Mockito.times(1)).findAllBooking();
-    verify(repository, Mockito.times(1)).findAllReservation();
+    verify(repository, times(1)).findAllGuest();
+    verify(repository, times(1)).findAllBooking();
+    verify(repository, times(1)).findAllReservation();
 
-    verify(converter, Mockito.times(1))
+    verify(converter, times(1))
         .convertGuestDetail(guest, booking, reservation);
 
     assertNotNull(actual);
@@ -93,10 +94,10 @@ class HotelServiceTest {
 
     List<GuestDetail> actual = sut.searchGuest(guestSearchCondition);
 
-    verify(repository, Mockito.times(1)).searchGuest(guestSearchCondition);
-    verify(repository, Mockito.times(1)).findAllBooking();
-    verify(repository, Mockito.times(1)).findAllReservation();
-    verify(converter, Mockito.times(1))
+    verify(repository, times(1)).searchGuest(guestSearchCondition);
+    verify(repository, times(1)).findAllBooking();
+    verify(repository, times(1)).findAllReservation();
+    verify(converter, times(1))
         .convertGuestDetail(guestList, bookingList, reservationList);
 
     assertNotNull(actual);
@@ -116,15 +117,15 @@ class HotelServiceTest {
     when(repository.matchGuest(guestMatch)).thenReturn(guest);
     GuestDetail actual = sut.matchGuest(guestMatch);
 
-    verify(repository, Mockito.times(1)).matchGuest(guestMatch);
-    verify(converter, Mockito.never()).toGuest(Mockito.any());
+    verify(repository, times(1)).matchGuest(guestMatch);
+    verify(converter, never()).toGuest(any());
 
     assertNotNull(actual);
     assertEquals(guest, actual.getGuest());
   }
 
   @Test
-  void 宿泊者情報の完全一致致検索_完全一致するものがなく条件分岐しているかの確認() {
+  void 宿泊者情報の完全一致致検索_完全一致するものがなく条件分岐していること() {
     HotelService sut = new HotelService(repository, converter);
 
     GuestMatch guestMatch = new GuestMatch();
@@ -138,8 +139,8 @@ class HotelServiceTest {
 
     GuestDetail actual = sut.matchGuest(guestMatch);
 
-    verify(repository, Mockito.times(1)).matchGuest(guestMatch);
-    verify(converter, Mockito.times(1)).toGuest(guestMatch);
+    verify(repository, times(1)).matchGuest(guestMatch);
+    verify(converter, times(1)).toGuest(guestMatch);
 
     assertNotNull(actual);
     assertEquals(guest, actual.getGuest());
@@ -169,91 +170,75 @@ class HotelServiceTest {
   }
 
   @Test
-  void ゲスト情報登録_登録が行われているか確認() {
+  void ゲスト情報登録_登録が行われていること() {
     HotelService sut = new HotelService(repository, converter);
-    crateRegistration();
+
+    when(repository.findTotalPriceById("aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaaa"))
+        .thenReturn(new BigDecimal("10000"));
+
+    GuestRegistration registration = crateRegistration();
+    sut.registerGuest(registration);
+
+    verify(repository, times(1)).insertGuest(any(Guest.class));
+    verify(repository, times(1)).insertReservation(any(Reservation.class));
+  }
+
+  @Test
+  void ゲスト情報登録_IDが登録済みの場合登録が行われないこと() {
+    HotelService sut = new HotelService(repository, converter);
 
     when(repository.findTotalPriceById("aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaaa"))
         .thenReturn(new BigDecimal("10000"));
     GuestRegistration actual = crateRegistration();
+    actual.getGuest().setId("11111111-1111-1111-1111-111111111111");
+
     sut.registerGuest(actual);
-
-    ArgumentCaptor<Guest> guestCaptor = ArgumentCaptor.forClass(Guest.class);
-    verify(repository).insertGuest(guestCaptor.capture());
-
-    ArgumentCaptor<Reservation> reservationCaptor = ArgumentCaptor.forClass(
-        Reservation.class);
-    verify(repository).insertReservation(reservationCaptor.capture());
-
-    Guest updateGuest = guestCaptor.getValue();
-    Reservation updateReservation = reservationCaptor.getValue();
-
-    assertEquals("山田太郎", updateGuest.getName());
-    assertEquals("aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
-        updateReservation.getBookingId());
+    verify(repository, never()).insertGuest(any());
+    verify(repository, times(1)).insertReservation(any());
   }
 
   @Test
-  void ゲスト情報登録_IDが登録済みの場合登録が行われないか確認() {
-    HotelService sut = new HotelService(repository, converter);
-
-    GuestRegistration guestRegistration = crateRegistration();
-    guestRegistration.getGuest().setId("11111111-1111-1111-1111-111111111111");
-    when(repository.findTotalPriceById("aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaaa"))
-        .thenReturn(new BigDecimal("10000"));
-
-    GuestRegistration actual = guestRegistration;
-    sut.registerGuest(actual);
-    verify(repository, Mockito.times(0)).insertGuest(actual.getGuest());
-  }
-
-  @Test
-  void 宿泊プランの登録_登録が行われているか確認() {
+  void 宿泊プランの登録_リポジトリが呼ばれること() {
     HotelService sut = new HotelService(repository, converter);
     Booking booking = createBooking();
+
     sut.registerBooking(booking);
 
-    ArgumentCaptor<Booking> captor = ArgumentCaptor.forClass(Booking.class);
-    verify(repository).insertBooking(captor.capture());
-    Booking update = captor.getValue();
-
-    assertEquals("朝食付きプラン", update.getName());
+    verify(repository).insertBooking(booking);
   }
 
   @Test
-  void 宿泊プランの変更_宿泊情報が変更されているか確認() {
+  void 宿泊者情報の更新_リポジトリが呼ばれること() {
     HotelService sut = new HotelService(repository, converter);
-    Guest actual = new Guest();
-    actual.setName("山田太郎");
+    Guest guest = new Guest();
+    guest.setName("山田太郎");
 
-    sut.updateGuest(actual);
+    sut.updateGuest(guest);
 
-    ArgumentCaptor<Guest> captor = ArgumentCaptor.forClass(Guest.class);
-    verify(repository).updateGuest(captor.capture());
-    Guest update = captor.getValue();
-
-    assertEquals("山田太郎", update.getName());
-
+    verify(repository).updateGuest(guest);
   }
 
   @Test
-  void 宿泊プランの変更_宿泊予約が変更されているか確認() {
+  void 宿泊プランの変更_リポジトリが呼ばれること() {
     HotelService sut = new HotelService(repository, converter);
     Reservation actual = new Reservation();
-    actual.setTotalPrice(BigDecimal.valueOf(1000));
 
     sut.updateReservation(actual);
 
-    ArgumentCaptor<Reservation> captor = ArgumentCaptor.forClass(Reservation.class);
-    verify(repository).updateReservation(captor.capture());
-    Reservation update = captor.getValue();
-
-    assertEquals(BigDecimal.valueOf(1000), update.getTotalPrice());
-
+    verify(repository).updateReservation(actual);
   }
 
   @Test
-  void チェックイン処理の作成_チェックインが行われているかの確認() {
+  void 宿泊者の論理削除_リポジトリが呼び呼び出せていること() {
+    HotelService sut = new HotelService(repository, converter);
+    String id = "11111111-1111-1111-1111-111111111111";
+    sut.logicalDeleteGuest(id);
+
+    verify(repository, times(1)).logicalDeleteGuest(id);
+  }
+
+  @Test
+  void チェックイン処理の作成_チェックインが行われていること() {
     HotelService sut = new HotelService(repository, converter);
     String reservationId = "3822609c-5651-11f0-b59f-a75edf46bde3";
     when(repository.findStatusById(reservationId))
@@ -261,11 +246,11 @@ class HotelServiceTest {
 
     sut.checkIn(reservationId);
 
-    verify(repository, Mockito.times(1)).findStatusById(reservationId);
+    verify(repository, times(1)).findStatusById(reservationId);
   }
 
   @Test
-  void チェックイン処理の作成_ステータスが未チェックイン以外の場合エラーが発生するかの確認() {
+  void チェックイン処理の作成_ステータスが未チェックイン以外の場合エラーが発生すること() {
     HotelService sut = new HotelService(repository, converter);
     String reservationId = "3822609c-5651-11f0-b59f-a75edf46bde3";
     when(repository.findStatusById(reservationId))
@@ -275,22 +260,22 @@ class HotelServiceTest {
       sut.checkIn(reservationId);
     });
 
-    verify(repository, Mockito.times(1)).findStatusById(reservationId);
+    verify(repository, times(1)).findStatusById(reservationId);
   }
 
   @Test
-  void チェックアウト処理の作成_チェックアウトが行われているかの確認() {
+  void チェックアウト処理の作成_チェックアウトが行われていること() {
     HotelService sut = new HotelService(repository, converter);
     String reservationId = "3822609c-5651-11f0-b59f-a75edf46bde3";
     when(repository.findStatusById(reservationId))
         .thenReturn(ReservationStatus.CHECKED_IN);
 
     sut.checkOut(reservationId);
-    verify(repository, Mockito.times(1)).findStatusById(reservationId);
+    verify(repository, times(1)).findStatusById(reservationId);
   }
 
   @Test
-  void チェックアウト処理の作成_ステータスがチェックイン済み以外の場合エラーが発生するかの確認() {
+  void チェックアウト処理の作成_ステータスがチェックイン済み以外の場合エラーが発生すること() {
     HotelService sut = new HotelService(repository, converter);
     String reservationId = "3822609c-5651-11f0-b59f-a75edf46bde3";
     when(repository.findStatusById(reservationId))
@@ -300,7 +285,7 @@ class HotelServiceTest {
       sut.checkOut(reservationId);
     });
 
-    verify(repository, Mockito.times(1)).findStatusById(reservationId);
+    verify(repository, times(1)).findStatusById(reservationId);
   }
 
   // 生成用

@@ -24,6 +24,7 @@ public interface HotelRepository {
   // 宿泊予約の全件検索
   List<Reservation> findAllReservation();
 
+
   // 本日チェックイン予定の宿泊者を検索
   List<Guest> findGuestsTodayCheckIn(@Param("today") LocalDate today);
 
@@ -36,14 +37,17 @@ public interface HotelRepository {
   // 本日チェックアウト予定の宿泊予約を検索
   List<Reservation> findReservationTodayCheckOut(@Param("today") LocalDate today);
 
-  // 宿泊者ID、名前、かな名、電話番号から宿泊者を検索
+  // 宿泊者ID、名前、かな名、電話番号、チェックイン・アウト日から宿泊者を検索
   List<Guest> searchGuest(@Param("guest") GuestSearchCondition guestSearchCondition);
-
-  // 宿泊予約IDから、宿泊予約を検索
-  Reservation searchReservation(@Param("id") String id);
 
   // 宿泊者IDから宿泊者を完全一致検索
   Guest matchGuest(GuestMatch guestMatch);
+
+  // 宿泊者IDから、宿泊者を検索
+  Guest findByGuestId(@Param("id") String id);
+
+  // 宿泊予約IDから、宿泊予約を検索
+  Reservation searchReservation(@Param("id") String id);
 
   // 宿泊プランIDから金額を検索
   BigDecimal findTotalPriceById(@Param("id") String id);
@@ -65,6 +69,8 @@ public interface HotelRepository {
 
   // 宿泊予約の変更
   void updateReservation(Reservation reservation);
+
+  void logicalDeleteGuest(@Param("id") String id);
 
   // チェックイン処理
   void checkIn(@Param("id") String id);

@@ -171,7 +171,7 @@ class HotelControllerTest {
                 }
                 """))
         .andExpect(status().isOk())
-        .andExpect(content().string("宿泊者の変更が完了しました。"));
+        .andExpect(content().string("宿泊者の更新が完了しました。"));
   }
 
   @Test
@@ -193,32 +193,44 @@ class HotelControllerTest {
                 }
                 """))
         .andExpect(status().isOk())
-        .andExpect(content().string("宿泊情報の変更が完了しました。"));
+        .andExpect(content().string("宿泊情報の更新が完了しました。"));
+  }
+
+  @Test
+  void 宿泊者の論理削除_削除完了のメッセージが返ってくること() throws Exception {
+    String id = "dummy-id-123";
+    String name = "山田";
+
+    mockMvc.perform(put("/deleteGuest")
+            .param("id", id)
+            .param("name", name))
+        .andExpect(status().isOk())
+        .andExpect(content().string(name + "様の情報を削除しました。"));
   }
 
   @Test
   void チェックイン処理_チェックイン完了のメッセージが返ってくること() throws Exception {
-    String guestName = "山田";
-    String reservationsId = "dummy-id-123";
+    String id = "dummy-id-123";
+    String name = "山田";
 
     mockMvc.perform(
             put("/checkIn")
-                .param("reservationsId", reservationsId)
-                .param("guestName", guestName))
+                .param("id", id)
+                .param("name", name))
         .andExpect(status().isOk())
-        .andExpect(content().string(guestName + "様のチェックインが完了しました。"));
+        .andExpect(content().string(name + "様のチェックインが完了しました。"));
   }
 
   @Test
   void チェックアウト処理_チェックアウト完了のメッセージが帰ってくること() throws Exception {
-    String guestName = "山田";
-    String reservationsId = "dummy-id-123";
+    String name = "山田";
+    String id = "dummy-id-123";
 
     mockMvc.perform(
             put("/checkOut")
-                .param("reservationsId", reservationsId)
-                .param("guestName", guestName))
+                .param("id", id)
+                .param("name", name))
         .andExpect(status().isOk())
-        .andExpect(content().string(guestName + "様のチェックアウトが完了しました。"));
+        .andExpect(content().string(name + "様のチェックアウトが完了しました。"));
   }
 }
