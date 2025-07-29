@@ -5,8 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.portfolio.hotel.management.data.guest.GuestMatch;
 import com.portfolio.hotel.management.data.guest.GuestRegistration;
-import com.portfolio.hotel.management.data.guest.GuestSearch;
+import com.portfolio.hotel.management.data.guest.GuestSearchCondition;
 import com.portfolio.hotel.management.service.converter.HotelConverter;
 import com.portfolio.hotel.management.data.booking.Booking;
 import com.portfolio.hotel.management.data.guest.Guest;
@@ -72,27 +73,27 @@ class HotelServiceTest {
   }
 
   @Test
-  void 宿泊者情報の単一検索機能_ID_名前_かな名_電話番号から宿泊者情報が呼び出せていること() {
+  void 宿泊者情報の単一検索機能_ID_名前_電話番号から宿泊者情報が呼び出せていること() {
     HotelService sut = new HotelService(repository, converter);
 
-    Guest guest = new Guest();
+    GuestSearchCondition guestSearchCondition = new GuestSearchCondition();
     List<Guest> guestList = new ArrayList<>();
     List<Booking> bookingList = new ArrayList<>();
     List<Reservation> reservationList = new ArrayList<>();
     List<GuestDetail> converted = new ArrayList<>();
 
-    guest.setId("35c1d2ce-5651-11f0-b59f-a75edf46bde3");
-    guest.setName("佐藤花子");
+    guestSearchCondition.setPhone("08098765432");
+    guestSearchCondition.setName("佐藤花子");
 
-    when(repository.searchGuest(guest)).thenReturn(guestList);
+    when(repository.searchGuest(guestSearchCondition)).thenReturn(guestList);
     when(repository.findAllBooking()).thenReturn(bookingList);
     when(repository.findAllReservation()).thenReturn(reservationList);
     when(converter.convertGuestDetail(guestList, bookingList, reservationList))
         .thenReturn(converted);
 
-    List<GuestDetail> actual = sut.searchGuest(guest);
+    List<GuestDetail> actual = sut.searchGuest(guestSearchCondition);
 
-    verify(repository, Mockito.times(1)).searchGuest(guest);
+    verify(repository, Mockito.times(1)).searchGuest(guestSearchCondition);
     verify(repository, Mockito.times(1)).findAllBooking();
     verify(repository, Mockito.times(1)).findAllReservation();
     verify(converter, Mockito.times(1))
@@ -106,16 +107,16 @@ class HotelServiceTest {
   void 宿泊者情報の完全一致致検索_名前_ふりがな_電話番号から宿泊者情報が呼び出せていること() {
     HotelService sut = new HotelService(repository, converter);
 
-    GuestSearch guestSearch = new GuestSearch();
+    GuestMatch guestMatch = new GuestMatch();
     Guest guest = new Guest();
-    guestSearch.setName("佐藤花子");
-    guestSearch.setKanaName("サトウハナコ");
-    guestSearch.setPhone("08098765432");
+    guestMatch.setName("佐藤花子");
+    guest.setKanaName("サトウハナコ");
+    guest.setPhone("08098765432");
 
-    when(repository.matchGuest(guestSearch)).thenReturn(guest);
-    GuestDetail actual = sut.matchGuest(guestSearch);
+    when(repository.matchGuest(guestMatch)).thenReturn(guest);
+    GuestDetail actual = sut.matchGuest(guestMatch);
 
-    verify(repository, Mockito.times(1)).matchGuest(guestSearch);
+    verify(repository, Mockito.times(1)).matchGuest(guestMatch);
     verify(converter, Mockito.never()).toGuest(Mockito.any());
 
     assertNotNull(actual);
@@ -126,19 +127,19 @@ class HotelServiceTest {
   void 宿泊者情報の完全一致致検索_完全一致するものがなく条件分岐しているかの確認() {
     HotelService sut = new HotelService(repository, converter);
 
-    GuestSearch guestSearch = new GuestSearch();
+    GuestMatch guestMatch = new GuestMatch();
     Guest guest = new Guest();
 
-    guestSearch.setName("佐藤花子");
-    guestSearch.setKanaName("サトウハナコ");
+    guestMatch.setName("佐藤花子");
+    guestMatch.setKanaName("サトウハナコ");
 
-    when(repository.matchGuest(guestSearch)).thenReturn(null);
-    when(converter.toGuest(guestSearch)).thenReturn(guest);
+    when(repository.matchGuest(guestMatch)).thenReturn(null);
+    when(converter.toGuest(guestMatch)).thenReturn(guest);
 
-    GuestDetail actual = sut.matchGuest(guestSearch);
+    GuestDetail actual = sut.matchGuest(guestMatch);
 
-    verify(repository, Mockito.times(1)).matchGuest(guestSearch);
-    verify(converter, Mockito.times(1)).toGuest(guestSearch);
+    verify(repository, Mockito.times(1)).matchGuest(guestMatch);
+    verify(converter, Mockito.times(1)).toGuest(guestMatch);
 
     assertNotNull(actual);
     assertEquals(guest, actual.getGuest());

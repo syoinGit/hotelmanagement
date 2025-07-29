@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.portfolio.hotel.management.data.booking.Booking;
 import com.portfolio.hotel.management.data.guest.Guest;
 import com.portfolio.hotel.management.data.guest.GuestDetail;
-import com.portfolio.hotel.management.data.guest.GuestSearch;
+import com.portfolio.hotel.management.data.guest.GuestMatch;
 import com.portfolio.hotel.management.data.reservation.Reservation;
 import com.portfolio.hotel.management.data.reservation.ReservationStatus;
 import java.math.BigDecimal;
@@ -53,12 +53,12 @@ class HotelConverterTest {
 
   @Test
   void コンバーターを使用して_宿泊者検索を宿泊者に変換できる() {
-    GuestSearch guestSearch = new GuestSearch();
-    guestSearch.setName("佐藤花子");
-    guestSearch.setKanaName("サトウハナコ");
-    guestSearch.setPhone("08098765432");
+    GuestMatch guestMatch = new GuestMatch();
+    guestMatch.setName("佐藤花子");
+    guestMatch.setKanaName("サトウハナコ");
+    guestMatch.setPhone("08098765432");
 
-    Guest actual = sut.toGuest(guestSearch);
+    Guest actual = sut.toGuest(guestMatch);
 
     assertThat(actual.getName()).isEqualTo("佐藤花子");
     assertThat(actual.getKanaName()).isEqualTo("サトウハナコ");

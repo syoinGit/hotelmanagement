@@ -3,8 +3,9 @@ package com.portfolio.hotel.management.service;
 import com.portfolio.hotel.management.data.booking.Booking;
 import com.portfolio.hotel.management.data.guest.Guest;
 import com.portfolio.hotel.management.data.guest.GuestDetail;
+import com.portfolio.hotel.management.data.guest.GuestMatch;
 import com.portfolio.hotel.management.data.guest.GuestRegistration;
-import com.portfolio.hotel.management.data.guest.GuestSearch;
+import com.portfolio.hotel.management.data.guest.GuestSearchCondition;
 import com.portfolio.hotel.management.data.reservation.Reservation;
 import com.portfolio.hotel.management.data.reservation.ReservationStatus;
 import java.math.BigDecimal;
@@ -52,20 +53,20 @@ public class HotelService {
   }
 
   // 宿泊者情報の単一検索
-  public List<GuestDetail> searchGuest(Guest guest) {
+  public List<GuestDetail> searchGuest(GuestSearchCondition guestSearchCondition) {
     return converter.convertGuestDetail(
-        repository.searchGuest(guest),
+        repository.searchGuest(guestSearchCondition),
         repository.findAllBooking(),
         repository.findAllReservation());
   }
 
   // 宿泊者の完全一致検索
-  public GuestDetail matchGuest(GuestSearch guestSearch) {
-    Guest guest = repository.matchGuest(guestSearch);
+  public GuestDetail matchGuest(GuestMatch guestMatch) {
+    Guest guest = repository.matchGuest(guestMatch);
     GuestDetail guestDetail = new GuestDetail();
     // 一致するものがなかった場合、guestの数値を入れる。
     if (guest == null) {
-      guestDetail.setGuest(converter.toGuest(guestSearch));
+      guestDetail.setGuest(converter.toGuest(guestMatch));
       // 一致した場合、取得したguestDtoを入れる。
     } else {
       guestDetail.setGuest(guest);

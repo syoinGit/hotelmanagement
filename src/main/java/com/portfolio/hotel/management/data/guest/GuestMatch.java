@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class GuestSearch {
+public class GuestMatch {
 
   @NotBlank(message = "名前は必須です")
   private String name;

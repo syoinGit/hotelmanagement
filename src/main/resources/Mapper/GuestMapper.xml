@@ -3,6 +3,7 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
+
 <mapper namespace="com.portfolio.hotel.management.repository.HotelRepository">
 
   <select id="findAllGuest" resultType="com.portfolio.hotel.management.data.guest.Guest">
@@ -18,10 +19,11 @@
     SELECT * FROM reservation
   </select>
 
+
   <select id="findGuestsTodayCheckIn" resultType="com.portfolio.hotel.management.data.guest.Guest">
     SELECT
     guest.id, guest.name, guest.kana_name, guest.gender, guest.age,
-    guest.region, guest.email, guest.phone, guest.deleted
+    guest.region, guest.email, guest. Phone, guest.deleted
     FROM guest
     INNER JOIN reservation ON guest.id = reservation.guest_id
     WHERE reservation.check_in_date = #{today}
@@ -52,20 +54,33 @@
     AND status = 'CHECKED_IN'
   </select>
 
-  <select id="searchGuest" resultType="com.portfolio.hotel.management.data.guest.Guest">
-    SELECT * FROM guest
-    <where>
-      <if test="guest.id != null and guest.id != ''">AND id = #{guest.id}</if>
-      <if test="guest.phone != null and guest.phone != ''">AND phone LIKE CONCAT('%',
-        #{guest.phone}, '%')
-      </if>
-      <if test="guest.name != null and guest.name != ''">AND name LIKE CONCAT('%', #{guest.name},
-        '%')
-      </if>
-      <if test="guest.kanaName != null and guest.kanaName != ''">AND kana_name LIKE CONCAT('%',
-        #{guest.kanaName}, '%')
-      </if>
-    </where>
+  <select id="searchGuest" parameterType="map"
+    resultType="com.portfolio.hotel.management.data.guest.Guest">
+    SELECT DISTINCT guest.*
+    FROM guest
+    LEFT JOIN reservation ON guest.id = reservation.guest_id
+    WHERE guest.deleted = FALSE
+
+    <if test="guest.name != null and guest.name != ''">
+      AND guest.name LIKE CONCAT('%', #{guest.name}, '%')
+    </if>
+
+    <if test="guest.kanaName != null and guest.kanaName != ''">
+      AND guest.kana_name LIKE CONCAT('%', #{guest.kanaName}, '%')
+    </if>
+
+    <if test="guest.phone != null and guest.phone != ''">
+      AND guest.phone = #{guest.phone}
+    </if>
+
+    <if test="guest.checkInDate != null">
+      AND reservation.check_in_date &gt;= #{guest.checkInDate}
+    </if>
+
+    <if test="guest.checkOutDate != null">
+      AND DATE_ADD(reservation.check_in_date, INTERVAL reservation.stay_days DAY) &lt;=
+      #{guest.checkOutDate}
+    </if>
   </select>
 
   <select id="searchReservation"
@@ -73,7 +88,7 @@
     SELECT * FROM reservation WHERE id = #{id}
   </select>
 
-  <select id="matchGuest" parameterType="com.portfolio.hotel.management.data.guest.GuestSearch"
+  <select id="matchGuest" parameterType="com.portfolio.hotel.management.data.guest.GuestMatch"
     resultType="com.portfolio.hotel.management.data.guest.Guest">
     SELECT * FROM guest
     WHERE name = #{name}

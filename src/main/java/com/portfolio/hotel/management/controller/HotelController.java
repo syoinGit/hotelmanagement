@@ -3,8 +3,9 @@ package com.portfolio.hotel.management.controller;
 import com.portfolio.hotel.management.data.booking.Booking;
 import com.portfolio.hotel.management.data.guest.Guest;
 import com.portfolio.hotel.management.data.guest.GuestDetail;
+import com.portfolio.hotel.management.data.guest.GuestMatch;
 import com.portfolio.hotel.management.data.guest.GuestRegistration;
-import com.portfolio.hotel.management.data.guest.GuestSearch;
+import com.portfolio.hotel.management.data.guest.GuestSearchCondition;
 import com.portfolio.hotel.management.data.reservation.Reservation;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -57,16 +58,16 @@ public class HotelController {
     return service.getChackOutToday(today);
   }
 
-  @Operation(summary = "単一検索", description = "ID、名前、ふりがな、電話番号から宿泊者情報を検索します。")
+  @Operation(summary = "単一検索", description = "ID、名前、ふりがな、電話番号、宿泊日から宿泊者情報を検索します。")
   @GetMapping("/searchGuest")
-  public List<GuestDetail> searchGuest(@ModelAttribute Guest guest) {
-    return service.searchGuest(guest);
+  public List<GuestDetail> searchGuest(@ModelAttribute GuestSearchCondition guestSearchCondition) {
+    return service.searchGuest(guestSearchCondition);
   }
 
   @Operation(summary = "完全一致検索", description = "名前、ふりがな、電話番号から宿泊者情報を完全一致検索します。ここで完全位一致したデータは宿泊者情報登録の際に使われます")
   @PostMapping("/matchGuest")
-  public GuestDetail matchGuestForInsert(@RequestBody @Valid GuestSearch guestSearch) {
-    return service.matchGuest(guestSearch);
+  public GuestDetail matchGuestForInsert(@RequestBody @Valid GuestMatch guestMatch) {
+    return service.matchGuest(guestMatch);
   }
 
   @Operation(summary = "宿泊者情報登録", description = "宿泊者情報を入力し、宿泊者情報を登録します。")

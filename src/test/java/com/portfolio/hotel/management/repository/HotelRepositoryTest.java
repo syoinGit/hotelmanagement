@@ -4,7 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.portfolio.hotel.management.data.booking.Booking;
 import com.portfolio.hotel.management.data.guest.Guest;
-import com.portfolio.hotel.management.data.guest.GuestSearch;
+import com.portfolio.hotel.management.data.guest.GuestMatch;
+import com.portfolio.hotel.management.data.guest.GuestSearchCondition;
 import com.portfolio.hotel.management.data.reservation.Reservation;
 import com.portfolio.hotel.management.data.reservation.ReservationStatus;
 import java.math.BigDecimal;
@@ -56,9 +57,9 @@ class HotelRepositoryTest {
 
   @Test
   void 宿泊者の単一検索_IDから宿泊者を検索できるか確認() {
-    Guest guest = new Guest();
-    guest.setId("11111111-1111-1111-1111-111111111111");
-    List<Guest> actual = sut.searchGuest(guest);
+    GuestSearchCondition guestSearchCondition = new GuestSearchCondition();
+    guestSearchCondition.setName("佐藤花子");
+    List<Guest> actual = sut.searchGuest(guestSearchCondition);
 
     Guest result = actual.getFirst();
     assertThat(actual.size()).isEqualTo(1);
@@ -79,11 +80,11 @@ class HotelRepositoryTest {
 
   @Test
   void 宿泊者の完全一致検索_名前_かな名_電話番号の組み合わせから宿泊者を検索できるか確認() {
-    GuestSearch guestSearch = new GuestSearch();
-    guestSearch.setName("佐藤花子");
-    guestSearch.setKanaName("サトウハナコ");
-    guestSearch.setPhone("08098765432");
-    Guest actual = sut.matchGuest(guestSearch);
+    GuestMatch guestMatch = new GuestMatch();
+    guestMatch.setName("佐藤花子");
+    guestMatch.setKanaName("サトウハナコ");
+    guestMatch.setPhone("08098765432");
+    Guest actual = sut.matchGuest(guestMatch);
 
     assertThat(actual.getId()).isEqualTo("11111111-1111-1111-1111-111111111111");
     assertThat(actual.getGender()).isEqualTo("FEMALE");
@@ -134,12 +135,14 @@ class HotelRepositoryTest {
   @Test
   void 宿泊者情報の変更_宿泊者情報が変更されている() {
     Guest guest = getGuest();
+    GuestSearchCondition guestSearchCondition = new GuestSearchCondition();
+
     guest.setId("11111111-1111-1111-1111-111111111111");
     guest.setName("佐藤華子");
     sut.updateGuest(guest);
 
 
-    List<Guest> actual = sut.searchGuest(guest);
+    List<Guest> actual = sut.searchGuest(guestSearchCondition);
     assertThat(actual.getFirst().getName()).isEqualTo(guest.getName());
   }
 
