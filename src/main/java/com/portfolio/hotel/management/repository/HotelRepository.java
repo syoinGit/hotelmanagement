@@ -6,6 +6,7 @@ import com.portfolio.hotel.management.data.guest.GuestMatch;
 import com.portfolio.hotel.management.data.guest.GuestSearchCondition;
 import com.portfolio.hotel.management.data.reservation.Reservation;
 import com.portfolio.hotel.management.data.reservation.ReservationStatus;
+import com.portfolio.hotel.management.data.user.User;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -51,6 +52,9 @@ public interface HotelRepository {
   // 宿泊予約IDから宿泊予約状況を検索
   ReservationStatus findStatusById(@Param("id") String id);
 
+  //　ユーザーIDからユーザー情報を検索
+  User findUserById(@Param("id") String id);
+
   // 宿泊者の登録
   void insertGuest(Guest guest);
 
@@ -71,4 +75,8 @@ public interface HotelRepository {
 
   // チェックアウト処理
   void checkOut(@Param("id") String id);
+
+  // ユーザーの登録処理
+  void insertUser(User user);
+
 }

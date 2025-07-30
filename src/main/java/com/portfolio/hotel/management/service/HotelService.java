@@ -8,6 +8,7 @@ import com.portfolio.hotel.management.data.guest.GuestRegistration;
 import com.portfolio.hotel.management.data.guest.GuestSearchCondition;
 import com.portfolio.hotel.management.data.reservation.Reservation;
 import com.portfolio.hotel.management.data.reservation.ReservationStatus;
+import com.portfolio.hotel.management.data.user.User;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -67,14 +68,14 @@ public class HotelService {
     // 一致するものがなかった場合、guestの数値を入れる。
     if (guest == null) {
       guestDetail.setGuest(converter.toGuest(guestMatch));
-      // 一致した場合、取得したguestDtoを入れる。
+      // 一致した場合、取得したguestを入れる。
     } else {
       guestDetail.setGuest(guest);
     }
     return guestDetail;
   }
 
-  // ゲスト情報の登録
+  // 宿泊者の登録
   public void registerGuest(GuestRegistration guestRegistration) {
     // 直前の検索で一致する宿泊者がなかった場合新規登録
     if (guestRegistration.getGuest().getId() == null) {
@@ -93,7 +94,8 @@ public class HotelService {
     reservation.setBookingId(guestRegistration.getBookingId());
     reservation.setCheckInDate(guestRegistration.getCheckInDate());
     reservation.setStayDays(guestRegistration.getStayDays());
-    reservation.setCheckOutDate(reservation.getCheckInDate().plusDays(guestRegistration.getStayDays()));
+    reservation.setCheckOutDate(
+        reservation.getCheckInDate().plusDays(guestRegistration.getStayDays()));
     BigDecimal price = repository.findTotalPriceById(reservation.getBookingId());
     BigDecimal total = price.multiply(BigDecimal.valueOf(reservation.getStayDays()));
     reservation.setTotalPrice(total);
@@ -138,5 +140,10 @@ public class HotelService {
     } else {
       throw new IllegalStateException("チェックイン済みの予約のみチェックアウト可能です");
     }
+  }
+
+  // 新規ユーザの登録
+  public void registerUser(User user) {
+    repository.insertUser(user);
   }
 }

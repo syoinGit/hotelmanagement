@@ -221,4 +221,18 @@ class HotelControllerTest {
         .andExpect(status().isOk())
         .andExpect(content().string(guestName + "様のチェックアウトが完了しました。"));
   }
+
+  @Test
+  void ユーザーの登録処理_登録完了のメッセージが返ってくるか確認() throws Exception {
+    mockMvc.perform(put("/user/register")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("""
+                {
+                   "id": "testuser01",
+                   "password": "testpass123"
+                 }
+                """))
+        .andExpect(status().isOk())
+        .andExpect(content().string("ユーザ情報の登録が完了しました。"));
+  }
 }

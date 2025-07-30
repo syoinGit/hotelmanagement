@@ -7,6 +7,7 @@ import com.portfolio.hotel.management.data.guest.GuestMatch;
 import com.portfolio.hotel.management.data.guest.GuestRegistration;
 import com.portfolio.hotel.management.data.guest.GuestSearchCondition;
 import com.portfolio.hotel.management.data.reservation.Reservation;
+import com.portfolio.hotel.management.data.user.User;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.portfolio.hotel.management.service.HotelService;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
@@ -114,4 +116,12 @@ public class HotelController {
     service.checkOut(reservationsId);
     return ResponseEntity.ok(guestName + "様のチェックアウトが完了しました。");
   }
+
+  @Operation(summary = "新規ユーザーの登録", description = "IDとパスワードを取得して、新規ユーザの登録を行います。")
+  @PutMapping("/user/register")
+  public ResponseEntity<String> registerUser(@RequestBody User user){
+    service.registerUser(user);
+    return ResponseEntity.ok("ユーザ情報の登録が完了しました。");
+  }
+
 }

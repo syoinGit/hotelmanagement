@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import com.portfolio.hotel.management.data.guest.GuestMatch;
 import com.portfolio.hotel.management.data.guest.GuestRegistration;
 import com.portfolio.hotel.management.data.guest.GuestSearchCondition;
+import com.portfolio.hotel.management.data.user.User;
 import com.portfolio.hotel.management.service.converter.HotelConverter;
 import com.portfolio.hotel.management.data.booking.Booking;
 import com.portfolio.hotel.management.data.guest.Guest;
@@ -302,6 +303,18 @@ class HotelServiceTest {
 
     verify(repository, Mockito.times(1)).findStatusById(reservationId);
   }
+
+  @Test
+  void ユーザーの登録処理_リポジトリが呼び出せていること(){
+    HotelService sut = new HotelService(repository,converter);
+    User user = new User();
+    user.setId("123");
+    user.setPassword("123");
+
+    sut.registerUser(user);
+    verify(repository, Mockito.times(1)).insertUser(user);
+  }
+
 
   // 生成用
   private static Guest createGuest() {
