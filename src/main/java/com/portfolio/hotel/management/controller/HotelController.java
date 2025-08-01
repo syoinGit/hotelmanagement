@@ -9,6 +9,7 @@ import com.portfolio.hotel.management.data.guest.GuestSearchCondition;
 import com.portfolio.hotel.management.data.reservation.Reservation;
 import com.portfolio.hotel.management.data.user.User;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
@@ -119,9 +120,28 @@ public class HotelController {
 
   @Operation(summary = "新規ユーザーの登録", description = "IDとパスワードを取得して、新規ユーザの登録を行います。")
   @PutMapping("/user/register")
-  public ResponseEntity<String> registerUser(@RequestBody User user){
+  public ResponseEntity<String> registerUser(@RequestBody User user) {
     service.registerUser(user);
     return ResponseEntity.ok("ユーザ情報の登録が完了しました。");
   }
 
+  @Operation(summary = "ログインの処理", description = "IDとパスワードを入力して、ログインを行います。")
+  @PostMapping("/user/login")
+  public ResponseEntity<String> login(@RequestBody User user, HttpSession httpSession) {
+    return service.login(user, httpSession);
+  }
+
+  @Operation(
+      summary = "ログイン状態の取得",
+      description = "現在のログイン状態を確認し、ログイン中であればユーザー情報を返却、未ログインであれば401を返します。"
+  )
+  @GetMapping("/user/session")
+  public ResponseEntity<User> checkLogin(HttpSession httpSession) {
+    User loginUser = (User) httpSession.getAttribute("loginUser");
+    if (loginUser != null) {
+      return ResponseEntity.ok(loginUser);
+    } else {
+      return ResponseEntity.status(401).build();
+    }
+  }
 }

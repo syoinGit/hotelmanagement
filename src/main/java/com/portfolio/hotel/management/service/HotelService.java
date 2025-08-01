@@ -9,10 +9,13 @@ import com.portfolio.hotel.management.data.guest.GuestSearchCondition;
 import com.portfolio.hotel.management.data.reservation.Reservation;
 import com.portfolio.hotel.management.data.reservation.ReservationStatus;
 import com.portfolio.hotel.management.data.user.User;
+import jakarta.servlet.http.HttpSession;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import com.portfolio.hotel.management.repository.HotelRepository;
 import com.portfolio.hotel.management.service.converter.HotelConverter;
@@ -145,5 +148,15 @@ public class HotelService {
   // 新規ユーザの登録
   public void registerUser(User user) {
     repository.insertUser(user);
+  }
+
+  public ResponseEntity<String> login(User user, HttpSession session) {
+    User found = repository.findUserById(user.getId());
+    if (found != null && found.getPassword().equals(user.getPassword())) {
+      session.setAttribute("loginUser", found);
+      return ResponseEntity.ok("ログインしました。");
+    } else {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("パスワードが違います。");
+    }
   }
 }
