@@ -150,6 +150,7 @@ public class HotelService {
     repository.insertUser(user);
   }
 
+  // ログイン処理
   public ResponseEntity<String> login(User user, HttpSession session) {
     User found = repository.findUserById(user.getId());
     if (found != null && found.getPassword().equals(user.getPassword())) {

@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.portfolio.hotel.management.service.HotelService;
 import org.springframework.web.util.UriComponentsBuilder;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 @RestController
 public class HotelController {
 
