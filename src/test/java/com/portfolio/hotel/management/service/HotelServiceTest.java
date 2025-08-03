@@ -92,7 +92,7 @@ class HotelServiceTest {
     when(converter.convertGuestDetail(guestList, bookingList, reservationList))
         .thenReturn(converted);
 
-    List<GuestDetail> actual = sut.searchGuest(guestSearchCondition);
+    List<GuestDetail> actual = sut.searchGuest(guestSearchCondition, );
 
     verify(repository, Mockito.times(1)).searchGuest(guestSearchCondition);
     verify(repository, Mockito.times(1)).findAllBooking();
@@ -162,7 +162,7 @@ class HotelServiceTest {
     when(converter.convertGuestDetail(guest, booking, reservation))
         .thenReturn(converted);
 
-    List<GuestDetail> actual = sut.getChackInToday(today);
+    List<GuestDetail> actual = sut.getChackInToday(, today);
 
     assertNotNull(actual);
     assertEquals(actual, converted);

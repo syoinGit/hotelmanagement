@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.portfolio.hotel.management.service.HotelService;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 @RestController
@@ -37,34 +36,35 @@ public class HotelController {
 
   @Operation(summary = "全件検索", description = "宿泊者情報の全件検索を行います。")
   @GetMapping("/guestList")
-  public List<GuestDetail> getGuestList() {
-    return service.getAllGuest();
+  public List<GuestDetail> getGuestList(HttpSession session) {
+    return service.getAllGuest(session);
   }
 
   @Operation(summary = "宿泊プラン一覧取得", description = "すべての宿泊プランを取得します。")
   @GetMapping("/getBookingList")
-  public List<Booking> getAllBooking() {
-    return service.getAllBooking();
+  public List<Booking> getAllBooking(HttpSession session) {
+    return service.getAllBooking(session);
   }
 
   @Operation(summary = "本日宿泊の宿泊予約を全件検索", description = "本日宿泊予定の宿泊予約を全件検索します")
   @GetMapping("/getCheckInToday")
-  public List<GuestDetail> getChackInToday() {
+  public List<GuestDetail> getChackInToday(HttpSession session) {
     LocalDate today = LocalDate.now();
-    return service.getChackInToday(today);
+    return service.getChackInToday(session, today);
   }
 
   @Operation(summary = "本日退館の宿泊予約を全件検索", description = "本日退館予定の宿泊予約を取得いします")
   @GetMapping("/getCheckOutToday")
-  public List<GuestDetail> getCheckOutToday() {
+  public List<GuestDetail> getCheckOutToday(HttpSession session) {
     LocalDate today = LocalDate.now();
-    return service.getChackOutToday(today);
+    return service.getChackOutToday(session, today);
   }
 
   @Operation(summary = "単一検索", description = "ID、名前、ふりがな、電話番号、宿泊日から宿泊者情報を検索します。")
   @GetMapping("/searchGuest")
-  public List<GuestDetail> searchGuest(@ModelAttribute GuestSearchCondition guestSearchCondition) {
-    return service.searchGuest(guestSearchCondition);
+  public List<GuestDetail> searchGuest(@ModelAttribute GuestSearchCondition guestSearchCondition,
+      HttpSession session) {
+    return service.searchGuest(guestSearchCondition, session);
   }
 
   @Operation(summary = "完全一致検索", description = "名前、ふりがな、電話番号から宿泊者情報を完全一致検索します。ここで完全位一致したデータは宿泊者情報登録の際に使われます")

@@ -32,36 +32,51 @@ public class HotelService {
   }
 
   // 宿泊者情報の全件取得
-  public List<GuestDetail> getAllGuest() {
+  public List<GuestDetail> getAllGuest(HttpSession session) {
+    String userId = (String) session.getAttribute("userId");
+
     return converter.convertGuestDetail(
-        repository.findAllGuest(),
-        repository.findAllBooking(),
-        repository.findAllReservation());
+        repository.findAllGuest(userId),
+        repository.findAllBooking(userId),
+        repository.findAllReservation(userId));
   }
 
   // 本日チェックインの宿泊者を取得
-  public List<GuestDetail> getChackInToday(LocalDate today) {
-    return converter.convertGuestDetail(repository.findGuestsTodayCheckIn(today),
-        repository.findAllBooking(), repository.findReservationTodayCheckIn(today));
+  public List<GuestDetail> getChackInToday(HttpSession session, LocalDate today) {
+    String userId = (String) session.getAttribute("userId");
+
+    return converter.convertGuestDetail(
+        repository.findGuestsTodayCheckIn(today),
+        repository.findAllBooking(userId),
+        repository.findReservationTodayCheckIn(today));
   }
 
   // 本日チェックアウトの宿泊者を取得
-  public List<GuestDetail> getChackOutToday(LocalDate today) {
-    return converter.convertGuestDetail(repository.findGuestsTodayCheckOut(today),
-        repository.findAllBooking(), repository.findReservationTodayCheckOut(today));
+  public List<GuestDetail> getChackOutToday(HttpSession session, LocalDate today) {
+    String userId = (String) session.getAttribute("userId");
+
+    return converter.convertGuestDetail(
+        repository.findGuestsTodayCheckOut(today),
+        repository.findAllBooking(userId),
+        repository.findReservationTodayCheckOut(today));
   }
 
+
+
   // 宿泊コースの全件取得
-  public List<Booking> getAllBooking() {
-    return repository.findAllBooking();
+  public List<Booking> getAllBooking(HttpSession session) {
+    String userId = (String) session.getAttribute("userId");
+    return repository.findAllBooking(userId);
   }
 
   // 宿泊者情報の単一検索
-  public List<GuestDetail> searchGuest(GuestSearchCondition guestSearchCondition) {
+  public List<GuestDetail> searchGuest(GuestSearchCondition guestSearchCondition, HttpSession session) {
+    String userId = (String) session.getAttribute("userId");
+
     return converter.convertGuestDetail(
         repository.searchGuest(guestSearchCondition),
-        repository.findAllBooking(),
-        repository.findAllReservation());
+        repository.findAllBooking(userId),
+        repository.findAllReservation(userId));
   }
 
   // 宿泊者の完全一致検索
@@ -155,6 +170,7 @@ public class HotelService {
     User found = repository.findUserById(user.getId());
     if (found != null && found.getPassword().equals(user.getPassword())) {
       session.setAttribute("loginUser", found);
+      session.setAttribute("userId", found.getId());
       return ResponseEntity.ok("ログインしました。");
     } else {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("パスワードが違います。");

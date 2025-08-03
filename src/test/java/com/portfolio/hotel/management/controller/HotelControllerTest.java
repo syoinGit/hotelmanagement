@@ -50,7 +50,7 @@ class HotelControllerTest {
 
     mockMvc.perform(get("/getCheckInToday")).andExpect(status().isOk())
         .andExpect(content().json("[]"));
-    verify(service, times(1)).getChackInToday(today);
+    verify(service, times(1)).getChackInToday(, today);
   }
 
   @Test
@@ -71,7 +71,7 @@ class HotelControllerTest {
 
     GuestDetail guestDetail = new GuestDetail();
     guestDetail.setGuest(guest);
-    when(service.searchGuest(any())).thenReturn(List.of(guestDetail));
+    when(service.searchGuest(any(), )).thenReturn(List.of(guestDetail));
 
     mockMvc.perform(MockMvcRequestBuilders.get("/searchGuest")
             .contentType(MediaType.APPLICATION_JSON)

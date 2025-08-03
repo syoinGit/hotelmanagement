@@ -26,4 +26,7 @@ public class Booking {
   private BigDecimal price;
 
   private Boolean isAvailable = true;
+
+  @NotNull
+  String userId;
 }

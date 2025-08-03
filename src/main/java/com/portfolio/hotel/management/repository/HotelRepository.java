@@ -17,13 +17,13 @@ import org.apache.ibatis.annotations.Param;
 public interface HotelRepository {
 
   // 宿泊者の全件検索
-  List<Guest> findAllGuest();
+  List<Guest> findAllGuest(@Param("id") String id);
 
   // 宿泊プランの全件検索
-  List<Booking> findAllBooking();
+  List<Booking> findAllBooking(@Param("id") String id);
 
   // 宿泊予約の全件検索
-  List<Reservation> findAllReservation();
+  List<Reservation> findAllReservation(@Param("id") String id);
 
   // 本日チェックイン予定の宿泊者を検索
   List<Guest> findGuestsTodayCheckIn(@Param("today") LocalDate today);

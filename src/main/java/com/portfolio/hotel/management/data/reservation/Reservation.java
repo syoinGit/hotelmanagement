@@ -54,4 +54,7 @@ public class Reservation {
 
   @NotNull
   private LocalDateTime createdAt = LocalDateTime.now();
+
+  @NotNull
+  String userId;
 }

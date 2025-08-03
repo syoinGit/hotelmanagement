@@ -33,13 +33,16 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 
 	// OpenAPI UI (Swagger)
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0'
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
 
 	// Apache Commons Lang（ユーティリティ）
-	implementation 'org.apache.commons:commons-lang3:3.14.0'
+	implementation 'org.apache.commons:commons-lang3:3.18.0'
 
 	// mybatis
 	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
+
+	//　セキュリティ関連
+	implementation 'org.springframework.boot:spring-boot-starter-security'
 
 	// テスト関連
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'

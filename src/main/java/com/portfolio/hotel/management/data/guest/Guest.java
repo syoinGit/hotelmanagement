@@ -42,6 +42,11 @@ public class Guest {
   @Pattern(regexp = "^[0-9]{10,11}$", message = "電話番号は10〜11桁の数字で入力してください")
   private String phone;
 
+  @NotNull
+  String userId;
+
   @NotNull(message = "削除フラグは必須です")
   private Boolean deleted = false;
+
+
 }

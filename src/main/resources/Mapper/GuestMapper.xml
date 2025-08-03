@@ -6,19 +6,21 @@
 <mapper namespace="com.portfolio.hotel.management.repository.HotelRepository">
 
   <!-- 宿泊者全件取得 -->
-  <select id="findAllGuest" resultType="com.portfolio.hotel.management.data.guest.Guest">
+  <select id="findAllGuest" parameterType="string" resultType="com.portfolio.hotel.management.data.guest.Guest">
     SELECT * FROM guest
+    WHERE user_id = #{id}
   </select>
 
   <!-- 宿泊プラン全件取得 -->
-  <select id="findAllBooking" resultType="com.portfolio.hotel.management.data.booking.Booking">
+  <select id="findAllBooking" parameterType="string" resultType="com.portfolio.hotel.management.data.booking.Booking">
     SELECT * FROM booking
+    WHERE user_id = #{id}
   </select>
 
   <!-- 宿泊予約全件取得 -->
-  <select id="findAllReservation"
-    resultType="com.portfolio.hotel.management.data.reservation.Reservation">
+  <select id="findAllReservation" parameterType="string" resultType="com.portfolio.hotel.management.data.reservation.Reservation">
     SELECT * FROM reservation
+    WHERE user_id = #{id}
   </select>
 
   <!-- 本日チェックイン予定の宿泊者取得（未チェックイン状態） -->
