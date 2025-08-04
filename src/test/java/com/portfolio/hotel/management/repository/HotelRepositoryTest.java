@@ -45,14 +45,14 @@ class HotelRepositoryTest {
   @Test
   void 本日チェックイン予定の宿泊者情報を検索() {
     LocalDate today = LocalDate.of(2025, 7, 24);
-    List<Guest> actual = sut.findGuestsTodayCheckIn(today);
+    List<Guest> actual = sut.findGuestsTodayCheckIn(, today);
     assertThat(actual.size()).isEqualTo(1);
   }
 
   @Test
   void 本日チェックイン予定の宿泊予約を検索() {
     LocalDate today = LocalDate.of(2025, 7, 24);
-    List<Reservation> actual = sut.findReservationTodayCheckIn(today);
+    List<Reservation> actual = sut.findReservationTodayCheckIn(, today);
     assertThat(actual.size()).isEqualTo(1);
   }
 

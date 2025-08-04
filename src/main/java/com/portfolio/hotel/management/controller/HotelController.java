@@ -13,6 +13,7 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
+import org.springframework.security.core.Authentication;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,28 +37,34 @@ public class HotelController {
 
   @Operation(summary = "全件検索", description = "宿泊者情報の全件検索を行います。")
   @GetMapping("/guestList")
-  public List<GuestDetail> getGuestList(HttpSession session) {
-    return service.getAllGuest(session);
+  public List<GuestDetail> getGuestList(Authentication authentication) {
+    return service.getAllGuest(authentication);
   }
 
   @Operation(summary = "宿泊プラン一覧取得", description = "すべての宿泊プランを取得します。")
   @GetMapping("/getBookingList")
-  public List<Booking> getAllBooking(HttpSession session) {
-    return service.getAllBooking(session);
+  public List<Booking> getAllBooking(Authentication authentication) {
+    return service.getAllBooking(authentication);
   }
 
-  @Operation(summary = "本日宿泊の宿泊予約を全件検索", description = "本日宿泊予定の宿泊予約を全件検索します")
-  @GetMapping("/getCheckInToday")
-  public List<GuestDetail> getChackInToday(HttpSession session) {
+  @Operation(summary = "本日宿泊の宿泊者を全件検索", description = "本日宿泊予定の宿泊予約を全件検索します")
+  @GetMapping("/guests/check-in-today")
+  public List<GuestDetail> getChackInToday(Authentication authentication) {
     LocalDate today = LocalDate.now();
-    return service.getChackInToday(session, today);
+    return service.getChackInToday(authentication, today);
   }
 
-  @Operation(summary = "本日退館の宿泊予約を全件検索", description = "本日退館予定の宿泊予約を取得いします")
-  @GetMapping("/getCheckOutToday")
-  public List<GuestDetail> getCheckOutToday(HttpSession session) {
+  @Operation(summary = "現在宿泊中の宿泊者を全件検索", description = "現在宿泊中の宿泊者を全件検索します")
+  @GetMapping("/guests/stay")
+  public List<GuestDetail> getStay(Authentication authentication){
+    return service.getStayNow(authentication);
+  }
+
+  @Operation(summary = "本日退館の者を全件検索", description = "本日退館予定の宿泊者を全件検索します")
+  @GetMapping("/guests/check-out-today")
+  public List<GuestDetail> getCheckOutToday(Authentication authentication) {
     LocalDate today = LocalDate.now();
-    return service.getChackOutToday(session, today);
+    return service.getChackOutToday(authentication, today);
   }
 
   @Operation(summary = "単一検索", description = "ID、名前、ふりがな、電話番号、宿泊日から宿泊者情報を検索します。")
@@ -125,16 +132,7 @@ public class HotelController {
     return ResponseEntity.ok("ユーザ情報の登録が完了しました。");
   }
 
-  @Operation(summary = "ログインの処理", description = "IDとパスワードを入力して、ログインを行います。")
-  @PostMapping("/user/login")
-  public ResponseEntity<String> login(@RequestBody User user, HttpSession httpSession) {
-    return service.login(user, httpSession);
-  }
-
-  @Operation(
-      summary = "ログイン状態の取得",
-      description = "現在のログイン状態を確認し、ログイン中であればユーザー情報を返却、未ログインであれば401を返します。"
-  )
+  @Operation(summary = "ログイン状態の取得", description = "現在のログイン状態を確認し、ログイン中であればユーザー情報を返却、未ログインであれば401を返します。")
   @GetMapping("/user/session")
   public ResponseEntity<User> checkLogin(HttpSession httpSession) {
     User loginUser = (User) httpSession.getAttribute("loginUser");

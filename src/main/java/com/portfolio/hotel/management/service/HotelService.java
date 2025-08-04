@@ -14,14 +14,17 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import com.portfolio.hotel.management.repository.HotelRepository;
 import com.portfolio.hotel.management.service.converter.HotelConverter;
 
 @Service
-public class HotelService {
+public class HotelService implements UserDetailsService {
 
   private final HotelRepository repository;
   private final HotelConverter converter;
@@ -32,9 +35,8 @@ public class HotelService {
   }
 
   // 宿泊者情報の全件取得
-  public List<GuestDetail> getAllGuest(HttpSession session) {
-    String userId = (String) session.getAttribute("userId");
-
+  public List<GuestDetail> getAllGuest(Authentication authentication) {
+    String userId = extractLoginId(authentication);
     return converter.convertGuestDetail(
         repository.findAllGuest(userId),
         repository.findAllBooking(userId),
@@ -42,35 +44,41 @@ public class HotelService {
   }
 
   // 本日チェックインの宿泊者を取得
-  public List<GuestDetail> getChackInToday(HttpSession session, LocalDate today) {
-    String userId = (String) session.getAttribute("userId");
-
+  public List<GuestDetail> getChackInToday(Authentication authentication, LocalDate today) {
+    String userId = extractLoginId(authentication);
     return converter.convertGuestDetail(
-        repository.findGuestsTodayCheckIn(today),
+        repository.findGuestsTodayCheckIn(userId, today),
         repository.findAllBooking(userId),
-        repository.findReservationTodayCheckIn(today));
+        repository.findReservationTodayCheckIn(userId, today));
+  }
+
+  // 現在宿泊中の宿泊者を取得
+  public List<GuestDetail> getStayNow(Authentication authentication) {
+    String userId = extractLoginId(authentication);
+    return converter.convertGuestDetail(
+        repository.findGuestStayNow(userId),
+        repository.findAllBooking(userId),
+        repository.findAllReservation(userId));
   }
 
   // 本日チェックアウトの宿泊者を取得
-  public List<GuestDetail> getChackOutToday(HttpSession session, LocalDate today) {
-    String userId = (String) session.getAttribute("userId");
-
+  public List<GuestDetail> getChackOutToday(Authentication authentication, LocalDate today) {
+    String userId = extractLoginId(authentication);
     return converter.convertGuestDetail(
-        repository.findGuestsTodayCheckOut(today),
+        repository.findGuestsTodayCheckOut(userId, today),
         repository.findAllBooking(userId),
-        repository.findReservationTodayCheckOut(today));
+        repository.findReservationTodayCheckOut(userId, today));
   }
 
-
-
   // 宿泊コースの全件取得
-  public List<Booking> getAllBooking(HttpSession session) {
-    String userId = (String) session.getAttribute("userId");
+  public List<Booking> getAllBooking(Authentication authentication) {
+    String userId = extractLoginId(authentication);
     return repository.findAllBooking(userId);
   }
 
   // 宿泊者情報の単一検索
-  public List<GuestDetail> searchGuest(GuestSearchCondition guestSearchCondition, HttpSession session) {
+  public List<GuestDetail> searchGuest(GuestSearchCondition guestSearchCondition,
+      HttpSession session) {
     String userId = (String) session.getAttribute("userId");
 
     return converter.convertGuestDetail(
@@ -165,15 +173,22 @@ public class HotelService {
     repository.insertUser(user);
   }
 
-  // ログイン処理
-  public ResponseEntity<String> login(User user, HttpSession session) {
-    User found = repository.findUserById(user.getId());
-    if (found != null && found.getPassword().equals(user.getPassword())) {
-      session.setAttribute("loginUser", found);
-      session.setAttribute("userId", found.getId());
-      return ResponseEntity.ok("ログインしました。");
-    } else {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("パスワードが違います。");
+  @Override
+  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    User found = repository.findUserById(username);
+    if (found == null) {
+      throw new UsernameNotFoundException("ユーザーが見つかりません");
     }
+    return new org.springframework.security.core.userdetails.User(
+        found.getId(),
+        found.getPassword(),
+        List.of(new SimpleGrantedAuthority("ROLE_USER"))
+    );
+  }
+
+  private static String extractLoginId(Authentication authentication) {
+    String userId = authentication.getName();
+    return userId;
+
   }
 }

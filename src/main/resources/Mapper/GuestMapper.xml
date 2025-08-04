@@ -27,10 +27,11 @@
   <select id="findGuestsTodayCheckIn" resultType="com.portfolio.hotel.management.data.guest.Guest">
     SELECT
     guest.id, guest.name, guest.kana_name, guest.gender, guest.age,
-    guest.region, guest.email, guest. Phone, guest.deleted
+    guest.region, guest.email, guest.phone, guest.deleted
     FROM guest
     INNER JOIN reservation ON guest.id = reservation.guest_id
     WHERE reservation.check_in_date = #{today}
+    AND reservation.user_id = #{id}
     AND reservation.status = 'NOT_CHECKED_IN'
   </select>
 
@@ -39,8 +40,21 @@
     resultType="com.portfolio.hotel.management.data.reservation.Reservation">
     SELECT * FROM reservation
     WHERE check_in_date = #{today}
+    AND user_id = #{id}
     AND status = 'NOT_CHECKED_IN'
   </select>
+
+  <!-- 宿泊中の宿泊者情報検索 -->
+  <select id="findGuestStayNow" resultType="com.portfolio.hotel.management.data.guest.Guest">
+    SELECT
+    guest.id, guest.name, guest.kana_name, guest.gender, guest.age,
+    guest.region, guest.email, guest.phone, guest.deleted
+    FROM guest
+    INNER JOIN reservation ON guest.id = reservation.guest_id
+    WHERE reservation.user_id = #{id}
+    AND reservation.status = 'CHECKED_IN'
+  </select>
+
 
   <!-- 本日チェックアウト予定の宿泊者取得（チェックイン中） -->
   <select id="findGuestsTodayCheckOut" resultType="com.portfolio.hotel.management.data.guest.Guest">
@@ -50,6 +64,7 @@
     FROM guest
     INNER JOIN reservation ON guest.id = reservation.guest_id
     WHERE reservation.check_out_date = #{today}
+    AND reservation.user_id = #{id}
     AND reservation.status = 'CHECKED_IN'
   </select>
 
@@ -58,6 +73,7 @@
     resultType="com.portfolio.hotel.management.data.reservation.Reservation">
     SELECT * FROM reservation
     WHERE check_out_date = #{today}
+    AND user_id = #{id}
     AND status = 'CHECKED_IN'
   </select>
 

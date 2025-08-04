@@ -156,13 +156,13 @@ class HotelServiceTest {
     List<GuestDetail> converted = new ArrayList<>();
     LocalDate today = LocalDate.of(2025, 7, 24);
 
-    when(repository.findGuestsTodayCheckIn(today)).thenReturn(guest);
+    when(repository.findGuestsTodayCheckIn(, today)).thenReturn(guest);
     when(repository.findAllBooking()).thenReturn(booking);
-    when(repository.findReservationTodayCheckIn(today)).thenReturn(reservation);
+    when(repository.findReservationTodayCheckIn(, today)).thenReturn(reservation);
     when(converter.convertGuestDetail(guest, booking, reservation))
         .thenReturn(converted);
 
-    List<GuestDetail> actual = sut.getChackInToday(, today);
+    List<GuestDetail> actual = sut.getChackInToday(, today, );
 
     assertNotNull(actual);
     assertEquals(actual, converted);

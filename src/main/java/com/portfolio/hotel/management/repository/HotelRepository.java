@@ -26,16 +26,23 @@ public interface HotelRepository {
   List<Reservation> findAllReservation(@Param("id") String id);
 
   // 本日チェックイン予定の宿泊者を検索
-  List<Guest> findGuestsTodayCheckIn(@Param("today") LocalDate today);
+  List<Guest> findGuestsTodayCheckIn(@Param("id") String id,
+      @Param("today") LocalDate today);
 
   // 本日チェックイン予定の宿泊予約を検索
-  List<Reservation> findReservationTodayCheckIn(@Param("today") LocalDate today);
+  List<Reservation> findReservationTodayCheckIn(@Param("id") String id,
+      @Param("today") LocalDate today);
+
+  // 現在宿泊中の宿泊者を検索
+  List<Guest> findGuestStayNow(@Param("id") String id);
 
   // 本日チェックアウト予定の宿泊者情報を検索
-  List<Guest> findGuestsTodayCheckOut(@Param("today") LocalDate today);
+  List<Guest> findGuestsTodayCheckOut(@Param("id") String id,
+      @Param("today") LocalDate today);
 
   // 本日チェックアウト予定の宿泊予約を検索
-  List<Reservation> findReservationTodayCheckOut(@Param("today") LocalDate today);
+  List<Reservation> findReservationTodayCheckOut(@Param("id") String id,
+      @Param("today") LocalDate today);
 
   // 宿泊者ID、名前、かな名、電話番号から宿泊者を検索
   List<Guest> searchGuest(@Param("guest") GuestSearchCondition guestSearchCondition);
