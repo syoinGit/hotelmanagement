@@ -56,11 +56,11 @@ public class HotelController {
 
   @Operation(summary = "現在宿泊中の宿泊者を全件検索", description = "現在宿泊中の宿泊者を全件検索します")
   @GetMapping("/guests/stay")
-  public List<GuestDetail> getStay(Authentication authentication){
+  public List<GuestDetail> getStay(Authentication authentication) {
     return service.getStayNow(authentication);
   }
 
-  @Operation(summary = "本日退館の者を全件検索", description = "本日退館予定の宿泊者を全件検索します")
+  @Operation(summary = "本日退館の宿泊者を全件検索", description = "本日退館予定の宿泊者を全件検索します")
   @GetMapping("/guests/check-out-today")
   public List<GuestDetail> getCheckOutToday(Authentication authentication) {
     LocalDate today = LocalDate.now();
@@ -81,7 +81,7 @@ public class HotelController {
   }
 
   @Operation(summary = "宿泊者情報登録", description = "宿泊者情報を入力し、宿泊者情報を登録します。")
-  @PutMapping("/registerGuest")
+  @PutMapping("/guest/register")
   public ResponseEntity<String> registerGuest(
       @RequestBody @Valid GuestRegistration guestRegistration) {
     service.registerGuest(guestRegistration);
@@ -96,14 +96,14 @@ public class HotelController {
   }
 
   @Operation(summary = "宿泊者の変更", description = "宿泊者の変更を行います。")
-  @PutMapping("/updateGuest")
+  @PutMapping("/guest/update")
   public ResponseEntity<String> updateGuest(@RequestBody Guest guest) {
     service.updateGuest(guest);
     return ResponseEntity.ok("宿泊者の変更が完了しました。");
   }
 
   @Operation(summary = "宿泊情報の変更", description = "宿泊情報の変更を行います。")
-  @PutMapping("/updateReservation")
+  @PutMapping("/reservation/update")
   public ResponseEntity<String> updateReservation(@RequestBody Reservation reservation) {
     service.updateReservation(reservation);
     return ResponseEntity.ok("宿泊情報の変更が完了しました。");
