@@ -60,7 +60,7 @@ class HotelRepositoryTest {
   void 宿泊者の単一検索_IDから宿泊者を検索できるか確認() {
     GuestSearchCondition guestSearchCondition = new GuestSearchCondition();
     guestSearchCondition.setName("佐藤花子");
-    List<Guest> actual = sut.searchGuest(guestSearchCondition);
+    List<Guest> actual = sut.searchGuest(, guestSearchCondition);
 
     Guest result = actual.getFirst();
     assertThat(actual.size()).isEqualTo(1);
@@ -85,7 +85,7 @@ class HotelRepositoryTest {
     guestMatch.setName("佐藤花子");
     guestMatch.setKanaName("サトウハナコ");
     guestMatch.setPhone("08098765432");
-    Guest actual = sut.matchGuest(guestMatch);
+    Guest actual = sut.matchGuest(, guestMatch);
 
     assertThat(actual.getId()).isEqualTo("11111111-1111-1111-1111-111111111111");
     assertThat(actual.getGender()).isEqualTo("FEMALE");
@@ -142,7 +142,7 @@ class HotelRepositoryTest {
     guest.setName("佐藤華子");
     sut.updateGuest(guest);
 
-    List<Guest> actual = sut.searchGuest(guestSearchCondition);
+    List<Guest> actual = sut.searchGuest(, guestSearchCondition);
     assertThat(actual.getFirst().getName()).isEqualTo(guest.getName());
   }
 

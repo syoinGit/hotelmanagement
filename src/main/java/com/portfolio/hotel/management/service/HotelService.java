@@ -9,7 +9,6 @@ import com.portfolio.hotel.management.data.guest.GuestSearchCondition;
 import com.portfolio.hotel.management.data.reservation.Reservation;
 import com.portfolio.hotel.management.data.reservation.ReservationStatus;
 import com.portfolio.hotel.management.data.user.User;
-import jakarta.servlet.http.HttpSession;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -58,7 +57,7 @@ public class HotelService implements UserDetailsService {
     return converter.convertGuestDetail(
         repository.findGuestStayNow(userId),
         repository.findAllBooking(userId),
-        repository.findAllReservation(userId));
+        repository.findReservationStayNow(userId));
   }
 
   // 本日チェックアウトの宿泊者を取得
@@ -77,9 +76,10 @@ public class HotelService implements UserDetailsService {
   }
 
   // 宿泊者情報の単一検索
-  public List<GuestDetail> searchGuest(GuestSearchCondition guestSearchCondition,
-      HttpSession session) {
-    String userId = (String) session.getAttribute("userId");
+  public List<GuestDetail> searchGuest(Authentication authentication,
+      GuestSearchCondition guestSearchCondition) {
+    String userId = extractLoginId(authentication);
+    guestSearchCondition.setUserId(userId);
 
     return converter.convertGuestDetail(
         repository.searchGuest(guestSearchCondition),
@@ -88,9 +88,11 @@ public class HotelService implements UserDetailsService {
   }
 
   // 宿泊者の完全一致検索
-  public GuestDetail matchGuest(GuestMatch guestMatch) {
-    Guest guest = repository.matchGuest(guestMatch);
+  public GuestDetail matchGuest(Authentication authentication,
+      GuestMatch guestMatch) {
     GuestDetail guestDetail = new GuestDetail();
+    String userId = extractLoginId(authentication);
+    Guest guest = repository.matchGuest(userId, guestMatch);
     // 一致するものがなかった場合、guestの数値を入れる。
     if (guest == null) {
       guestDetail.setGuest(converter.toGuest(guestMatch));
@@ -187,8 +189,6 @@ public class HotelService implements UserDetailsService {
   }
 
   private static String extractLoginId(Authentication authentication) {
-    String userId = authentication.getName();
-    return userId;
-
+    return authentication.getName();
   }
 }

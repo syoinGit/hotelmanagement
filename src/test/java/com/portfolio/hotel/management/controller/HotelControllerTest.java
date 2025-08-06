@@ -96,7 +96,7 @@ class HotelControllerTest {
     GuestDetail guestDetail = new GuestDetail();
     guestDetail.setGuest(guest);
 
-    when(service.matchGuest(any())).thenReturn(guestDetail);
+    when(service.matchGuest(, any())).thenReturn(guestDetail);
 
     mockMvc.perform(MockMvcRequestBuilders.post("/matchGuest")
             .contentType(MediaType.APPLICATION_JSON)

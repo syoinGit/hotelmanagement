@@ -17,7 +17,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,13 +35,13 @@ public class HotelController {
   }
 
   @Operation(summary = "全件検索", description = "宿泊者情報の全件検索を行います。")
-  @GetMapping("/guestList")
+  @GetMapping("/guests")
   public List<GuestDetail> getGuestList(Authentication authentication) {
     return service.getAllGuest(authentication);
   }
 
   @Operation(summary = "宿泊プラン一覧取得", description = "すべての宿泊プランを取得します。")
-  @GetMapping("/getBookingList")
+  @GetMapping("/bookings")
   public List<Booking> getAllBooking(Authentication authentication) {
     return service.getAllBooking(authentication);
   }
@@ -68,16 +67,17 @@ public class HotelController {
   }
 
   @Operation(summary = "単一検索", description = "ID、名前、ふりがな、電話番号、宿泊日から宿泊者情報を検索します。")
-  @GetMapping("/searchGuest")
-  public List<GuestDetail> searchGuest(@ModelAttribute GuestSearchCondition guestSearchCondition,
-      HttpSession session) {
-    return service.searchGuest(guestSearchCondition, session);
+  @PostMapping("/guest/search")
+  public List<GuestDetail> searchGuest(Authentication authentication,
+      @RequestBody GuestSearchCondition guestSearchCondition) {
+    return service.searchGuest(authentication, guestSearchCondition);
   }
 
   @Operation(summary = "完全一致検索", description = "名前、ふりがな、電話番号から宿泊者情報を完全一致検索します。ここで完全位一致したデータは宿泊者情報登録の際に使われます")
-  @PostMapping("/matchGuest")
-  public GuestDetail matchGuestForInsert(@RequestBody @Valid GuestMatch guestMatch) {
-    return service.matchGuest(guestMatch);
+  @PostMapping("/guest/match")
+  public GuestDetail matchGuestForInsert(Authentication authentication,
+      @RequestBody @Valid GuestMatch guestMatch) {
+    return service.matchGuest(authentication,guestMatch);
   }
 
   @Operation(summary = "宿泊者情報登録", description = "宿泊者情報を入力し、宿泊者情報を登録します。")
@@ -105,12 +105,13 @@ public class HotelController {
   @Operation(summary = "宿泊情報の変更", description = "宿泊情報の変更を行います。")
   @PutMapping("/reservation/update")
   public ResponseEntity<String> updateReservation(@RequestBody Reservation reservation) {
+    System.out.println("受け取ったReservation: " + reservation);
     service.updateReservation(reservation);
     return ResponseEntity.ok("宿泊情報の変更が完了しました。");
   }
 
   @Operation(summary = "チェックイン", description = "宿泊客のチェックインを行います。")
-  @PutMapping("/checkIn")
+  @PutMapping("/guest/checkIn")
   public ResponseEntity<String> checkIn(@RequestParam String reservationsId,
       @RequestParam String guestName) {
     service.checkIn(reservationsId);

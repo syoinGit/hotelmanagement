@@ -86,7 +86,7 @@ class HotelServiceTest {
     guestSearchCondition.setPhone("08098765432");
     guestSearchCondition.setName("佐藤花子");
 
-    when(repository.searchGuest(guestSearchCondition)).thenReturn(guestList);
+    when(repository.searchGuest(, guestSearchCondition)).thenReturn(guestList);
     when(repository.findAllBooking()).thenReturn(bookingList);
     when(repository.findAllReservation()).thenReturn(reservationList);
     when(converter.convertGuestDetail(guestList, bookingList, reservationList))
@@ -94,7 +94,7 @@ class HotelServiceTest {
 
     List<GuestDetail> actual = sut.searchGuest(guestSearchCondition, );
 
-    verify(repository, Mockito.times(1)).searchGuest(guestSearchCondition);
+    verify(repository, Mockito.times(1)).searchGuest(, guestSearchCondition);
     verify(repository, Mockito.times(1)).findAllBooking();
     verify(repository, Mockito.times(1)).findAllReservation();
     verify(converter, Mockito.times(1))
@@ -114,10 +114,10 @@ class HotelServiceTest {
     guest.setKanaName("サトウハナコ");
     guest.setPhone("08098765432");
 
-    when(repository.matchGuest(guestMatch)).thenReturn(guest);
-    GuestDetail actual = sut.matchGuest(guestMatch);
+    when(repository.matchGuest(, guestMatch)).thenReturn(guest);
+    GuestDetail actual = sut.matchGuest(, guestMatch);
 
-    verify(repository, Mockito.times(1)).matchGuest(guestMatch);
+    verify(repository, Mockito.times(1)).matchGuest(, guestMatch);
     verify(converter, Mockito.never()).toGuest(Mockito.any());
 
     assertNotNull(actual);
@@ -134,12 +134,12 @@ class HotelServiceTest {
     guestMatch.setName("佐藤花子");
     guestMatch.setKanaName("サトウハナコ");
 
-    when(repository.matchGuest(guestMatch)).thenReturn(null);
+    when(repository.matchGuest(, guestMatch)).thenReturn(null);
     when(converter.toGuest(guestMatch)).thenReturn(guest);
 
-    GuestDetail actual = sut.matchGuest(guestMatch);
+    GuestDetail actual = sut.matchGuest(, guestMatch);
 
-    verify(repository, Mockito.times(1)).matchGuest(guestMatch);
+    verify(repository, Mockito.times(1)).matchGuest(, guestMatch);
     verify(converter, Mockito.times(1)).toGuest(guestMatch);
 
     assertNotNull(actual);

@@ -28,7 +28,7 @@ public class SecurityConfig {
         .csrf(csrf -> csrf.disable())
         .cors(Customizer.withDefaults())
         .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/login", "/register").permitAll()
+            .requestMatchers("/login", "/register","guests","/guest/search").permitAll()
             .anyRequest().authenticated()
         )
         .formLogin(form -> form
@@ -49,8 +49,12 @@ public class SecurityConfig {
         .sessionManagement(session -> session
             .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
         )
-        .userDetailsService(service); // ← ここ重要！
+        .httpBasic(Customizer.withDefaults()) // ← ★これを追加
+        .sessionManagement(session -> session
+            .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+        )
 
+        .userDetailsService(service); // ← ここ重要！
     return http.build();
   }
 
