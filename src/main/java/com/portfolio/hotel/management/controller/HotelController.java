@@ -7,14 +7,16 @@ import com.portfolio.hotel.management.data.guest.GuestMatch;
 import com.portfolio.hotel.management.data.guest.GuestRegistration;
 import com.portfolio.hotel.management.data.guest.GuestSearchCondition;
 import com.portfolio.hotel.management.data.reservation.Reservation;
+import com.portfolio.hotel.management.data.user.User;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
+import org.springframework.security.core.Authentication;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.portfolio.hotel.management.service.HotelService;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 @RestController
 public class HotelController {
 
@@ -33,45 +35,53 @@ public class HotelController {
   }
 
   @Operation(summary = "全件検索", description = "宿泊者情報の全件検索を行います。")
-  @GetMapping("/guestList")
-  public List<GuestDetail> getGuestList() {
-    return service.getAllGuest();
+  @GetMapping("/guests")
+  public List<GuestDetail> getGuestList(Authentication authentication) {
+    return service.getAllGuest(authentication);
   }
 
   @Operation(summary = "宿泊プラン一覧取得", description = "すべての宿泊プランを取得します。")
-  @GetMapping("/getBookingList")
-  public List<Booking> getAllBooking() {
-    return service.getAllBooking();
+  @GetMapping("/bookings")
+  public List<Booking> getAllBooking(Authentication authentication) {
+    return service.getAllBooking(authentication);
   }
 
-  @Operation(summary = "本日宿泊の宿泊予約を全件検索", description = "本日宿泊予定の宿泊予約を全件検索します")
-  @GetMapping("/getCheckInToday")
-  public List<GuestDetail> getChackInToday() {
+  @Operation(summary = "本日宿泊の宿泊者を全件検索", description = "本日宿泊予定の宿泊予約を全件検索します")
+  @GetMapping("/guests/check-in-today")
+  public List<GuestDetail> getChackInToday(Authentication authentication) {
     LocalDate today = LocalDate.now();
-    return service.getChackInToday(today);
+    return service.getChackInToday(authentication, today);
   }
 
-  @Operation(summary = "本日退館の宿泊予約を全件検索", description = "本日退館予定の宿泊予約を取得いします")
-  @GetMapping("/getCheckOutToday")
-  public List<GuestDetail> getCheckOutToday() {
+  @Operation(summary = "現在宿泊中の宿泊者を全件検索", description = "現在宿泊中の宿泊者を全件検索します")
+  @GetMapping("/guests/stay")
+  public List<GuestDetail> getStay(Authentication authentication) {
+    return service.getStayNow(authentication);
+  }
+
+  @Operation(summary = "本日退館の宿泊者を全件検索", description = "本日退館予定の宿泊者を全件検索します")
+  @GetMapping("/guests/check-out-today")
+  public List<GuestDetail> getCheckOutToday(Authentication authentication) {
     LocalDate today = LocalDate.now();
-    return service.getChackOutToday(today);
+    return service.getChackOutToday(authentication, today);
   }
 
   @Operation(summary = "単一検索", description = "ID、名前、ふりがな、電話番号、宿泊日から宿泊者情報を検索します。")
-  @GetMapping("/searchGuest")
-  public List<GuestDetail> searchGuest(@ModelAttribute GuestSearchCondition guestSearchCondition) {
-    return service.searchGuest(guestSearchCondition);
+  @PostMapping("/guest/search")
+  public List<GuestDetail> searchGuest(Authentication authentication,
+      @RequestBody GuestSearchCondition guestSearchCondition) {
+    return service.searchGuest(authentication, guestSearchCondition);
   }
 
   @Operation(summary = "完全一致検索", description = "名前、ふりがな、電話番号から宿泊者情報を完全一致検索します。ここで完全位一致したデータは宿泊者情報登録の際に使われます")
-  @PostMapping("/matchGuest")
-  public GuestDetail matchGuestForInsert(@RequestBody @Valid GuestMatch guestMatch) {
-    return service.matchGuest(guestMatch);
+  @PostMapping("/guest/match")
+  public GuestDetail matchGuestForInsert(Authentication authentication,
+      @RequestBody @Valid GuestMatch guestMatch) {
+    return service.matchGuest(authentication,guestMatch);
   }
 
   @Operation(summary = "宿泊者情報登録", description = "宿泊者情報を入力し、宿泊者情報を登録します。")
-  @PutMapping("/registerGuest")
+  @PutMapping("/guest/register")
   public ResponseEntity<String> registerGuest(
       @RequestBody @Valid GuestRegistration guestRegistration) {
     service.registerGuest(guestRegistration);
@@ -84,38 +94,39 @@ public class HotelController {
     service.registerBooking(booking);
     return ResponseEntity.ok("宿泊プランの登録が完了しました。");
   }
+  
+@Operation(summary = "宿泊者の更新", description = "宿泊者の情報を更新します。")
+@PutMapping("/guest/update")
+public ResponseEntity<String> updateGuest(@RequestBody Guest guest) {
+  service.updateGuest(guest);
+  return ResponseEntity.ok("宿泊者の更新が完了しました。");
+}
 
-  @Operation(summary = "宿泊者の更新", description = "宿泊者の更新を行います。")
-  @PutMapping("/updateGuest")
-  public ResponseEntity<String> updateGuest(@RequestBody Guest guest) {
-    service.updateGuest(guest);
-    return ResponseEntity.ok("宿泊者の更新が完了しました。");
-  }
+@Operation(summary = "宿泊情報の更新", description = "宿泊予約情報を更新します。")
+@PutMapping("/reservation/update")
+public ResponseEntity<String> updateReservation(@RequestBody Reservation reservation) {
+  System.out.println("受け取ったReservation: " + reservation);
+  service.updateReservation(reservation);
+  return ResponseEntity.ok("宿泊情報の更新が完了しました。");
+}
 
-  @Operation(summary = "宿泊情報の更新", description = "宿泊情報の更新を行います。")
-  @PutMapping("/updateReservation")
-  public ResponseEntity<String> updateReservation(@RequestBody Reservation reservation) {
-    service.updateReservation(reservation);
-    return ResponseEntity.ok("宿泊情報の更新が完了しました。");
-  }
+@Operation(summary = "宿泊者の論理削除", description = "宿泊者の削除フラグをtrueにします。")
+@PutMapping("/deleteGuest")
+public ResponseEntity<String> logicalDeleteGuest(
+    @RequestParam String id,
+    @RequestParam String name) {
+  service.logicalDeleteGuest(id);
+  return ResponseEntity.ok(name + "様の情報を削除しました。");
+}
 
-  @Operation(summary = "宿泊者の論理削除", description = "宿泊者の削除フラグをtureにします。")
-  @PutMapping("/deleteGuest")
-  public ResponseEntity<String> logicalDeleteGuest(
-      @RequestParam String id,
-      @RequestParam String name) {
-    service.logicalDeleteGuest(id);
-    return ResponseEntity.ok(name + "様の情報を削除しました。");
-  }
-
-  @Operation(summary = "チェックイン", description = "宿泊客のチェックインを行います。")
-  @PutMapping("/checkIn")
-  public ResponseEntity<String> checkIn(
-      @RequestParam String id,
-      @RequestParam String name) {
-    service.checkIn(id);
-    return ResponseEntity.ok(name + "様のチェックインが完了しました。");
-  }
+@Operation(summary = "チェックイン", description = "宿泊客のチェックインを行います。")
+@PutMapping("/guest/checkIn")
+public ResponseEntity<String> checkIn(
+    @RequestParam String id,
+    @RequestParam String name) {
+  service.checkIn(id);
+  return ResponseEntity.ok(name + "様のチェックインが完了しました。");
+}
 
   @Operation(summary = "チェックアウト", description = "宿泊客のチェックアウトを行います。")
   @PutMapping("/checkOut")
@@ -124,5 +135,23 @@ public class HotelController {
       @RequestParam String name) {
     service.checkOut(id);
     return ResponseEntity.ok(name + "様のチェックアウトが完了しました。");
+  }
+
+  @Operation(summary = "新規ユーザーの登録", description = "IDとパスワードを取得して、新規ユーザの登録を行います。")
+  @PutMapping("/user/register")
+  public ResponseEntity<String> registerUser(@RequestBody User user) {
+    service.registerUser(user);
+    return ResponseEntity.ok("ユーザ情報の登録が完了しました。");
+  }
+
+  @Operation(summary = "ログイン状態の取得", description = "現在のログイン状態を確認し、ログイン中であればユーザー情報を返却、未ログインであれば401を返します。")
+  @GetMapping("/user/session")
+  public ResponseEntity<User> checkLogin(HttpSession httpSession) {
+    User loginUser = (User) httpSession.getAttribute("loginUser");
+    if (loginUser != null) {
+      return ResponseEntity.ok(loginUser);
+    } else {
+      return ResponseEntity.status(401).build();
+    }
   }
 }

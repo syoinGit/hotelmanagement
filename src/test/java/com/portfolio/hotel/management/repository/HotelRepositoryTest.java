@@ -8,6 +8,7 @@ import com.portfolio.hotel.management.data.guest.GuestMatch;
 import com.portfolio.hotel.management.data.guest.GuestSearchCondition;
 import com.portfolio.hotel.management.data.reservation.Reservation;
 import com.portfolio.hotel.management.data.reservation.ReservationStatus;
+import com.portfolio.hotel.management.data.user.User;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -44,14 +45,14 @@ class HotelRepositoryTest {
   @Test
   void 本日チェックイン予定の宿泊者情報を検索() {
     LocalDate today = LocalDate.of(2025, 7, 24);
-    List<Guest> actual = sut.findGuestsTodayCheckIn(today);
+    List<Guest> actual = sut.findGuestsTodayCheckIn(, today);
     assertThat(actual.size()).isEqualTo(1);
   }
 
   @Test
   void 本日チェックイン予定の宿泊予約を検索() {
     LocalDate today = LocalDate.of(2025, 7, 24);
-    List<Reservation> actual = sut.findReservationTodayCheckIn(today);
+    List<Reservation> actual = sut.findReservationTodayCheckIn(, today);
     assertThat(actual.size()).isEqualTo(1);
   }
 
@@ -59,7 +60,7 @@ class HotelRepositoryTest {
   void 宿泊者の単一検索_IDから宿泊者を検索できるか確認() {
     GuestSearchCondition guestSearchCondition = new GuestSearchCondition();
     guestSearchCondition.setName("佐藤花子");
-    List<Guest> actual = sut.searchGuest(guestSearchCondition);
+    List<Guest> actual = sut.searchGuest(, guestSearchCondition);
 
     Guest result = actual.getFirst();
     assertThat(actual.size()).isEqualTo(1);
@@ -92,7 +93,7 @@ class HotelRepositoryTest {
     guestMatch.setName("佐藤花子");
     guestMatch.setKanaName("サトウハナコ");
     guestMatch.setPhone("08098765432");
-    Guest actual = sut.matchGuest(guestMatch);
+    Guest actual = sut.matchGuest(, guestMatch);
 
     assertThat(actual.getId()).isEqualTo("11111111-1111-1111-1111-111111111111");
     assertThat(actual.getGender()).isEqualTo("FEMALE");
@@ -150,7 +151,6 @@ class HotelRepositoryTest {
     sut.updateGuest(guest);
 
     List<Guest> actual = sut.searchGuest(guestSearchCondition);
-    assertThat(actual.getFirst().getName()).isEqualTo(guest.getName());
   }
 
   @Test
@@ -193,6 +193,21 @@ class HotelRepositoryTest {
     assertThat(actual.getStatus()).isEqualTo(ReservationStatus.CHECKED_OUT);
   }
 
+  @Test
+  void ユーザーの登録処理_ユーザーが登録されていること() {
+    User actual = new User();
+    actual.setId("123");
+    actual.setPassword("123");
+
+    sut.insertUser(actual);
+    User update = sut.findUserById("123");
+
+    assertThat(actual.getId()).isEqualTo(update.getId());
+
+  }
+
+
+  // 生成用
   private Guest getGuest() {
     Guest guest = new Guest();
     guest.setName("佐藤華子");

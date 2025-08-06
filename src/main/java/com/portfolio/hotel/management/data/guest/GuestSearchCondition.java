@@ -17,4 +17,6 @@ public class GuestSearchCondition {
   LocalDate checkInDate;
 
   LocalDate checkOutDate;
+
+  String userId;
 }

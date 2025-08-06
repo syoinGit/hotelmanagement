@@ -20,3 +20,7 @@ INSERT INTO reservation (
   ('rsv00002-bbbb-cccc-dddd-000000000002', '22222222-2222-2222-2222-222222222222',
    'aaaaaaa2-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '2025-07-24', '2025-07-25', 1, 7000.00,
    'NOT_CHECKED_IN', '出張で利用', '2025-07-02 15:30:00');
+
+
+   INSERT INTO users (id,password) VALUES
+   ('11111111-1111-1111-1111-111111111111','$2a$10$Vb4KP1Hj9u4NDhxiqEy80eMNlRxXoR/Fe7DLWnVLvUyUJgJBAAD56');

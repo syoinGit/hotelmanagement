@@ -36,3 +36,8 @@ CREATE TABLE reservation (
   CONSTRAINT fk_guest FOREIGN KEY (guest_id) REFERENCES guest(id),
   CONSTRAINT fk_booking FOREIGN KEY (booking_id) REFERENCES booking(id)
 );
+
+CREATE TABLE IF NOT EXISTS users (
+  id VARCHAR(36) PRIMARY KEY,
+  password VARCHAR(255) NOT NULL
+);

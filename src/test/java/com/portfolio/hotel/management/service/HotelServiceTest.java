@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import com.portfolio.hotel.management.data.guest.GuestMatch;
 import com.portfolio.hotel.management.data.guest.GuestRegistration;
 import com.portfolio.hotel.management.data.guest.GuestSearchCondition;
+import com.portfolio.hotel.management.data.user.User;
 import com.portfolio.hotel.management.service.converter.HotelConverter;
 import com.portfolio.hotel.management.data.booking.Booking;
 import com.portfolio.hotel.management.data.guest.Guest;
@@ -86,18 +87,20 @@ class HotelServiceTest {
     guestSearchCondition.setPhone("08098765432");
     guestSearchCondition.setName("佐藤花子");
 
-    when(repository.searchGuest(guestSearchCondition)).thenReturn(guestList);
+    when(repository.searchGuest(, guestSearchCondition)).thenReturn(guestList);
     when(repository.findAllBooking()).thenReturn(bookingList);
     when(repository.findAllReservation()).thenReturn(reservationList);
     when(converter.convertGuestDetail(guestList, bookingList, reservationList))
         .thenReturn(converted);
 
-    List<GuestDetail> actual = sut.searchGuest(guestSearchCondition);
+    List<GuestDetail> actual = sut.searchGuest(guestSearchCondition, );
 
-    verify(repository, times(1)).searchGuest(guestSearchCondition);
-    verify(repository, times(1)).findAllBooking();
-    verify(repository, times(1)).findAllReservation();
-    verify(converter, times(1))
+
+    verify(repository, Mockito.times(1)).searchGuest(, guestSearchCondition);
+    verify(repository, Mockito.times(1)).findAllBooking();
+    verify(repository, Mockito.times(1)).findAllReservation();
+    verify(converter, Mockito.times(1))
+
         .convertGuestDetail(guestList, bookingList, reservationList);
 
     assertNotNull(actual);
@@ -114,11 +117,12 @@ class HotelServiceTest {
     guest.setKanaName("サトウハナコ");
     guest.setPhone("08098765432");
 
-    when(repository.matchGuest(guestMatch)).thenReturn(guest);
-    GuestDetail actual = sut.matchGuest(guestMatch);
+    when(repository.matchGuest(, guestMatch)).thenReturn(guest);
+    GuestDetail actual = sut.matchGuest(, guestMatch);
 
-    verify(repository, times(1)).matchGuest(guestMatch);
-    verify(converter, never()).toGuest(any());
+    verify(repository, Mockito.times(1)).matchGuest(, guestMatch);
+    verify(converter, Mockito.never()).toGuest(Mockito.any());
+
 
     assertNotNull(actual);
     assertEquals(guest, actual.getGuest());
@@ -134,13 +138,13 @@ class HotelServiceTest {
     guestMatch.setName("佐藤花子");
     guestMatch.setKanaName("サトウハナコ");
 
-    when(repository.matchGuest(guestMatch)).thenReturn(null);
+    when(repository.matchGuest(, guestMatch)).thenReturn(null);
     when(converter.toGuest(guestMatch)).thenReturn(guest);
 
-    GuestDetail actual = sut.matchGuest(guestMatch);
+    GuestDetail actual = sut.matchGuest(, guestMatch);
 
-    verify(repository, times(1)).matchGuest(guestMatch);
-    verify(converter, times(1)).toGuest(guestMatch);
+    verify(repository, Mockito.times(1)).matchGuest(, guestMatch);
+    verify(converter, Mockito.times(1)).toGuest(guestMatch);
 
     assertNotNull(actual);
     assertEquals(guest, actual.getGuest());
@@ -156,13 +160,13 @@ class HotelServiceTest {
     List<GuestDetail> converted = new ArrayList<>();
     LocalDate today = LocalDate.of(2025, 7, 24);
 
-    when(repository.findGuestsTodayCheckIn(today)).thenReturn(guest);
+    when(repository.findGuestsTodayCheckIn(, today)).thenReturn(guest);
     when(repository.findAllBooking()).thenReturn(booking);
-    when(repository.findReservationTodayCheckIn(today)).thenReturn(reservation);
+    when(repository.findReservationTodayCheckIn(, today)).thenReturn(reservation);
     when(converter.convertGuestDetail(guest, booking, reservation))
         .thenReturn(converted);
 
-    List<GuestDetail> actual = sut.getChackInToday(today);
+    List<GuestDetail> actual = sut.getChackInToday(, today, );
 
     assertNotNull(actual);
     assertEquals(actual, converted);
@@ -287,6 +291,18 @@ class HotelServiceTest {
 
     verify(repository, times(1)).findStatusById(reservationId);
   }
+
+  @Test
+  void ユーザーの登録処理_リポジトリが呼び出せていること(){
+    HotelService sut = new HotelService(repository,converter);
+    User user = new User();
+    user.setId("123");
+    user.setPassword("123");
+
+    sut.registerUser(user);
+    verify(repository, Mockito.times(1)).insertUser(user);
+  }
+
 
   // 生成用
   private static Guest createGuest() {

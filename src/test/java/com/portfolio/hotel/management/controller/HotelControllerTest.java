@@ -50,7 +50,7 @@ class HotelControllerTest {
 
     mockMvc.perform(get("/getCheckInToday")).andExpect(status().isOk())
         .andExpect(content().json("[]"));
-    verify(service, times(1)).getChackInToday(today);
+    verify(service, times(1)).getChackInToday(, today, );
   }
 
   @Test
@@ -71,7 +71,7 @@ class HotelControllerTest {
 
     GuestDetail guestDetail = new GuestDetail();
     guestDetail.setGuest(guest);
-    when(service.searchGuest(any())).thenReturn(List.of(guestDetail));
+    when(service.searchGuest(any(), )).thenReturn(List.of(guestDetail));
 
     mockMvc.perform(MockMvcRequestBuilders.get("/searchGuest")
             .contentType(MediaType.APPLICATION_JSON)
@@ -96,7 +96,7 @@ class HotelControllerTest {
     GuestDetail guestDetail = new GuestDetail();
     guestDetail.setGuest(guest);
 
-    when(service.matchGuest(any())).thenReturn(guestDetail);
+    when(service.matchGuest(, any())).thenReturn(guestDetail);
 
     mockMvc.perform(MockMvcRequestBuilders.post("/matchGuest")
             .contentType(MediaType.APPLICATION_JSON)
@@ -232,5 +232,19 @@ class HotelControllerTest {
                 .param("name", name))
         .andExpect(status().isOk())
         .andExpect(content().string(name + "様のチェックアウトが完了しました。"));
+  }
+
+  @Test
+  void ユーザーの登録処理_登録完了のメッセージが返ってくるか確認() throws Exception {
+    mockMvc.perform(put("/user/register")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("""
+                {
+                   "id": "testuser01",
+                   "password": "testpass123"
+                 }
+                """))
+        .andExpect(status().isOk())
+        .andExpect(content().string("ユーザ情報の登録が完了しました。"));
   }
 }

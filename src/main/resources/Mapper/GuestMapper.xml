@@ -6,29 +6,32 @@
 <mapper namespace="com.portfolio.hotel.management.repository.HotelRepository">
 
   <!-- 宿泊者全件取得 -->
-  <select id="findAllGuest" resultType="com.portfolio.hotel.management.data.guest.Guest">
+  <select id="findAllGuest" parameterType="string" resultType="com.portfolio.hotel.management.data.guest.Guest">
     SELECT * FROM guest
+    WHERE user_id = #{id}
   </select>
 
   <!-- 宿泊プラン全件取得 -->
-  <select id="findAllBooking" resultType="com.portfolio.hotel.management.data.booking.Booking">
+  <select id="findAllBooking" parameterType="string" resultType="com.portfolio.hotel.management.data.booking.Booking">
     SELECT * FROM booking
+    WHERE user_id = #{id}
   </select>
 
   <!-- 宿泊予約全件取得 -->
-  <select id="findAllReservation"
-    resultType="com.portfolio.hotel.management.data.reservation.Reservation">
+  <select id="findAllReservation" parameterType="string" resultType="com.portfolio.hotel.management.data.reservation.Reservation">
     SELECT * FROM reservation
+    WHERE user_id = #{id}
   </select>
 
   <!-- 本日チェックイン予定の宿泊者取得（未チェックイン状態） -->
   <select id="findGuestsTodayCheckIn" resultType="com.portfolio.hotel.management.data.guest.Guest">
     SELECT
     guest.id, guest.name, guest.kana_name, guest.gender, guest.age,
-    guest.region, guest.email, guest. Phone, guest.deleted
+    guest.region, guest.email, guest.phone, guest.deleted
     FROM guest
     INNER JOIN reservation ON guest.id = reservation.guest_id
     WHERE reservation.check_in_date = #{today}
+    AND reservation.user_id = #{id}
     AND reservation.status = 'NOT_CHECKED_IN'
   </select>
 
@@ -37,7 +40,27 @@
     resultType="com.portfolio.hotel.management.data.reservation.Reservation">
     SELECT * FROM reservation
     WHERE check_in_date = #{today}
+    AND user_id = #{id}
     AND status = 'NOT_CHECKED_IN'
+  </select>
+
+  <!-- 宿泊中の宿泊者検索 -->
+  <select id="findGuestStayNow" resultType="com.portfolio.hotel.management.data.guest.Guest">
+    SELECT
+    guest.id, guest.name, guest.kana_name, guest.gender, guest.age,
+    guest.region, guest.email, guest.phone, guest.deleted, guest.user_Id
+    FROM guest
+    INNER JOIN reservation ON guest.id = reservation.guest_id
+    WHERE reservation.user_id = #{id}
+    AND reservation.status = 'CHECKED_IN'
+  </select>
+
+  <!-- 宿泊中の宿泊予約検索 -->
+  <select id="findReservationStayNow"
+    resultType="com.portfolio.hotel.management.data.reservation.Reservation">
+    SELECT * FROM reservation
+    WHERE user_id = #{id}
+    AND status = 'CHECKED_IN'
   </select>
 
   <!-- 本日チェックアウト予定の宿泊者取得（チェックイン中） -->
@@ -48,6 +71,7 @@
     FROM guest
     INNER JOIN reservation ON guest.id = reservation.guest_id
     WHERE reservation.check_out_date = #{today}
+    AND reservation.user_id = #{id}
     AND reservation.status = 'CHECKED_IN'
   </select>
 
@@ -56,37 +80,45 @@
     resultType="com.portfolio.hotel.management.data.reservation.Reservation">
     SELECT * FROM reservation
     WHERE check_out_date = #{today}
+    AND user_id = #{id}
     AND status = 'CHECKED_IN'
   </select>
 
   <!-- 宿泊者の検索（氏名・カナ・電話番号・期間） -->
-  <select id="searchGuest" parameterType="map"
+  <select id="searchGuest"
+    parameterType="com.portfolio.hotel.management.data.guest.GuestSearchCondition"
     resultType="com.portfolio.hotel.management.data.guest.Guest">
+
     SELECT DISTINCT guest.*
     FROM guest
     LEFT JOIN reservation ON guest.id = reservation.guest_id
     WHERE guest.deleted = FALSE
 
-    <if test="guest.name != null and guest.name != ''">
-      AND guest.name LIKE CONCAT('%', #{guest.name}, '%')
+    <if test="name != null and name != ''">
+      AND guest.name LIKE CONCAT('%', #{name}, '%')
     </if>
 
-    <if test="guest.kanaName != null and guest.kanaName != ''">
-      AND guest.kana_name LIKE CONCAT('%', #{guest.kanaName}, '%')
+    <if test="kanaName != null and kanaName != ''">
+      AND guest.kana_name LIKE CONCAT('%', #{kanaName}, '%')
     </if>
 
-    <if test="guest.phone != null and guest.phone != ''">
-      AND guest.phone = #{guest.phone}
+    <if test="phone != null and phone != ''">
+      AND guest.phone = #{phone}
     </if>
 
-    <if test="guest.checkInDate != null">
-      AND reservation.check_in_date &gt;= #{guest.checkInDate}
+    <if test="checkInDate != null">
+      AND reservation.check_in_date &gt;= #{checkInDate, javaType=java.time.LocalDate, jdbcType=DATE}
     </if>
 
-    <if test="guest.checkOutDate != null">
+    <if test="checkOutDate != null">
       AND DATE_ADD(reservation.check_in_date, INTERVAL reservation.stay_days DAY) &lt;=
-      #{guest.checkOutDate}
+      #{checkOutDate, javaType=java.time.LocalDate, jdbcType=DATE}
     </if>
+
+    <if test="userId != null">
+      AND guest.user_id = #{userId}
+    </if>
+
   </select>
 
   <!-- 宿泊予約IDによる予約情報取得 -->
@@ -120,6 +152,14 @@
   <select id="findStatusById"
     resultType="com.portfolio.hotel.management.data.reservation.ReservationStatus">
     SELECT status FROM reservation WHERE id = #{id}
+  </select>
+
+  <!-- IDによるユーザー取得 -->
+  <select id="findUserById" parameterType="string"
+    resultType="com.portfolio.hotel.management.data.user.User">
+    SELECT id, password
+    FROM users
+    WHERE id = #{id}
   </select>
 
   <!-- 宿泊者登録 -->
@@ -199,5 +239,11 @@
     SET status = 'CHECKED_OUT'
     WHERE id = #{id}
   </update>
+
+  <!-- ユーザーの登録処理 -->
+  <insert id="insertUser" parameterType="com.portfolio.hotel.management.data.user.User">
+    INSERT INTO users (id, password)
+    VALUES (#{id}, #{password});
+  </insert>
 
 </mapper>

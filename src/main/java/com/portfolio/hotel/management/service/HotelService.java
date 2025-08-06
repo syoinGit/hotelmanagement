@@ -8,16 +8,22 @@ import com.portfolio.hotel.management.data.guest.GuestRegistration;
 import com.portfolio.hotel.management.data.guest.GuestSearchCondition;
 import com.portfolio.hotel.management.data.reservation.Reservation;
 import com.portfolio.hotel.management.data.reservation.ReservationStatus;
+import com.portfolio.hotel.management.data.user.User;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import com.portfolio.hotel.management.repository.HotelRepository;
 import com.portfolio.hotel.management.service.converter.HotelConverter;
 
 @Service
-public class HotelService {
+public class HotelService implements UserDetailsService {
 
   private final HotelRepository repository;
   private final HotelConverter converter;
@@ -28,53 +34,76 @@ public class HotelService {
   }
 
   // 宿泊者情報の全件取得
-  public List<GuestDetail> getAllGuest() {
+  public List<GuestDetail> getAllGuest(Authentication authentication) {
+    String userId = extractLoginId(authentication);
     return converter.convertGuestDetail(
-        repository.findAllGuest(),
-        repository.findAllBooking(),
-        repository.findAllReservation());
+        repository.findAllGuest(userId),
+        repository.findAllBooking(userId),
+        repository.findAllReservation(userId));
   }
 
   // 本日チェックインの宿泊者を取得
-  public List<GuestDetail> getChackInToday(LocalDate today) {
-    return converter.convertGuestDetail(repository.findGuestsTodayCheckIn(today),
-        repository.findAllBooking(), repository.findReservationTodayCheckIn(today));
+  public List<GuestDetail> getChackInToday(Authentication authentication, LocalDate today) {
+    String userId = extractLoginId(authentication);
+    return converter.convertGuestDetail(
+        repository.findGuestsTodayCheckIn(userId, today),
+        repository.findAllBooking(userId),
+        repository.findReservationTodayCheckIn(userId, today));
+  }
+
+  // 現在宿泊中の宿泊者を取得
+  public List<GuestDetail> getStayNow(Authentication authentication) {
+    String userId = extractLoginId(authentication);
+    return converter.convertGuestDetail(
+        repository.findGuestStayNow(userId),
+        repository.findAllBooking(userId),
+        repository.findReservationStayNow(userId));
   }
 
   // 本日チェックアウトの宿泊者を取得
-  public List<GuestDetail> getChackOutToday(LocalDate today) {
-    return converter.convertGuestDetail(repository.findGuestsTodayCheckOut(today),
-        repository.findAllBooking(), repository.findReservationTodayCheckOut(today));
+  public List<GuestDetail> getChackOutToday(Authentication authentication, LocalDate today) {
+    String userId = extractLoginId(authentication);
+    return converter.convertGuestDetail(
+        repository.findGuestsTodayCheckOut(userId, today),
+        repository.findAllBooking(userId),
+        repository.findReservationTodayCheckOut(userId, today));
   }
 
   // 宿泊コースの全件取得
-  public List<Booking> getAllBooking() {
-    return repository.findAllBooking();
+  public List<Booking> getAllBooking(Authentication authentication) {
+    String userId = extractLoginId(authentication);
+    return repository.findAllBooking(userId);
   }
 
   // 宿泊者情報の単一検索
-  public List<GuestDetail> searchGuest(GuestSearchCondition guestSearchCondition) {
+  public List<GuestDetail> searchGuest(Authentication authentication,
+      GuestSearchCondition guestSearchCondition) {
+    String userId = extractLoginId(authentication);
+    guestSearchCondition.setUserId(userId);
+
     return converter.convertGuestDetail(
         repository.searchGuest(guestSearchCondition),
-        repository.findAllBooking(),
-        repository.findAllReservation());
+        repository.findAllBooking(userId),
+        repository.findAllReservation(userId));
   }
 
   // 宿泊者の完全一致検索
-  public GuestDetail matchGuest(GuestMatch guestMatch) {
-    Guest guest = repository.matchGuest(guestMatch);
+  public GuestDetail matchGuest(Authentication authentication,
+      GuestMatch guestMatch) {
     GuestDetail guestDetail = new GuestDetail();
+    String userId = extractLoginId(authentication);
+    Guest guest = repository.matchGuest(userId, guestMatch);
     // 一致するものがなかった場合、guestの数値を入れる。
     if (guest == null) {
       guestDetail.setGuest(converter.toGuest(guestMatch));
-      // 一致した場合、取得したguestDtoを入れる。
+      // 一致した場合、取得したguestを入れる。
     } else {
       guestDetail.setGuest(guest);
     }
     return guestDetail;
   }
 
-  // ゲスト情報の登録
+  // 宿泊者の登録
   public void registerGuest(GuestRegistration guestRegistration) {
     // 直前の検索で一致する宿泊者がなかった場合新規登録
     if (guestRegistration.getGuest().getId() == null) {
@@ -93,7 +122,8 @@ public class HotelService {
     reservation.setBookingId(guestRegistration.getBookingId());
     reservation.setCheckInDate(guestRegistration.getCheckInDate());
     reservation.setStayDays(guestRegistration.getStayDays());
-    reservation.setCheckOutDate(reservation.getCheckInDate().plusDays(guestRegistration.getStayDays()));
+    reservation.setCheckOutDate(
+        reservation.getCheckInDate().plusDays(guestRegistration.getStayDays()));
     BigDecimal price = repository.findTotalPriceById(reservation.getBookingId());
     BigDecimal total = price.multiply(BigDecimal.valueOf(reservation.getStayDays()));
     reservation.setTotalPrice(total);
@@ -143,5 +173,27 @@ public class HotelService {
     } else {
       throw new IllegalStateException("チェックイン済みの予約のみチェックアウト可能です");
     }
+  }
+
+  // 新規ユーザの登録
+  public void registerUser(User user) {
+    repository.insertUser(user);
+  }
+
+  @Override
+  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    User found = repository.findUserById(username);
+    if (found == null) {
+      throw new UsernameNotFoundException("ユーザーが見つかりません");
+    }
+    return new org.springframework.security.core.userdetails.User(
+        found.getId(),
+        found.getPassword(),
+        List.of(new SimpleGrantedAuthority("ROLE_USER"))
+    );
+  }
+
+  private static String extractLoginId(Authentication authentication) {
+    return authentication.getName();
   }
 }
