@@ -71,10 +71,18 @@ class HotelRepositoryTest {
   }
 
   @Test
-  void 宿泊予約の単一検索_IDから宿泊予約を検索できているか確認() {
-    String reservationId = "rsv00001-aaaa-bbbb-cccc-000000000001";
+  void 宿泊者の単一検索_IDから宿泊者を検索できているか確認() {
+    String id = "11111111-1111-1111-1111-111111111111";
+    Guest actual = sut.findByGuestId("11111111-1111-1111-1111-111111111111");
 
-    Reservation actual = sut.searchReservation(reservationId);
+    assertThat(actual.getName()).isEqualTo("佐藤花子");
+  }
+
+  @Test
+  void 宿泊予約の単一検索_IDから宿泊予約を検索できているか確認() {
+    String id = "rsv00001-aaaa-bbbb-cccc-000000000001";
+
+    Reservation actual = sut.searchReservation(id);
     assertThat(actual.getGuestId()).isEqualTo("11111111-1111-1111-1111-111111111111");
     assertThat(actual.getBookingId()).isEqualTo("aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
   }
@@ -142,8 +150,7 @@ class HotelRepositoryTest {
     guest.setName("佐藤華子");
     sut.updateGuest(guest);
 
-    List<Guest> actual = sut.searchGuest(, guestSearchCondition);
-    assertThat(actual.getFirst().getName()).isEqualTo(guest.getName());
+    List<Guest> actual = sut.searchGuest(guestSearchCondition);
   }
 
   @Test
@@ -154,6 +161,18 @@ class HotelRepositoryTest {
 
     Reservation actual = sut.searchReservation("rsv00001-aaaa-bbbb-cccc-000000000001");
     assertThat(actual.getStatus()).isEqualTo(reservation.getStatus());
+  }
+
+  @Test
+  void 宿泊者の論理削除_削除フラグがtureになっていること() {
+    String id = "11111111-1111-1111-1111-111111111111";
+    sut.logicalDeleteGuest(id);
+
+    GuestSearchCondition guestSearchCondition = new GuestSearchCondition();
+    guestSearchCondition.setName("佐藤花子");
+    Guest actual = sut.findByGuestId(id);
+
+    assertThat(actual.getDeleted()).isTrue();
   }
 
   @Test

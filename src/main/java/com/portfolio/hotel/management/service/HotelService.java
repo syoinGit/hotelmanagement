@@ -150,6 +150,11 @@ public class HotelService implements UserDetailsService {
     repository.updateReservation(reservation);
   }
 
+  // 宿泊者の削除
+  public void logicalDeleteGuest(String guestId){
+    repository.logicalDeleteGuest(guestId);
+  }
+
   // チェックイン処理の作成
   public void checkIn(String reservationId) {
     ReservationStatus status = repository.findStatusById(reservationId);
