@@ -93,7 +93,7 @@ class HotelRepositoryTest {
     guestMatch.setName("佐藤花子");
     guestMatch.setKanaName("サトウハナコ");
     guestMatch.setPhone("08098765432");
-    Guest actual = sut.matchGuest(, guestMatch);
+    Guest actual = sut.matchGuest(guestMatch);
 
     assertThat(actual.getId()).isEqualTo("11111111-1111-1111-1111-111111111111");
     assertThat(actual.getGender()).isEqualTo("FEMALE");

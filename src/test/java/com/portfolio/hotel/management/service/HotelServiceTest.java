@@ -117,7 +117,7 @@ class HotelServiceTest {
     guest.setKanaName("サトウハナコ");
     guest.setPhone("08098765432");
 
-    when(repository.matchGuest(, guestMatch)).thenReturn(guest);
+    when(repository.matchGuest(guestMatch)).thenReturn(guest);
     GuestDetail actual = sut.matchGuest(, guestMatch);
 
     verify(repository, Mockito.times(1)).matchGuest(, guestMatch);
@@ -138,7 +138,7 @@ class HotelServiceTest {
     guestMatch.setName("佐藤花子");
     guestMatch.setKanaName("サトウハナコ");
 
-    when(repository.matchGuest(, guestMatch)).thenReturn(null);
+    when(repository.matchGuest(guestMatch)).thenReturn(null);
     when(converter.toGuest(guestMatch)).thenReturn(guest);
 
     GuestDetail actual = sut.matchGuest(, guestMatch);
@@ -181,7 +181,7 @@ class HotelServiceTest {
         .thenReturn(new BigDecimal("10000"));
 
     GuestRegistration registration = crateRegistration();
-    sut.registerGuest(registration);
+    sut.registerGuest(, registration);
 
     verify(repository, times(1)).insertGuest(any(Guest.class));
     verify(repository, times(1)).insertReservation(any(Reservation.class));
@@ -196,7 +196,7 @@ class HotelServiceTest {
     GuestRegistration actual = crateRegistration();
     actual.getGuest().setId("11111111-1111-1111-1111-111111111111");
 
-    sut.registerGuest(actual);
+    sut.registerGuest(, actual);
     verify(repository, never()).insertGuest(any());
     verify(repository, times(1)).insertReservation(any());
   }

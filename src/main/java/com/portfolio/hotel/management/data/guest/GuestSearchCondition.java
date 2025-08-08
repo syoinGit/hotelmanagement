@@ -8,15 +8,15 @@ import lombok.Setter;
 @Setter
 public class GuestSearchCondition {
 
-  String name;
+ private String name;
 
-  String kanaName;
+ private String kanaName;
 
-  String phone;
+ private String phone;
 
-  LocalDate checkInDate;
+ private LocalDate checkInDate;
 
-  LocalDate checkOutDate;
+ private LocalDate checkOutDate;
 
-  String userId;
+ private String userId;
 }
