@@ -24,43 +24,98 @@ class HotelRepositoryTest {
   HotelRepository sut;
 
   @Test
-  void 宿泊者の全件検索ができること() {
-    List<Guest> actual = sut.findAllGuest();
+  void 宿泊者の全件検索_登録された2件の宿泊者が取得できる() {
+    String userId = getUserId();
+
+    List<Guest> actual = sut.findAllGuest(userId);
+
     assertThat(actual.size()).isEqualTo(2);
+    assertThat(actual)
+        .extracting(Guest::getName)
+        .containsExactlyInAnyOrder("佐藤花子", "田中太郎");
   }
 
   @Test
-  void 宿泊プランの全件検索ができること() {
-    List<Booking> actual = sut.findAllBooking();
-    assertThat(actual.size()).isEqualTo(2);
-
+  void 宿泊者の全件検索_一致するIDがなかった場合空リストが帰る() {
+    String userId = "entity";
+    List<Guest> actual = sut.findAllGuest(userId);
+    assertThat(actual).isEmpty();
   }
+
+  @Test
+  void 宿泊プランの全件検索_登録された2件の宿泊プランが取得できる() {
+    String userId = getUserId();
+
+    List<Booking> actual = sut.findAllBooking(userId);
+
+    assertThat(actual.size()).isEqualTo(2);
+    assertThat(actual)
+        .extracting(Booking::getName)
+        .containsExactlyInAnyOrder("朝食付きプラン", "素泊まりプラン");
+  }
+
+  @Test
+  void 宿泊プランの全件検索_一致するIDがなかった場合空リストが帰る() {
+    String userId = "entity";
+    List<Booking> actual = sut.findAllBooking(userId);
+    assertThat(actual).isEmpty();
+  }
+
+  @Test
+  void 宿泊予約の全件検索_登録された二件の宿泊予約が取得できる() {
+    String userId = getUserId();
+
+    List<Reservation> actual = sut.findAllReservation(userId);
+
+    assertThat(actual.size()).isEqualTo(2);
+    assertThat(actual)
+        .extracting(Reservation::getId)
+        .containsExactlyInAnyOrder("rsv00001-aaaa-bbbb-cccc-000000000001","rsv00002-bbbb-cccc-dddd-000000000002");
+  }
+
+  @Test
+  void 宿泊予約の全件検索_一致するIDがなかった場合空リストが帰る() {
+    String userId = "entity";
+
+    List<Reservation> actual = sut.findAllReservation(userId);
+    assertThat(actual).isEmpty();
+  }
+
+
+
+
 
   @Test
   void 宿泊者情報の全件検索ができること() {
-    List<Reservation> actual = sut.findAllReservation();
+    String userId = getUserId();
+
+    List<Reservation> actual = sut.findAllReservation(userId);
     assertThat(actual.size()).isEqualTo(2);
   }
 
   @Test
   void 本日チェックイン予定の宿泊者情報を検索() {
+    String userId = getUserId();
+
     LocalDate today = LocalDate.of(2025, 7, 24);
-    List<Guest> actual = sut.findGuestsTodayCheckIn(, today);
+    List<Guest> actual = sut.findGuestsTodayCheckIn(userId, today);
     assertThat(actual.size()).isEqualTo(1);
   }
 
   @Test
   void 本日チェックイン予定の宿泊予約を検索() {
+    String userId = getUserId();
     LocalDate today = LocalDate.of(2025, 7, 24);
-    List<Reservation> actual = sut.findReservationTodayCheckIn(, today);
+    List<Reservation> actual = sut.findReservationTodayCheckIn(userId, today);
     assertThat(actual.size()).isEqualTo(1);
   }
 
   @Test
   void 宿泊者の単一検索_IDから宿泊者を検索できるか確認() {
+    String userId = getUserId();
     GuestSearchCondition guestSearchCondition = new GuestSearchCondition();
     guestSearchCondition.setName("佐藤花子");
-    List<Guest> actual = sut.searchGuest(, guestSearchCondition);
+    List<Guest> actual = sut.searchGuest(guestSearchCondition);
 
     Guest result = actual.getFirst();
     assertThat(actual.size()).isEqualTo(1);
@@ -116,28 +171,31 @@ class HotelRepositoryTest {
   @Test
   void 宿泊者の登録処理_宿泊者が登録されているか確認() {
     Guest guest = getGuest();
+    String userId = getUserId();
     guest.setId("11111111-1111-1111-1111-111111111115");
     sut.insertGuest(guest);
 
-    List<Guest> actual = sut.findAllGuest();
+    List<Guest> actual = sut.findAllGuest(userId);
     assertThat(actual.size()).isEqualTo(3);
   }
 
   @Test
   void 宿泊プランの登録_宿泊プランが登録されているか確認() {
     Booking booking = getBooking();
+    String userId = getUserId();
     sut.insertBooking(booking);
 
-    List<Booking> actual = sut.findAllBooking();
+    List<Booking> actual = sut.findAllBooking(userId);
     assertThat(actual.size()).isEqualTo(3);
   }
 
   @Test
   void 宿泊情報の登録_宿泊情報が登録されているか確認() {
     Reservation reservation = getReservation();
+    String userId = getUserId();
     sut.insertReservation(reservation);
 
-    List<Reservation> actual = sut.findAllReservation();
+    List<Reservation> actual = sut.findAllReservation(userId);
     assertThat(actual.size()).isEqualTo(3);
   }
 
@@ -241,5 +299,9 @@ class HotelRepositoryTest {
     reservation.setStatus(ReservationStatus.NOT_CHECKED_IN);
     reservation.setMemo("");
     return reservation;
+  }
+
+  private static String getUserId() {
+    return "TEST";
   }
 }

@@ -30,7 +30,11 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 @ExtendWith(MockitoExtension.class)
 class HotelServiceTest {
@@ -48,23 +52,25 @@ class HotelServiceTest {
   @Test
   void 宿泊者情報の全件検索機能_リポジトリとコンバーターが呼び出せていること() {
     HotelService sut = new HotelService(repository, converter);
+    String userId = getUserId();
+    Authentication auth = getAuthentication();
 
     List<Guest> guest = new ArrayList<>();
     List<Booking> booking = new ArrayList<>();
     List<Reservation> reservation = new ArrayList<>();
     List<GuestDetail> converted = new ArrayList<>();
 
-    when(repository.findAllGuest()).thenReturn(guest);
-    when(repository.findAllBooking()).thenReturn(booking);
-    when(repository.findAllReservation()).thenReturn(reservation);
+    when(repository.findAllGuest(userId)).thenReturn(guest);
+    when(repository.findAllBooking(userId)).thenReturn(booking);
+    when(repository.findAllReservation(userId)).thenReturn(reservation);
     when(converter.convertGuestDetail(guest, booking, reservation))
         .thenReturn(converted);
 
-    List<GuestDetail> actual = sut.getAllGuest();
+    List<GuestDetail> actual = sut.getAllGuest(auth);
 
-    verify(repository, times(1)).findAllGuest();
-    verify(repository, times(1)).findAllBooking();
-    verify(repository, times(1)).findAllReservation();
+    verify(repository, times(1)).findAllGuest(userId);
+    verify(repository, times(1)).findAllBooking(userId);
+    verify(repository, times(1)).findAllReservation(userId);
 
     verify(converter, times(1))
         .convertGuestDetail(guest, booking, reservation);
@@ -78,6 +84,9 @@ class HotelServiceTest {
   void 宿泊者情報の単一検索機能_ID_名前_電話番号から宿泊者情報が呼び出せていること() {
     HotelService sut = new HotelService(repository, converter);
 
+    String userId = getUserId();
+    Authentication auth = getAuthentication();
+
     GuestSearchCondition guestSearchCondition = new GuestSearchCondition();
     List<Guest> guestList = new ArrayList<>();
     List<Booking> bookingList = new ArrayList<>();
@@ -87,18 +96,17 @@ class HotelServiceTest {
     guestSearchCondition.setPhone("08098765432");
     guestSearchCondition.setName("佐藤花子");
 
-    when(repository.searchGuest(, guestSearchCondition)).thenReturn(guestList);
-    when(repository.findAllBooking()).thenReturn(bookingList);
-    when(repository.findAllReservation()).thenReturn(reservationList);
+    when(repository.searchGuest(guestSearchCondition)).thenReturn(guestList);
+    when(repository.findAllBooking(userId)).thenReturn(bookingList);
+    when(repository.findAllReservation(userId)).thenReturn(reservationList);
     when(converter.convertGuestDetail(guestList, bookingList, reservationList))
         .thenReturn(converted);
 
-    List<GuestDetail> actual = sut.searchGuest(guestSearchCondition, );
+    List<GuestDetail> actual = sut.searchGuest(auth,guestSearchCondition);
 
-
-    verify(repository, Mockito.times(1)).searchGuest(, guestSearchCondition);
-    verify(repository, Mockito.times(1)).findAllBooking();
-    verify(repository, Mockito.times(1)).findAllReservation();
+    verify(repository, Mockito.times(1)).searchGuest(guestSearchCondition);
+    verify(repository, Mockito.times(1)).findAllBooking(userId);
+    verify(repository, Mockito.times(1)).findAllReservation(userId);
     verify(converter, Mockito.times(1))
 
         .convertGuestDetail(guestList, bookingList, reservationList);
@@ -110,6 +118,8 @@ class HotelServiceTest {
   @Test
   void 宿泊者情報の完全一致致検索_名前_ふりがな_電話番号から宿泊者情報が呼び出せていること() {
     HotelService sut = new HotelService(repository, converter);
+    String userId = getUserId();
+    Authentication auth = getAuthentication();
 
     GuestMatch guestMatch = new GuestMatch();
     Guest guest = new Guest();
@@ -118,11 +128,10 @@ class HotelServiceTest {
     guest.setPhone("08098765432");
 
     when(repository.matchGuest(guestMatch)).thenReturn(guest);
-    GuestDetail actual = sut.matchGuest(, guestMatch);
+    GuestRegistration actual = sut.matchGuest(auth, guestMatch);
 
-    verify(repository, Mockito.times(1)).matchGuest(, guestMatch);
+    verify(repository, Mockito.times(1)).matchGuest(guestMatch);
     verify(converter, Mockito.never()).toGuest(Mockito.any());
-
 
     assertNotNull(actual);
     assertEquals(guest, actual.getGuest());
@@ -131,6 +140,7 @@ class HotelServiceTest {
   @Test
   void 宿泊者情報の完全一致致検索_完全一致するものがなく条件分岐していること() {
     HotelService sut = new HotelService(repository, converter);
+    Authentication auth = getAuthentication();
 
     GuestMatch guestMatch = new GuestMatch();
     Guest guest = new Guest();
@@ -141,9 +151,9 @@ class HotelServiceTest {
     when(repository.matchGuest(guestMatch)).thenReturn(null);
     when(converter.toGuest(guestMatch)).thenReturn(guest);
 
-    GuestDetail actual = sut.matchGuest(, guestMatch);
+    GuestRegistration actual = sut.matchGuest(auth, guestMatch);
 
-    verify(repository, Mockito.times(1)).matchGuest(, guestMatch);
+    verify(repository, Mockito.times(1)).matchGuest(guestMatch);
     verify(converter, Mockito.times(1)).toGuest(guestMatch);
 
     assertNotNull(actual);
@@ -153,6 +163,8 @@ class HotelServiceTest {
   @Test
   void 本日チェックインの宿泊者情報を取得_リポジトリとコンバータが呼び出せていること() {
     HotelService sut = new HotelService(repository, converter);
+    String userId = getUserId();
+    Authentication auth = getAuthentication();
 
     List<Guest> guest = new ArrayList<>();
     List<Booking> booking = new ArrayList<>();
@@ -160,13 +172,13 @@ class HotelServiceTest {
     List<GuestDetail> converted = new ArrayList<>();
     LocalDate today = LocalDate.of(2025, 7, 24);
 
-    when(repository.findGuestsTodayCheckIn(, today)).thenReturn(guest);
-    when(repository.findAllBooking()).thenReturn(booking);
-    when(repository.findReservationTodayCheckIn(, today)).thenReturn(reservation);
+    when(repository.findGuestsTodayCheckIn(userId, today)).thenReturn(guest);
+    when(repository.findAllBooking(userId)).thenReturn(booking);
+    when(repository.findReservationTodayCheckIn(userId, today)).thenReturn(reservation);
     when(converter.convertGuestDetail(guest, booking, reservation))
         .thenReturn(converted);
 
-    List<GuestDetail> actual = sut.getChackInToday(, today, );
+    List<GuestDetail> actual = sut.getChackInToday(auth, today);
 
     assertNotNull(actual);
     assertEquals(actual, converted);
@@ -176,12 +188,13 @@ class HotelServiceTest {
   @Test
   void ゲスト情報登録_登録が行われていること() {
     HotelService sut = new HotelService(repository, converter);
+    Authentication auth = getAuthentication();
 
     when(repository.findTotalPriceById("aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaaa"))
         .thenReturn(new BigDecimal("10000"));
 
     GuestRegistration registration = crateRegistration();
-    sut.registerGuest(, registration);
+    sut.registerGuest(auth, registration);
 
     verify(repository, times(1)).insertGuest(any(Guest.class));
     verify(repository, times(1)).insertReservation(any(Reservation.class));
@@ -190,13 +203,14 @@ class HotelServiceTest {
   @Test
   void ゲスト情報登録_IDが登録済みの場合登録が行われないこと() {
     HotelService sut = new HotelService(repository, converter);
+    Authentication auth = getAuthentication();
 
     when(repository.findTotalPriceById("aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaaa"))
         .thenReturn(new BigDecimal("10000"));
     GuestRegistration actual = crateRegistration();
     actual.getGuest().setId("11111111-1111-1111-1111-111111111111");
 
-    sut.registerGuest(, actual);
+    sut.registerGuest(auth, actual);
     verify(repository, never()).insertGuest(any());
     verify(repository, times(1)).insertReservation(any());
   }
@@ -293,8 +307,8 @@ class HotelServiceTest {
   }
 
   @Test
-  void ユーザーの登録処理_リポジトリが呼び出せていること(){
-    HotelService sut = new HotelService(repository,converter);
+  void ユーザーの登録処理_リポジトリが呼び出せていること() {
+    HotelService sut = new HotelService(repository, converter);
     User user = new User();
     user.setId("123");
     user.setPassword("123");
@@ -339,5 +353,14 @@ class HotelServiceTest {
     guestRegistration.setMemo("備考なし");
 
     return guestRegistration;
+  }
+
+  private static String getUserId() {
+    return "TEST";
+  }
+
+  private static Authentication getAuthentication() {
+    return new UsernamePasswordAuthenticationToken("TEST", "pass",
+        List.of(new SimpleGrantedAuthority("ROLE_USER")));
   }
 }

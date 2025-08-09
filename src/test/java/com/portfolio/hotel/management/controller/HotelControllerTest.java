@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.portfolio.hotel.management.data.guest.Guest;
+import com.portfolio.hotel.management.data.guest.GuestRegistration;
 import com.portfolio.hotel.management.service.HotelService;
 import com.portfolio.hotel.management.data.guest.GuestDetail;
 import com.portfolio.hotel.management.repository.HotelRepository;
@@ -23,6 +24,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
@@ -40,26 +44,30 @@ class HotelControllerTest {
 
   @Test
   void 宿泊者情報の全件検索_空のリストが帰ってくること() throws Exception {
-    mockMvc.perform(get("/guestList")).andExpect(status().isOk()).andExpect(content().json("[]"));
-    verify(service, times(1)).getAllGuest();
+    Authentication auth = getAuthentication();
+    mockMvc.perform(get("/guests"))
+        .andExpect(status().isOk()).andExpect(content().json("[]"));
+    verify(service, times(1)).getAllGuest(auth);
   }
 
   @Test
   void 本日チェックイン予定の宿泊者情報検索_空のリストが帰ってくること() throws Exception {
     LocalDate today = LocalDate.now();
+    Authentication auth = getAuthentication();
 
     mockMvc.perform(get("/getCheckInToday")).andExpect(status().isOk())
         .andExpect(content().json("[]"));
-    verify(service, times(1)).getChackInToday(, today, );
+    verify(service, times(1)).getChackInToday(auth, today);
   }
 
   @Test
   void 本日チェックアウト予定の宿泊者検索_空のリストが帰ってくること() throws Exception {
     LocalDate today = LocalDate.now();
+    Authentication auth = getAuthentication();
 
     mockMvc.perform(get("/getCheckOutToday")).andExpect(status().isOk())
         .andExpect(content().json("[]"));
-    verify(service, times(1)).getChackOutToday(today);
+    verify(service, times(1)).getChackOutToday(auth, today);
   }
 
   @Test
@@ -69,9 +77,11 @@ class HotelControllerTest {
     guest.setKanaName("サトウハナコ");
     guest.setPhone("08098765432");
 
+    Authentication auth = getAuthentication();
+
     GuestDetail guestDetail = new GuestDetail();
     guestDetail.setGuest(guest);
-    when(service.searchGuest(any(), )).thenReturn(List.of(guestDetail));
+    when(service.searchGuest(auth, any())).thenReturn(List.of(guestDetail));
 
     mockMvc.perform(MockMvcRequestBuilders.get("/searchGuest")
             .contentType(MediaType.APPLICATION_JSON)
@@ -89,14 +99,16 @@ class HotelControllerTest {
   @Test
   void 宿泊者情報の完全一致検索_名前_かな名_電話番号から宿泊者情報を検索できること()
       throws Exception {
+    Authentication auth = getAuthentication();
+
     Guest guest = new Guest();
     guest.setGender("FEMALE");
     guest.setAge(28);
 
-    GuestDetail guestDetail = new GuestDetail();
-    guestDetail.setGuest(guest);
+    GuestRegistration guestRegistration = new GuestRegistration();
+    guestRegistration.setGuest(guest);
 
-    when(service.matchGuest(, any())).thenReturn(guestDetail);
+    when(service.matchGuest(auth, any())).thenReturn(guestRegistration);
 
     mockMvc.perform(MockMvcRequestBuilders.post("/matchGuest")
             .contentType(MediaType.APPLICATION_JSON)
@@ -247,4 +259,10 @@ class HotelControllerTest {
         .andExpect(status().isOk())
         .andExpect(content().string("ユーザ情報の登録が完了しました。"));
   }
+
+  private static Authentication getAuthentication() {
+    return new UsernamePasswordAuthenticationToken("TEST", "pass",
+        List.of(new SimpleGrantedAuthority("ROLE_USER")));
+  }
+
 }
