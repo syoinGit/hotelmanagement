@@ -2,7 +2,9 @@
 INSERT INTO guest (id, name, kana_name, gender, age, region, email, phone, deleted, user_id)
 VALUES
   ('11111111-1111-1111-1111-111111111111', '佐藤花子', 'サトウハナコ', 'FEMALE', 28, '東京', 'hanako@example.com', '08098765432', 0, 'TEST'),
-  ('22222222-2222-2222-2222-222222222222', '田中太郎', 'タナカタロウ', 'MALE', 35, '大阪', 'taro@example.com', '08011112222', 0 , 'TEST');
+  ('22222222-2222-2222-2222-222222222222', '田中太郎', 'タナカタロウ', 'MALE', 35, '大阪', 'taro@example.com', '08011112222', 0 , 'TEST'),
+  ('22222222-3333-3333-3333-222222222222', '山田毅', 'ヤマダタケシ', 'MALE', 40, '宮城', 'takeshi@example.com', '08033332222', 0 , 'statusTest');
+
 
 INSERT INTO booking (id, name, description, price, is_available, user_id)
 VALUES
@@ -14,13 +16,17 @@ INSERT INTO reservation (
   stay_days, total_price, status, memo, created_at, user_id)
   VALUES
   ('rsv00001-aaaa-bbbb-cccc-000000000001', '11111111-1111-1111-1111-111111111111',
-   'aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '2025-07-15', '2025-07-17', 2, 20000.00,
+   'aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '2025-07-23', '2025-07-27', 4, 20000.00,
    'CHECKED_IN', '観光で利用', '2025-07-01 10:00:00', 'TEST'),
 
   ('rsv00002-bbbb-cccc-dddd-000000000002', '22222222-2222-2222-2222-222222222222',
    'aaaaaaa2-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '2025-07-24', '2025-07-25', 1, 7000.00,
-   'NOT_CHECKED_IN', '出張で利用', '2025-07-02 15:30:00', 'TEST');
+   'NOT_CHECKED_IN', '出張で利用', '2025-07-02 15:30:00', 'TEST'),
 
+    ('rsv00002-bbbb-cccc-dddd-000000000003', '22222222-3333-3333-3333-222222222222',
+      'aaaaaaa2-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '2025-07-20', '2025-07-30', 10, 7000.00,
+      'NOT_CHECKED_IN', '出張で利用', '2025-07-02 15:30:00', 'statusTest');
 
    INSERT INTO users (id,password) VALUES
-   ('TEST','TEST');
+   ('TEST','TEST'),
+   ('statusTest','statusTest');
