@@ -8,15 +8,18 @@ CREATE TABLE guest (
   region VARCHAR(100),
   email VARCHAR(100),
   phone VARCHAR(20),
-  deleted BOOLEAN DEFAULT FALSE
+  deleted BOOLEAN DEFAULT FALSE,
+  user_id CHAR(36) NOT NULL
 );
 
+-- bookings テーブル
 CREATE TABLE booking (
   id CHAR(36) NOT NULL PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
   description TEXT,
   price DECIMAL(10, 2) NOT NULL,
-  is_available BOOLEAN DEFAULT TRUE
+  is_available BOOLEAN DEFAULT TRUE,
+  user_id CHAR(36) NOT NULL
 );
 
 -- reservations テーブル
@@ -31,6 +34,7 @@ CREATE TABLE reservation (
   status VARCHAR(20) NOT NULL,
   memo TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  user_id CHAR(36) NOT NULL,
 
   -- 外部キー制約（任意）
   CONSTRAINT fk_guest FOREIGN KEY (guest_id) REFERENCES guest(id),

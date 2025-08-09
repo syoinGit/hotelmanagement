@@ -110,7 +110,7 @@ public ResponseEntity<String> updateReservation(@RequestBody Reservation reserva
 }
 
 @Operation(summary = "宿泊者の論理削除", description = "宿泊者の削除フラグをtrueにします。")
-@PutMapping("/deleteGuest")
+@PutMapping("/Guest/delete")
 public ResponseEntity<String> logicalDeleteGuest(
     @RequestParam String id,
     @RequestParam String name) {
@@ -128,7 +128,7 @@ public ResponseEntity<String> checkIn(
 }
 
   @Operation(summary = "チェックアウト", description = "宿泊客のチェックアウトを行います。")
-  @PutMapping("/checkOut")
+  @PutMapping("/guest/checkOut")
   public ResponseEntity<String> checkOut(
       @RequestParam String id,
       @RequestParam String name) {
