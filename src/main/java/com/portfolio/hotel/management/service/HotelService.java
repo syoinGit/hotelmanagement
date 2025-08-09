@@ -88,23 +88,23 @@ public class HotelService implements UserDetailsService {
   }
 
   // 宿泊者の完全一致検索
-  public GuestDetail matchGuest(Authentication authentication,
-      GuestMatch guestMatch) {
-    GuestDetail guestDetail = new GuestDetail();
-    String userId = extractLoginId(authentication);
-    Guest guest = repository.matchGuest(userId, guestMatch);
-    // 一致するものがなかった場合、guestの数値を入れる。
-    if (guest == null) {
-      guestDetail.setGuest(converter.toGuest(guestMatch));
-      // 一致した場合、取得したguestを入れる。
+  public GuestRegistration matchGuest(Authentication authentication, GuestMatch guestMatch) {
+    guestMatch.setUserId(extractLoginId(authentication));
+    Guest guest = repository.matchGuest(guestMatch);
+
+    GuestRegistration guestRegistration = new GuestRegistration();
+    if (guest != null) {
+      guestRegistration.setGuest(guest);
     } else {
-      guestDetail.setGuest(guest);
+      guestRegistration.setGuest(converter.toGuest(guestMatch));
     }
-    return guestDetail;
+
+    return guestRegistration;
   }
 
   // 宿泊者の登録
-  public void registerGuest(GuestRegistration guestRegistration) {
+  public void registerGuest(Authentication authentication, GuestRegistration guestRegistration) {
+    guestRegistration.getGuest().setUserId(extractLoginId(authentication));
     // 直前の検索で一致する宿泊者がなかった場合新規登録
     if (guestRegistration.getGuest().getId() == null) {
       guestRegistration.getGuest().setId(UUID.randomUUID().toString());
@@ -118,12 +118,12 @@ public class HotelService implements UserDetailsService {
     Reservation reservation = new Reservation();
 
     reservation.setId(UUID.randomUUID().toString());
+    reservation.setUserId(guestRegistration.getGuest().getUserId());
     reservation.setGuestId(guestRegistration.getGuest().getId());
     reservation.setBookingId(guestRegistration.getBookingId());
     reservation.setCheckInDate(guestRegistration.getCheckInDate());
     reservation.setStayDays(guestRegistration.getStayDays());
-    reservation.setCheckOutDate(
-        reservation.getCheckInDate().plusDays(guestRegistration.getStayDays()));
+    reservation.setCheckOutDate(reservation.getCheckInDate().plusDays(guestRegistration.getStayDays()));
     BigDecimal price = repository.findTotalPriceById(reservation.getBookingId());
     BigDecimal total = price.multiply(BigDecimal.valueOf(reservation.getStayDays()));
     reservation.setTotalPrice(total);
@@ -151,7 +151,7 @@ public class HotelService implements UserDetailsService {
   }
 
   // 宿泊者の削除
-  public void logicalDeleteGuest(String guestId){
+  public void logicalDeleteGuest(String guestId) {
     repository.logicalDeleteGuest(guestId);
   }
 

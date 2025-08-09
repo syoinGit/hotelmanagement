@@ -131,9 +131,10 @@
   <select id="matchGuest" parameterType="com.portfolio.hotel.management.data.guest.GuestMatch"
     resultType="com.portfolio.hotel.management.data.guest.Guest">
     SELECT * FROM guest
-    WHERE name = #{name}
+    WHERE user_id = #{userId}
     AND kana_name = #{kanaName}
     AND phone = #{phone}
+    AND name = #{name}
   </select>
 
   <!-- 宿泊者IDによる宿泊者検索 -->
@@ -165,9 +166,9 @@
   <!-- 宿泊者登録 -->
   <insert id="insertGuest" parameterType="com.portfolio.hotel.management.data.guest.Guest">
     INSERT INTO guest (
-    id, name, kana_name, gender, age, region, email, phone, deleted
+    id, name, kana_name, gender, age, region, email, phone, deleted, user_id
     ) VALUES (
-    #{id}, #{name}, #{kanaName}, #{gender}, #{age}, #{region}, #{email}, #{phone}, 0
+    #{id}, #{name}, #{kanaName}, #{gender}, #{age}, #{region}, #{email}, #{phone}, 0, #{userId}
     )
   </insert>
 
@@ -185,10 +186,10 @@
     parameterType="com.portfolio.hotel.management.data.reservation.Reservation">
     INSERT INTO reservation (
     id, guest_id, booking_id, check_in_date, check_out_date,
-    stay_days, total_price, status, memo, created_at
+    stay_days, total_price, status, memo, created_at, user_id
     ) VALUES (
     #{id}, #{guestId}, #{bookingId}, #{checkInDate}, #{checkOutDate},
-    #{stayDays}, #{totalPrice}, #{status}, #{memo}, #{createdAt}
+    #{stayDays}, #{totalPrice}, #{status}, #{memo}, #{createdAt}, #{userId}
     )
   </insert>
 

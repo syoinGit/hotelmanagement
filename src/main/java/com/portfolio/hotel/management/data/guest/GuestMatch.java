@@ -19,4 +19,6 @@ public class GuestMatch {
   @Pattern(regexp = "^[0-9]{10,11}$", message = "電話番号は10〜11桁の数字で入力してください")
   private String phone;
 
+  private String userId;
+
 }

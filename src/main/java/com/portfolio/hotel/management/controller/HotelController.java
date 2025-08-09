@@ -9,7 +9,6 @@ import com.portfolio.hotel.management.data.guest.GuestSearchCondition;
 import com.portfolio.hotel.management.data.reservation.Reservation;
 import com.portfolio.hotel.management.data.user.User;
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
@@ -75,16 +74,16 @@ public class HotelController {
 
   @Operation(summary = "完全一致検索", description = "名前、ふりがな、電話番号から宿泊者情報を完全一致検索します。ここで完全位一致したデータは宿泊者情報登録の際に使われます")
   @PostMapping("/guest/match")
-  public GuestDetail matchGuestForInsert(Authentication authentication,
+  public GuestRegistration matchGuestForInsert(Authentication authentication,
       @RequestBody @Valid GuestMatch guestMatch) {
     return service.matchGuest(authentication,guestMatch);
   }
 
   @Operation(summary = "宿泊者情報登録", description = "宿泊者情報を入力し、宿泊者情報を登録します。")
   @PutMapping("/guest/register")
-  public ResponseEntity<String> registerGuest(
+  public ResponseEntity<String> registerGuest(Authentication authentication,
       @RequestBody @Valid GuestRegistration guestRegistration) {
-    service.registerGuest(guestRegistration);
+    service.registerGuest(authentication, guestRegistration);
     return ResponseEntity.ok("宿泊者情報の登録が完了しました。");
   }
 
@@ -142,16 +141,5 @@ public ResponseEntity<String> checkIn(
   public ResponseEntity<String> registerUser(@RequestBody User user) {
     service.registerUser(user);
     return ResponseEntity.ok("ユーザ情報の登録が完了しました。");
-  }
-
-  @Operation(summary = "ログイン状態の取得", description = "現在のログイン状態を確認し、ログイン中であればユーザー情報を返却、未ログインであれば401を返します。")
-  @GetMapping("/user/session")
-  public ResponseEntity<User> checkLogin(HttpSession httpSession) {
-    User loginUser = (User) httpSession.getAttribute("loginUser");
-    if (loginUser != null) {
-      return ResponseEntity.ok(loginUser);
-    } else {
-      return ResponseEntity.status(401).build();
-    }
   }
 }
