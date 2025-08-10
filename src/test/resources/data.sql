@@ -25,8 +25,9 @@ INSERT INTO reservation (
 
     ('rsv00002-bbbb-cccc-dddd-000000000003', '22222222-3333-3333-3333-222222222222',
       'aaaaaaa2-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '2025-07-20', '2025-07-30', 10, 7000.00,
-      'NOT_CHECKED_IN', '出張で利用', '2025-07-02 15:30:00', 'statusTest');
+      'NOT_CHECKED_IN', '出張で利用', '2025-07-02 15:30:00', 'status-test');
 
    INSERT INTO users (id,password) VALUES
    ('TEST','TEST'),
-   ('statusTest','statusTest');
+   ('status-test','status-test'),
+   ('not-exist','not-exist');

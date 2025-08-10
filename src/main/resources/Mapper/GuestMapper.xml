@@ -6,19 +6,22 @@
 <mapper namespace="com.portfolio.hotel.management.repository.HotelRepository">
 
   <!-- 宿泊者全件取得 -->
-  <select id="findAllGuest" parameterType="string" resultType="com.portfolio.hotel.management.data.guest.Guest">
+  <select id="findAllGuest" parameterType="string"
+    resultType="com.portfolio.hotel.management.data.guest.Guest">
     SELECT * FROM guest
     WHERE user_id = #{id}
   </select>
 
   <!-- 宿泊プラン全件取得 -->
-  <select id="findAllBooking" parameterType="string" resultType="com.portfolio.hotel.management.data.booking.Booking">
+  <select id="findAllBooking" parameterType="string"
+    resultType="com.portfolio.hotel.management.data.booking.Booking">
     SELECT * FROM booking
     WHERE user_id = #{id}
   </select>
 
   <!-- 宿泊予約全件取得 -->
-  <select id="findAllReservation" parameterType="string" resultType="com.portfolio.hotel.management.data.reservation.Reservation">
+  <select id="findAllReservation" parameterType="string"
+    resultType="com.portfolio.hotel.management.data.reservation.Reservation">
     SELECT * FROM reservation
     WHERE user_id = #{id}
   </select>
@@ -93,6 +96,7 @@
     FROM guest
     LEFT JOIN reservation ON guest.id = reservation.guest_id
     WHERE guest.deleted = FALSE
+    AND guest.user_id = #{userId}
 
     <if test="name != null and name != ''">
       AND guest.name LIKE CONCAT('%', #{name}, '%')
@@ -107,16 +111,13 @@
     </if>
 
     <if test="checkInDate != null">
-      AND reservation.check_in_date &gt;= #{checkInDate, javaType=java.time.LocalDate, jdbcType=DATE}
+      AND reservation.check_in_date &gt;=
+      #{checkInDate, javaType=java.time.LocalDate, jdbcType=DATE}
     </if>
 
     <if test="checkOutDate != null">
       AND DATE_ADD(reservation.check_in_date, INTERVAL reservation.stay_days DAY) &lt;=
       #{checkOutDate, javaType=java.time.LocalDate, jdbcType=DATE}
-    </if>
-
-    <if test="userId != null">
-      AND guest.user_id = #{userId}
     </if>
 
   </select>
