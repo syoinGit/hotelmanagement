@@ -53,11 +53,11 @@ public interface HotelRepository {
   // 宿泊者IDから宿泊者を完全一致検索
   Guest matchGuest(GuestMatch guestMatch);
 
-  // 宿泊者IDから、宿泊者を検索
-  Guest findByGuestId(@Param("id") String id);
+  // 宿泊者IDから宿泊者を検索
+  Guest findGuestById(@Param("id") String id,@Param("userId")String userId);
 
-  // 宿泊予約IDから、宿泊予約を検索
-  Reservation searchReservation(@Param("id") String id);
+  // 宿泊予約IDから宿泊予約を検索
+  Reservation findReservationById(@Param("id") String id,@Param("userId")String userId);
 
   // 宿泊プランIDから金額を検索
   BigDecimal findTotalPriceById(@Param("id") String id);

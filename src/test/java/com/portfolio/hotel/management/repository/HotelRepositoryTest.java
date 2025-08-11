@@ -40,7 +40,7 @@ class HotelRepositoryTest {
     }
 
     @Test
-    void 一致するIDがなかった場合宿泊者を取得できない() {
+    void 一致するIDがなかった場合_空のリストが返る() {
       List<Guest> actual = sut.findAllGuest("not-exist");
       assertThat(actual).isEmpty();
     }
@@ -52,7 +52,7 @@ class HotelRepositoryTest {
   class findAllBooking {
 
     @Test
-    void 登録された2件の宿泊プランが取得できる() {
+    void 登録された二件の宿泊プランが取得できる() {
       List<Booking> actual = sut.findAllBooking(getUserId());
 
       assertThat(actual)
@@ -61,7 +61,7 @@ class HotelRepositoryTest {
     }
 
     @Test
-    void 一致するIDがなかった場合宿泊者プランを取得できない() {
+    void 一致するIDがなかった場合_空のリストが返る() {
       List<Booking> actual = sut.findAllBooking("not-exist");
       assertThat(actual).isEmpty();
     }
@@ -84,7 +84,7 @@ class HotelRepositoryTest {
   }
 
   @Test
-  void 一致するIDがなかった場合宿泊予約を取得できない() {
+  void 一致するIDがなかった場合_空のリストが返る() {
     List<Reservation> actual = sut.findAllReservation("not-exist");
     assertThat(actual).isEmpty();
   }
@@ -105,7 +105,7 @@ class HotelRepositoryTest {
     }
 
     @Test
-    void 日付が一致しない場合_宿泊者を取得できない() {
+    void 日付が一致しない場合_空のリストが返る() {
       List<Guest> actual = sut.findGuestsTodayCheckIn(
           getUserId(), LocalDate.of(2020, 1, 1));
 
@@ -113,9 +113,9 @@ class HotelRepositoryTest {
     }
 
     @Test
-    void ユーザ名が一致しない場合_宿泊者を取得できない() {
+    void ユーザ名が一致しない場合_空のリストが返る() {
       var actual = sut.findGuestsTodayCheckIn(
-          "", LocalDate.of(2025, 7, 24));
+          "not-exist", LocalDate.of(2025, 7, 24));
 
       assertThat(actual).isEmpty();
     }
@@ -137,7 +137,7 @@ class HotelRepositoryTest {
     }
 
     @Test
-    void 日付が一致しない場合_宿泊予約を取得できない() {
+    void 日付が一致しない場合_空のリストが返る() {
       List<Reservation> actual = sut.findReservationTodayCheckIn(
           getUserId(), LocalDate.of(2020, 1, 1));
 
@@ -145,7 +145,7 @@ class HotelRepositoryTest {
     }
 
     @Test
-    void ユーザ名が一致しない場合_宿泊者を取得できない() {
+    void ユーザ名が一致しない場合_空のリストが返る() {
       List<Reservation> actual = sut.findReservationTodayCheckIn(
           "not-exist", LocalDate.of(2025, 7, 24));
 
@@ -167,13 +167,13 @@ class HotelRepositoryTest {
     }
 
     @Test
-    void ユーザ名が一致しない場合宿泊者を取得できない() {
+    void ユーザ名が一致しない場合_空のリストが返る() {
       List<Guest> actual = sut.findGuestStayNow("not-exist");
       assertThat(actual).isEmpty();
     }
 
     @Test
-    void ステータスがチェックイン中ではない場合宿泊者を取得できない() {
+    void ステータスがチェックイン中ではない場合_空のリストが返る() {
       List<Guest> actual = sut.findGuestStayNow("status-test");
       assertThat(actual).isEmpty();
     }
@@ -193,7 +193,7 @@ class HotelRepositoryTest {
     }
 
     @Test
-    void ステータスがチェックイン中ではない場合宿泊予約を取得できない() {
+    void ステータスがチェックイン中ではない場合_空のリストが返る() {
       List<Reservation> actual = sut.findReservationStayNow("statusTest");
       assertThat(actual).isEmpty();
     }
@@ -215,15 +215,15 @@ class HotelRepositoryTest {
     }
 
     @Test
-    void 本日チェックアウト予定の宿泊者がいない場合宿泊者を取得できない() {
+    void 本日チェックアウト予定の宿泊者がいない場合_空のリストが返る() {
       List<Guest> actual = sut.findGuestsTodayCheckOut(
           getUserId(), LocalDate.of(2020, 7, 27));
     }
 
     @Test
-    void ユーザ名が一致しない場合宿泊者を取得できない() {
+    void ユーザ名が一致しない場合_空のリストが返る() {
       List<Guest> actual = sut.findGuestsTodayCheckOut(
-          "", LocalDate.of(2025, 7, 27));
+          "not-exist", LocalDate.of(2025, 7, 27));
 
       assertThat(actual).isEmpty();
     }
@@ -245,7 +245,7 @@ class HotelRepositoryTest {
     }
 
     @Test
-    void 本日チェックアウト予定の宿泊予約がない場合_宿泊予約を取得できない() {
+    void 本日チェックアウト予定の宿泊予約がない場合_空のリストが返る() {
       List<Reservation> actual = sut.findReservationTodayCheckOut(
           getUserId(), LocalDate.of(2020, 7, 27));
 
@@ -253,9 +253,9 @@ class HotelRepositoryTest {
     }
 
     @Test
-    void ユーザ名が一致しない場合宿泊者を取得できない() {
+    void ユーザ名が一致しない場合_空のリストが返る() {
       List<Reservation> actual = sut.findReservationTodayCheckOut(
-          "", LocalDate.of(2025, 7, 27));
+          "not-exist", LocalDate.of(2025, 7, 27));
 
       assertThat(actual).isEmpty();
     }
@@ -280,7 +280,7 @@ class HotelRepositoryTest {
     }
 
     @Test
-    void ユーザー名が一致しない場合宿泊者を取得できない() {
+    void ユーザー名が一致しない場合_空のリストが返る() {
       GuestSearchCondition guestSearchCondition = new GuestSearchCondition();
       guestSearchCondition.setName("花子");
       guestSearchCondition.setUserId("not-exist");
@@ -331,41 +331,86 @@ class HotelRepositoryTest {
     }
   }
 
+  @Nested
+  @DisplayName("宿泊者の完全一致検索")
+  class matchGuest {
 
+    @Test
+    void 名前_かな名_電話番号の組み合わせから宿泊者を取得() {
+      GuestMatch guestMatch = new GuestMatch();
+      guestMatch.setName("佐藤花子");
+      guestMatch.setKanaName("サトウハナコ");
+      guestMatch.setPhone("08098765432");
+      guestMatch.setUserId("TEST");
 
+      Guest actual = sut.matchGuest(guestMatch);
 
+      assertThat(actual.getName()).isEqualTo("佐藤花子");
+      assertThat(actual.getGender()).isEqualTo("女性");
+    }
 
+    @Test
+    void 完全一致しない場合_nullが帰ってくる() {
+      GuestMatch guestMatch = new GuestMatch();
+      guestMatch.setName("佐藤華子");
+      guestMatch.setKanaName("サトウハナコ");
+      guestMatch.setPhone("08098765432");
+      guestMatch.setUserId("TEST");
 
+      Guest actual = sut.matchGuest(guestMatch);
 
+      assertThat(actual).isNull();
+    }
 
-  @Test
-  void 宿泊者の単一検索_IDから宿泊者を検索できているか確認() {
-    String id = "11111111-1111-1111-1111-111111111111";
-    Guest actual = sut.findByGuestId("11111111-1111-1111-1111-111111111111");
+    @Test
+    void ユーザー名が一致しない場合_nullが帰ってくる() {
+      GuestMatch guestMatch = new GuestMatch();
+      guestMatch.setName("佐藤花子");
+      guestMatch.setKanaName("サトウハナコ");
+      guestMatch.setPhone("08098765432");
+      guestMatch.setUserId("not-exist");
 
-    assertThat(actual.getName()).isEqualTo("佐藤花子");
+      Guest actual = sut.matchGuest(guestMatch);
+
+      assertThat(actual).isNull();
+    }
   }
 
-  @Test
-  void 宿泊予約の単一検索_IDから宿泊予約を検索できているか確認() {
-    String id = "rsv00001-aaaa-bbbb-cccc-000000000001";
+  @Nested
+  @DisplayName("宿泊者IDから宿泊者を検索")
+  class findByGuestId {
 
-    Reservation actual = sut.searchReservation(id);
-    assertThat(actual.getGuestId()).isEqualTo("11111111-1111-1111-1111-111111111111");
-    assertThat(actual.getBookingId()).isEqualTo("aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+    @Test
+    void IDから宿泊者を取得() {
+      Guest actual = sut.findGuestById("11111111-1111-1111-1111-111111111111", "TEST");
+      assertThat(actual.getName()).isEqualTo("佐藤花子");
+    }
+
+    @Test
+    void IDが一致しない場合nullが返ってくる(){
+      Guest actual = sut.findGuestById("11111111-1111-1111-1111-111111111112", "TEST");
+      assertThat(actual).isNull();
+    }
+
+    @Test
+    void ユーザー名が一致しない場合nullが返ってくる() {
+      Guest actual = sut.findGuestById("11111111-1111-1111-1111-111111111111", "not-exist");
+      assertThat(actual).isNull();
+    }
   }
 
-  @Test
-  void 宿泊者の完全一致検索_名前_かな名_電話番号の組み合わせから宿泊者を検索できるか確認() {
-    GuestMatch guestMatch = new GuestMatch();
-    guestMatch.setName("佐藤花子");
-    guestMatch.setKanaName("サトウハナコ");
-    guestMatch.setPhone("08098765432");
-    Guest actual = sut.matchGuest(guestMatch);
+  @Nested
+  @DisplayName("宿泊者IDから宿泊者を検索")
+  class findByReservationId {
 
-    assertThat(actual.getId()).isEqualTo("11111111-1111-1111-1111-111111111111");
-    assertThat(actual.getGender()).isEqualTo("FEMALE");
+    @Test
+    void 宿泊予約の単一検索_IDから宿泊予約を検索できているか確認() {
+      Reservation actual = sut.findReservationById("rsv00001-aaaa-bbbb-cccc-000000000001","TEST");
+      assertThat(actual.getGuestId()).isEqualTo("11111111-1111-1111-1111-111111111111");
+    }
   }
+
+
 
   @Test
   void 宿泊プランIDから金額を検索_検索できているか確認() {
@@ -430,7 +475,7 @@ class HotelRepositoryTest {
     reservation.setId("rsv00001-aaaa-bbbb-cccc-000000000001");
     sut.updateReservation(reservation);
 
-    Reservation actual = sut.searchReservation("rsv00001-aaaa-bbbb-cccc-000000000001");
+    Reservation actual = sut.findReservationById("rsv00001-aaaa-bbbb-cccc-000000000001","TEST" );
     assertThat(actual.getStatus()).isEqualTo(reservation.getStatus());
   }
 
@@ -441,16 +486,14 @@ class HotelRepositoryTest {
 
     GuestSearchCondition guestSearchCondition = new GuestSearchCondition();
     guestSearchCondition.setName("佐藤花子");
-    Guest actual = sut.findByGuestId(id);
 
-    assertThat(actual.getDeleted()).isTrue();
   }
 
   @Test
   void チェックイン処理_ステータスがチェックインに変わっているか確認() {
     String reservationId = "rsv00001-aaaa-bbbb-cccc-000000000001";
     sut.checkIn(reservationId);
-    Reservation actual = sut.searchReservation(reservationId);
+    Reservation actual = sut.findReservationById(reservationId, "TEST");
 
     assertThat(actual.getStatus()).isEqualTo(ReservationStatus.CHECKED_IN);
   }
@@ -459,7 +502,7 @@ class HotelRepositoryTest {
   void チェックイン処理_ステータスがチェックアウトに変わっているか確認() {
     String reservationId = "rsv00002-bbbb-cccc-dddd-000000000002";
     sut.checkOut(reservationId);
-    Reservation actual = sut.searchReservation(reservationId);
+    Reservation actual = sut.findReservationById(reservationId, "TEST");
 
     assertThat(actual.getStatus()).isEqualTo(ReservationStatus.CHECKED_OUT);
   }

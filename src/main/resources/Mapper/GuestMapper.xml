@@ -122,12 +122,6 @@
 
   </select>
 
-  <!-- 宿泊予約IDによる予約情報取得 -->
-  <select id="searchReservation"
-    resultType="com.portfolio.hotel.management.data.reservation.Reservation" parameterType="string">
-    SELECT * FROM reservation WHERE id = #{id}
-  </select>
-
   <!-- 宿泊者情報の完全一致検索（マッチング） -->
   <select id="matchGuest" parameterType="com.portfolio.hotel.management.data.guest.GuestMatch"
     resultType="com.portfolio.hotel.management.data.guest.Guest">
@@ -140,9 +134,17 @@
 
   <!-- 宿泊者IDによる宿泊者検索 -->
   <select id="findByGuestId" resultType="com.portfolio.hotel.management.data.guest.Guest">
-    SELECT *
-    FROM guest
-    WHERE id = #{id}
+    SELECT * FROM guest
+    WHERE user_id = #{userId}
+    AND id = #{id}
+  </select>
+
+  <!-- 宿泊予約IDによる予約情報取得 -->
+  <select id="findReservationById"
+    resultType="com.portfolio.hotel.management.data.reservation.Reservation" parameterType="string">
+    SELECT * FROM reservation
+    WHERE user_id = #{userId}
+    AND id = #{id}
   </select>
 
   <!-- 宿泊プランIDによる金額取得 -->
