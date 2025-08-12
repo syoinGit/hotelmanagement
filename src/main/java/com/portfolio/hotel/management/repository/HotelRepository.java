@@ -12,6 +12,8 @@ import java.time.LocalDate;
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.security.core.parameters.P;
+import org.springframework.web.service.annotation.PatchExchange;
 
 @Mapper
 public interface HotelRepository {
@@ -60,7 +62,7 @@ public interface HotelRepository {
   Reservation findReservationById(@Param("id") String id,@Param("userId")String userId);
 
   // 宿泊プランIDから金額を検索
-  BigDecimal findTotalPriceById(@Param("id") String id);
+  BigDecimal findTotalPriceById(@Param("id") String id, @Param("userId")String userId);
 
   // 宿泊予約IDから宿泊予約状況を検索
   ReservationStatus findStatusById(@Param("id") String id);

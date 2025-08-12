@@ -190,7 +190,7 @@ class HotelServiceTest {
     HotelService sut = new HotelService(repository, converter);
     Authentication auth = getAuthentication();
 
-    when(repository.findTotalPriceById("aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaaa"))
+    when(repository.findTotalPriceById("aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaaa", ))
         .thenReturn(new BigDecimal("10000"));
 
     GuestRegistration registration = crateRegistration();
@@ -205,7 +205,7 @@ class HotelServiceTest {
     HotelService sut = new HotelService(repository, converter);
     Authentication auth = getAuthentication();
 
-    when(repository.findTotalPriceById("aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaaa"))
+    when(repository.findTotalPriceById("aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaaa", ))
         .thenReturn(new BigDecimal("10000"));
     GuestRegistration actual = crateRegistration();
     actual.getGuest().setId("11111111-1111-1111-1111-111111111111");

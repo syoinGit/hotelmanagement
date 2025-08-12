@@ -115,6 +115,12 @@ public class HotelService implements UserDetailsService {
 
   // 宿泊予約の登録
   private void initReservation(GuestRegistration guestRegistration) {
+    final String userId = guestRegistration.getGuest().getUserId();
+
+
+
+
+
     Reservation reservation = new Reservation();
 
     reservation.setId(UUID.randomUUID().toString());
@@ -123,14 +129,14 @@ public class HotelService implements UserDetailsService {
     reservation.setBookingId(guestRegistration.getBookingId());
     reservation.setCheckInDate(guestRegistration.getCheckInDate());
     reservation.setStayDays(guestRegistration.getStayDays());
-    reservation.setCheckOutDate(reservation.getCheckInDate().plusDays(guestRegistration.getStayDays()));
-    BigDecimal price = repository.findTotalPriceById(reservation.getBookingId());
+    reservation.setCheckOutDate(
+        reservation.getCheckInDate().plusDays(guestRegistration.getStayDays()));
+    BigDecimal price = repository.findTotalPriceById(reservation.getBookingId(),
+        guestRegistration.getGuest().getUserId());
     BigDecimal total = price.multiply(BigDecimal.valueOf(reservation.getStayDays()));
     reservation.setTotalPrice(total);
     reservation.setMemo(guestRegistration.getMemo());
     reservation.setStatus(ReservationStatus.NOT_CHECKED_IN);
-    reservation.setCheckInDate(LocalDate.now());
-
     repository.insertReservation(reservation);
   }
 

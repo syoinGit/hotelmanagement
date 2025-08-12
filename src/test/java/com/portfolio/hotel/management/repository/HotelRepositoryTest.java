@@ -387,7 +387,7 @@ class HotelRepositoryTest {
     }
 
     @Test
-    void IDが一致しない場合nullが返ってくる(){
+    void IDが一致しない場合nullが返ってくる() {
       Guest actual = sut.findGuestById("11111111-1111-1111-1111-111111111112", "TEST");
       assertThat(actual).isNull();
     }
@@ -400,22 +400,48 @@ class HotelRepositoryTest {
   }
 
   @Nested
-  @DisplayName("宿泊者IDから宿泊者を検索")
+  @DisplayName("宿泊予約IDから宿泊者を検索")
   class findByReservationId {
 
     @Test
-    void 宿泊予約の単一検索_IDから宿泊予約を検索できているか確認() {
-      Reservation actual = sut.findReservationById("rsv00001-aaaa-bbbb-cccc-000000000001","TEST");
+    void IDから宿泊予約が取得できる() {
+      Reservation actual = sut.findReservationById("rsv00001-aaaa-bbbb-cccc-000000000001", "TEST");
       assertThat(actual.getGuestId()).isEqualTo("11111111-1111-1111-1111-111111111111");
+    }
+
+    @Test
+    void IDが一致しない場合nullが返ってくる() {
+      Reservation actual = sut.findReservationById("rsv00001-aaaa-bbbb-cccc-000000000002", "TEST");
+      assertThat(actual).isNull();
+    }
+
+    @Test
+    void ユーザー名が一致しない場合nullが返ってくる() {
+      Reservation actual = sut.findReservationById("rsv00001-aaaa-bbbb-cccc-000000000001",
+          "not-exist");
+      assertThat(actual).isNull();
+    }
+  }
+
+  @Nested
+  @DisplayName("宿泊プランIDから金額を検索")
+  class findTotalPriceById {
+
+
+    @Test
+    void 金額が検索できる() {
+
+
+
+
     }
   }
 
 
-
   @Test
-  void 宿泊プランIDから金額を検索_検索できているか確認() {
+  void _検索できているか確認() {
     String bookingId = "aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
-    BigDecimal actual = sut.findTotalPriceById(bookingId);
+    BigDecimal actual = sut.findTotalPriceById(bookingId, );
     assertThat(actual).isEqualTo("10000.00");
   }
 
@@ -475,7 +501,7 @@ class HotelRepositoryTest {
     reservation.setId("rsv00001-aaaa-bbbb-cccc-000000000001");
     sut.updateReservation(reservation);
 
-    Reservation actual = sut.findReservationById("rsv00001-aaaa-bbbb-cccc-000000000001","TEST" );
+    Reservation actual = sut.findReservationById("rsv00001-aaaa-bbbb-cccc-000000000001", "TEST");
     assertThat(actual.getStatus()).isEqualTo(reservation.getStatus());
   }
 
