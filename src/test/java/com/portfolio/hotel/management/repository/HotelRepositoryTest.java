@@ -1,6 +1,7 @@
 package com.portfolio.hotel.management.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.portfolio.hotel.management.data.booking.Booking;
 import com.portfolio.hotel.management.data.guest.Guest;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 
 
 @MybatisTest
@@ -427,40 +429,98 @@ class HotelRepositoryTest {
   @DisplayName("宿泊プランIDから金額を検索")
   class findTotalPriceById {
 
+    @Test
+    void IDから合計金額が取得できる() {
+      BigDecimal actual = sut.findTotalPriceById(
+          "aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "TEST");
+      assertThat(actual).isEqualTo(BigDecimal.valueOf(10000.00));
+    }
 
     @Test
-    void 金額が検索できる() {
+    void IDが一致しない場合_nullが帰ってくる() {
+      BigDecimal actual = sut.findTotalPriceById(
+          "aaaaaaa0-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "TEST");
+      assertThat(actual).isNull();
+    }
 
-
-
-
+    @Test
+    void ユーザー名が一致しない場合_nullが帰ってくる() {
+      BigDecimal actual = sut.findTotalPriceById(
+          "aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "not-exist");
+      assertThat(actual).isNull();
     }
   }
 
+  @Nested
+  @DisplayName("宿泊予約IDから宿泊状態を検索")
+  class findStatusById {
 
-  @Test
-  void _検索できているか確認() {
-    String bookingId = "aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
-    BigDecimal actual = sut.findTotalPriceById(bookingId, );
-    assertThat(actual).isEqualTo("10000.00");
+    @Test
+    void IDから宿泊状態が取得できる() {
+      ReservationStatus actual = sut.findStatusById("rsv00001-aaaa-bbbb-cccc-000000000001", "TEST");
+      assertThat(actual).isEqualTo(ReservationStatus.CHECKED_IN);
+    }
+
+    @Test
+    void IDが一致しない場合_nullが帰ってくる() {
+      ReservationStatus actual = sut.findStatusById("rsv00001-aaaa-bbbb-cccc-000000000000", "TEST");
+      assertThat(actual).isNull();
+    }
+
+    @Test
+    void ユーザー名が一致しない場合_nullが帰ってくる() {
+      ReservationStatus actual = sut.findStatusById("rsv00001-aaaa-bbbb-cccc-000000000001",
+          "not-exist");
+      assertThat(actual).isNull();
+    }
   }
 
-  @Test
-  void 宿泊予約IDから宿泊予約情報を検索_検索できているか確認() {
-    String reservationId = "rsv00001-aaaa-bbbb-cccc-000000000001";
-    ReservationStatus actual = sut.findStatusById(reservationId);
-    assertThat(actual).isEqualTo(ReservationStatus.CHECKED_IN);
+  @Nested
+  @DisplayName("ユーザーIDからユーザー情報を検索")
+  class findUserById {
+
+    @Test
+    void IDからユーザー情報が取得できる() {
+      User actual = sut.findUserById("TEST");
+      assertThat(actual.getPassword()).isEqualTo("TEST");
+    }
+
+    @Test
+    void 一致するIDがない場合_nullが帰ってくる() {
+      User actual = sut.findUserById("");
+      assertThat(actual).isNull();
+    }
   }
 
-  @Test
-  void 宿泊者の登録処理_宿泊者が登録されているか確認() {
-    Guest guest = getGuest();
-    String userId = getUserId();
-    guest.setId("11111111-1111-1111-1111-111111111115");
-    sut.insertGuest(guest);
+  @Nested
+  @DisplayName("宿泊者の登録")
+  class insertGuest {
 
-    List<Guest> actual = sut.findAllGuest(userId);
-    assertThat(actual.size()).isEqualTo(3);
+    @Test
+    void 新規の宿泊者が登録されているか確認() {
+      String userId = getUserId();
+      Guest guest = getGuest();
+      guest.setId("11111111-1111-1111-1111-111111111115");
+      guest.setUserId(getUserId());
+
+      sut.insertGuest(guest);
+
+      List<Guest> actual = sut.findAllGuest(userId);
+      assertThat(actual)
+          .extracting(Guest::getName)
+          .containsExactlyInAnyOrder("佐藤花子", "田中太郎", "田中武");
+    }
+
+    @Test
+    void すでに登録されたUUIDを登録しようとした場合_登録に失敗() {
+      String userId = getUserId();
+      Guest guest = getGuest();
+      guest.setId("11111111-1111-1111-1111-111111111111");
+      guest.setUserId(getUserId());
+
+      assertThatThrownBy(() -> sut.insertGuest(guest))
+          .isInstanceOf(DuplicateKeyException.class);
+    }
   }
 
   @Test
@@ -550,9 +610,10 @@ class HotelRepositoryTest {
   // 生成用
   private Guest getGuest() {
     Guest guest = new Guest();
-    guest.setName("佐藤華子");
-    guest.setKanaName("サトウハナコ");
-    guest.setGender("FEMALE");
+    guest.setName("田中武");
+    guest.setKanaName("タナカタケシ");
+    guest.setGender("男性");
+    guest.setRegion("山形県");
     guest.setAge(28);
     guest.setEmail("hanako@example.com");
     guest.setPhone("08098765432");

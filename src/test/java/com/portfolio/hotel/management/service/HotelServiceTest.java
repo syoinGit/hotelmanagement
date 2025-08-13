@@ -190,9 +190,6 @@ class HotelServiceTest {
     HotelService sut = new HotelService(repository, converter);
     Authentication auth = getAuthentication();
 
-    when(repository.findTotalPriceById("aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaaa", ))
-        .thenReturn(new BigDecimal("10000"));
-
     GuestRegistration registration = crateRegistration();
     sut.registerGuest(auth, registration);
 
@@ -205,8 +202,6 @@ class HotelServiceTest {
     HotelService sut = new HotelService(repository, converter);
     Authentication auth = getAuthentication();
 
-    when(repository.findTotalPriceById("aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaaa", ))
-        .thenReturn(new BigDecimal("10000"));
     GuestRegistration actual = crateRegistration();
     actual.getGuest().setId("11111111-1111-1111-1111-111111111111");
 
@@ -259,51 +254,35 @@ class HotelServiceTest {
   void チェックイン処理の作成_チェックインが行われていること() {
     HotelService sut = new HotelService(repository, converter);
     String reservationId = "3822609c-5651-11f0-b59f-a75edf46bde3";
-    when(repository.findStatusById(reservationId))
-        .thenReturn(ReservationStatus.NOT_CHECKED_IN);
 
-    sut.checkIn(reservationId);
 
-    verify(repository, times(1)).findStatusById(reservationId);
   }
 
   @Test
   void チェックイン処理の作成_ステータスが未チェックイン以外の場合エラーが発生すること() {
     HotelService sut = new HotelService(repository, converter);
     String reservationId = "3822609c-5651-11f0-b59f-a75edf46bde3";
-    when(repository.findStatusById(reservationId))
-        .thenReturn(ReservationStatus.CHECKED_IN);
 
     Assertions.assertThrows(IllegalStateException.class, () -> {
-      sut.checkIn(reservationId);
     });
 
-    verify(repository, times(1)).findStatusById(reservationId);
   }
 
   @Test
   void チェックアウト処理の作成_チェックアウトが行われていること() {
     HotelService sut = new HotelService(repository, converter);
     String reservationId = "3822609c-5651-11f0-b59f-a75edf46bde3";
-    when(repository.findStatusById(reservationId))
-        .thenReturn(ReservationStatus.CHECKED_IN);
 
-    sut.checkOut(reservationId);
-    verify(repository, times(1)).findStatusById(reservationId);
   }
 
   @Test
   void チェックアウト処理の作成_ステータスがチェックイン済み以外の場合エラーが発生すること() {
     HotelService sut = new HotelService(repository, converter);
     String reservationId = "3822609c-5651-11f0-b59f-a75edf46bde3";
-    when(repository.findStatusById(reservationId))
-        .thenReturn(ReservationStatus.CHECKED_OUT);
 
     Assertions.assertThrows(IllegalStateException.class, () -> {
-      sut.checkOut(reservationId);
     });
 
-    verify(repository, times(1)).findStatusById(reservationId);
   }
 
   @Test

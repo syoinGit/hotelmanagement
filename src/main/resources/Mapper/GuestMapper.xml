@@ -149,13 +149,17 @@
 
   <!-- 宿泊プランIDによる金額取得 -->
   <select id="findTotalPriceById" resultType="java.math.BigDecimal">
-    SELECT price FROM booking WHERE id = #{id}
+    SELECT price FROM booking
+    WHERE user_id = #{userId}
+    AND id = #{id}
   </select>
 
   <!-- 宿泊予約IDによるステータス取得 -->
   <select id="findStatusById"
     resultType="com.portfolio.hotel.management.data.reservation.ReservationStatus">
-    SELECT status FROM reservation WHERE id = #{id}
+    SELECT status FROM reservation
+    WHERE user_id = #{userId}
+    AND id = #{id}
   </select>
 
   <!-- IDによるユーザー取得 -->

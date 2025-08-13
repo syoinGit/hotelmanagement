@@ -117,10 +117,6 @@ public class HotelService implements UserDetailsService {
   private void initReservation(GuestRegistration guestRegistration) {
     final String userId = guestRegistration.getGuest().getUserId();
 
-
-
-
-
     Reservation reservation = new Reservation();
 
     reservation.setId(UUID.randomUUID().toString());
@@ -162,18 +158,21 @@ public class HotelService implements UserDetailsService {
   }
 
   // チェックイン処理の作成
-  public void checkIn(String reservationId) {
-    ReservationStatus status = repository.findStatusById(reservationId);
+  public void checkIn(Authentication authentication, String id) {
+    String userId = extractLoginId(authentication);
+    ReservationStatus status = repository.findStatusById(id, userId);
     if (status == ReservationStatus.NOT_CHECKED_IN) {
-      repository.checkIn(reservationId);
+      repository.checkIn(id);
     } else {
       throw new IllegalStateException("未チェックインの予約のみチェックイン可能です");
     }
   }
 
   // チェックアウト処理の作成
-  public void checkOut(String reservationId) {
-    ReservationStatus status = repository.findStatusById(reservationId);
+  public void checkOut(Authentication authentication, String reservationId) {
+    String userId = extractLoginId(authentication);
+
+    ReservationStatus status = repository.findStatusById(reservationId, userId);
     if (status == ReservationStatus.CHECKED_IN) {
       repository.checkOut(reservationId);
     } else {
