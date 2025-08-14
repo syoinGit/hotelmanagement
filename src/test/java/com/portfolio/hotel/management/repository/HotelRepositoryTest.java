@@ -487,7 +487,7 @@ class HotelRepositoryTest {
 
     @Test
     void 一致するIDがない場合_nullが帰ってくる() {
-      User actual = sut.findUserById("");
+      User actual = sut.findUserById("not-exist");
       assertThat(actual).isNull();
     }
   }
@@ -513,7 +513,6 @@ class HotelRepositoryTest {
 
     @Test
     void すでに登録されたUUIDを登録しようとした場合_登録に失敗() {
-      String userId = getUserId();
       Guest guest = getGuest();
       guest.setId("11111111-1111-1111-1111-111111111111");
       guest.setUserId(getUserId());
@@ -523,36 +522,102 @@ class HotelRepositoryTest {
     }
   }
 
-  @Test
-  void 宿泊プランの登録_宿泊プランが登録されているか確認() {
-    Booking booking = getBooking();
-    String userId = getUserId();
-    sut.insertBooking(booking);
+  @Nested
+  @DisplayName("宿泊プランの登録")
+  class insertBooking {
 
-    List<Booking> actual = sut.findAllBooking(userId);
-    assertThat(actual.size()).isEqualTo(3);
+    @Test
+    void 宿泊プランが登録されているか確認() {
+      Booking booking = getBooking();
+      booking.setId("aaaaaa10-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+      booking.setUserId(getUserId());
+      sut.insertBooking(booking);
+
+      List<Booking> actual = sut.findAllBooking(getUserId());
+      assertThat(actual)
+          .extracting(Booking::getName)
+          .containsExactlyInAnyOrder("朝食付きプラン", "素泊まりプラン", "夕食付きプラン");
+    }
+
+    @Test
+    void すでに登録されたUUIDを登録しようとした場合_登録に失敗() {
+      Booking booking = getBooking();
+      booking.setId("aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+      booking.setUserId(getUserId());
+
+      assertThatThrownBy(() -> sut.insertBooking(booking))
+          .isInstanceOf(DuplicateKeyException.class);
+    }
   }
 
-  @Test
-  void 宿泊情報の登録_宿泊情報が登録されているか確認() {
-    Reservation reservation = getReservation();
-    String userId = getUserId();
-    sut.insertReservation(reservation);
+  @Nested
+  @DisplayName("宿泊予約の登録")
+  class insertReservation {
 
-    List<Reservation> actual = sut.findAllReservation(userId);
-    assertThat(actual.size()).isEqualTo(3);
+    @Test
+    void 宿泊予約が登録されているか確認() {
+      Reservation reservation = getReservation();
+      reservation.setId("aaaaaaa8-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+      reservation.setUserId(getUserId());
+      sut.insertReservation(reservation);
+
+      List<Reservation> actual = sut.findAllReservation(reservation.getUserId());
+      assertThat(actual.size()).isEqualTo(3);
+    }
+
+    @Test
+    void すでに登録されたUUIDを登録しようとした場合_登録に失敗() {
+      Reservation reservation = getReservation();
+      reservation.setId("rsv00001-aaaa-bbbb-cccc-000000000001");
+      reservation.setUserId(getUserId());
+
+      assertThatThrownBy(() -> sut.insertReservation(reservation))
+          .isInstanceOf(DuplicateKeyException.class);
+    }
   }
 
-  @Test
-  void 宿泊者情報の変更_宿泊者情報が変更されている() {
-    Guest guest = getGuest();
-    GuestSearchCondition guestSearchCondition = new GuestSearchCondition();
+  @Nested
+  @DisplayName("宿泊者情報の変更")
+  class updateGuest {
+    @Test
+    void 電話番号のが更新がされている() {
+      Guest before = sut.findGuestById(
+          "11111111-1111-1111-1111-111111111111", "TEST");
+      assertThat(before).isNotNull();
+      String beforePhone = before.getPhone();
 
-    guest.setId("11111111-1111-1111-1111-111111111111");
-    guest.setName("佐藤華子");
-    sut.updateGuest(guest);
+      Guest update = new Guest();
+      update.setId("11111111-1111-1111-1111-111111111111");
+      update.setName("佐藤花子");
+      update.setKanaName("サトウハナコ");
+      update.setGender("女性");
+      update.setAge(28);
+      update.setRegion("東京");
+      update.setEmail("hanako@example.com");
+      update.setPhone("07098765432");
+      sut.updateGuest(update,"TEST");
 
-    List<Guest> actual = sut.searchGuest(guestSearchCondition);
+      Guest actual = sut.findGuestById("11111111-1111-1111-1111-111111111111", "TEST");
+
+      assertThat(actual.getPhone()).isEqualTo("07098765432");
+      assertThat(actual.getPhone()).isNotEqualTo(beforePhone);
+    }
+
+    @Test
+    void IDが一致しない場合_電話番号が登録されていない() {
+      Guest update = new Guest();
+      update.setId("11111111-1111-1111-1111-111111111111");
+      update.setName("佐藤花子");
+      update.setKanaName("サトウハナコ");
+      update.setGender("女性");
+      update.setAge(28);
+      update.setRegion("東京");
+      update.setEmail("hanako@example.com");
+      update.setPhone("07098765432");
+
+     assertThatThrownBy(() -> sut.updateGuest(update,"not-exist"))
+         .isInstanceOf(DuplicateKeyException.class);
+    }
   }
 
   @Test
@@ -615,15 +680,14 @@ class HotelRepositoryTest {
     guest.setGender("男性");
     guest.setRegion("山形県");
     guest.setAge(28);
-    guest.setEmail("hanako@example.com");
+    guest.setEmail("takeshi@example.com");
     guest.setPhone("08098765432");
     return guest;
   }
 
   private Booking getBooking() {
     Booking booking = new Booking();
-    booking.setId("aaaaaaa3-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
-    booking.setName("朝食付きプラン");
+    booking.setName("夕食付きプラン");
     booking.setPrice(BigDecimal.valueOf(1000));
     booking.setDescription("");
 
@@ -632,7 +696,6 @@ class HotelRepositoryTest {
 
   private Reservation getReservation() {
     Reservation reservation = new Reservation();
-    reservation.setId("aaaaaaa5-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
     reservation.setGuestId("11111111-1111-1111-1111-111111111111");
     reservation.setBookingId("aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
     reservation.setTotalPrice(BigDecimal.valueOf(2000));

@@ -133,7 +133,7 @@
   </select>
 
   <!-- 宿泊者IDによる宿泊者検索 -->
-  <select id="findByGuestId" resultType="com.portfolio.hotel.management.data.guest.Guest">
+  <select id="findGuestById" resultType="com.portfolio.hotel.management.data.guest.Guest">
     SELECT * FROM guest
     WHERE user_id = #{userId}
     AND id = #{id}
@@ -182,9 +182,9 @@
   <!-- 宿泊プラン登録 -->
   <insert id="insertBooking" parameterType="com.portfolio.hotel.management.data.booking.Booking">
     INSERT INTO booking (
-    id, name, description, price, is_available
+    id, name, description, price, is_available, user_id
     ) VALUES (
-    #{id}, #{name}, #{description}, #{price}, #{isAvailable}
+    #{id}, #{name}, #{description}, #{price}, #{isAvailable}, #{userId}
     )
   </insert>
 
@@ -203,15 +203,16 @@
   <!-- 宿泊者情報の更新 -->
   <update id="updateGuest" parameterType="com.portfolio.hotel.management.data.guest.Guest">
     UPDATE guest
-    SET name = #{name},
-    kana_name = #{kanaName},
-    gender = #{gender},
-    age = #{age},
-    region = #{region},
-    email = #{email},
-    phone = #{phone},
-    deleted = #{deleted}
-    WHERE id = #{id}
+    SET name = #{guest.name},
+    kana_name = #{guest.kanaName},
+    gender = #{guest.gender},
+    age = #{guest.age},
+    region = #{guest.region},
+    email = #{guest.email},
+    phone = #{guest.phone},
+    deleted = #{guest.deleted}
+    WHERE user_id = #{userId}
+    AND id = #{guest.id}
   </update>
 
   <!-- 宿泊予約情報の更新 -->

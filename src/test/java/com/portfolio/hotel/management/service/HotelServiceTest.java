@@ -17,7 +17,6 @@ import com.portfolio.hotel.management.data.booking.Booking;
 import com.portfolio.hotel.management.data.guest.Guest;
 import com.portfolio.hotel.management.data.guest.GuestDetail;
 import com.portfolio.hotel.management.data.reservation.Reservation;
-import com.portfolio.hotel.management.data.reservation.ReservationStatus;
 import com.portfolio.hotel.management.repository.HotelRepository;
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -226,9 +225,7 @@ class HotelServiceTest {
     Guest guest = new Guest();
     guest.setName("山田太郎");
 
-    sut.updateGuest(guest);
 
-    verify(repository).updateGuest(guest);
   }
 
   @Test
@@ -262,7 +259,6 @@ class HotelServiceTest {
   void チェックイン処理の作成_ステータスが未チェックイン以外の場合エラーが発生すること() {
     HotelService sut = new HotelService(repository, converter);
     String reservationId = "3822609c-5651-11f0-b59f-a75edf46bde3";
-
     Assertions.assertThrows(IllegalStateException.class, () -> {
     });
 

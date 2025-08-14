@@ -143,8 +143,8 @@ public class HotelService implements UserDetailsService {
   }
 
   // 宿泊者の編集
-  public void updateGuest(Guest guest) {
-    repository.updateGuest(guest);
+  public void updateGuest(Authentication authentication, Guest guest) {
+    repository.updateGuest(guest, extractLoginId(authentication));
   }
 
   // 宿泊予約の編集
@@ -157,7 +157,7 @@ public class HotelService implements UserDetailsService {
     repository.logicalDeleteGuest(guestId);
   }
 
-  // チェックイン処理の作成
+  // チェックイン処理
   public void checkIn(Authentication authentication, String id) {
     String userId = extractLoginId(authentication);
     ReservationStatus status = repository.findStatusById(id, userId);
@@ -168,7 +168,7 @@ public class HotelService implements UserDetailsService {
     }
   }
 
-  // チェックアウト処理の作成
+  // チェックアウト処理
   public void checkOut(Authentication authentication, String reservationId) {
     String userId = extractLoginId(authentication);
 
