@@ -148,33 +148,30 @@ public class HotelService implements UserDetailsService {
   }
 
   // 宿泊予約の編集
-  public void updateReservation(Reservation reservation) {
-    repository.updateReservation(reservation);
+  public void updateReservation(Authentication authentication, Reservation reservation) {
+    repository.updateReservation(reservation, extractLoginId(authentication));
   }
 
   // 宿泊者の削除
-  public void logicalDeleteGuest(String guestId) {
-    repository.logicalDeleteGuest(guestId);
+  public void logicalDeleteGuest(Authentication authentication, String guestId) {
+    repository.logicalDeleteGuest(guestId, extractLoginId(authentication));
   }
 
   // チェックイン処理
   public void checkIn(Authentication authentication, String id) {
-    String userId = extractLoginId(authentication);
-    ReservationStatus status = repository.findStatusById(id, userId);
+    ReservationStatus status = repository.findStatusById(id, extractLoginId(authentication));
     if (status == ReservationStatus.NOT_CHECKED_IN) {
-      repository.checkIn(id);
+      repository.checkIn(id, extractLoginId(authentication));
     } else {
       throw new IllegalStateException("未チェックインの予約のみチェックイン可能です");
     }
   }
 
   // チェックアウト処理
-  public void checkOut(Authentication authentication, String reservationId) {
-    String userId = extractLoginId(authentication);
-
-    ReservationStatus status = repository.findStatusById(reservationId, userId);
+  public void checkOut(Authentication authentication, String id) {
+    ReservationStatus status = repository.findStatusById(id, extractLoginId(authentication));
     if (status == ReservationStatus.CHECKED_IN) {
-      repository.checkOut(reservationId);
+      repository.checkOut(id, extractLoginId(authentication));
     } else {
       throw new IllegalStateException("チェックイン済みの予約のみチェックアウト可能です");
     }

@@ -107,9 +107,10 @@ public class HotelController {
 
   @Operation(summary = "宿泊情報の更新", description = "宿泊予約情報を更新します。")
   @PutMapping("/reservation/update")
-  public ResponseEntity<String> updateReservation(@RequestBody Reservation reservation) {
+  public ResponseEntity<String> updateReservation(Authentication authentication,
+      @RequestBody Reservation reservation) {
     System.out.println("受け取ったReservation: " + reservation);
-    service.updateReservation(reservation);
+    service.updateReservation(authentication, reservation);
     return ResponseEntity.ok("宿泊情報の更新が完了しました。");
   }
 
@@ -117,8 +118,9 @@ public class HotelController {
   @PutMapping("/guest/delete")
   public ResponseEntity<String> logicalDeleteGuest(
       @RequestParam String id,
-      @RequestParam String name) {
-    service.logicalDeleteGuest(id);
+      @RequestParam String name,
+      Authentication authentication) {
+    service.logicalDeleteGuest(authentication, id);
     return ResponseEntity.ok(name + "様の情報を削除しました。");
   }
 

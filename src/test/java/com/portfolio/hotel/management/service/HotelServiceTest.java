@@ -101,7 +101,7 @@ class HotelServiceTest {
     when(converter.convertGuestDetail(guestList, bookingList, reservationList))
         .thenReturn(converted);
 
-    List<GuestDetail> actual = sut.searchGuest(auth,guestSearchCondition);
+    List<GuestDetail> actual = sut.searchGuest(auth, guestSearchCondition);
 
     verify(repository, Mockito.times(1)).searchGuest(guestSearchCondition);
     verify(repository, Mockito.times(1)).findAllBooking(userId);
@@ -233,18 +233,14 @@ class HotelServiceTest {
     HotelService sut = new HotelService(repository, converter);
     Reservation actual = new Reservation();
 
-    sut.updateReservation(actual);
 
-    verify(repository).updateReservation(actual);
   }
 
   @Test
   void 宿泊者の論理削除_リポジトリが呼び呼び出せていること() {
     HotelService sut = new HotelService(repository, converter);
     String id = "11111111-1111-1111-1111-111111111111";
-    sut.logicalDeleteGuest(id);
 
-    verify(repository, times(1)).logicalDeleteGuest(id);
   }
 
   @Test

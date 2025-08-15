@@ -219,34 +219,38 @@
   <update id="updateReservation"
     parameterType="com.portfolio.hotel.management.data.reservation.Reservation">
     UPDATE reservation
-    SET check_in_date = #{checkInDate},
-    check_out_date = #{checkOutDate},
-    stay_days = #{stayDays},
-    total_price = #{totalPrice},
-    status = #{status},
-    memo = #{memo}
-    WHERE id = #{id}
+    SET check_in_date = #{reservation.checkInDate},
+    check_out_date = #{reservation.checkOutDate},
+    stay_days = #{reservation.stayDays},
+    total_price = #{reservation.totalPrice},
+    status = #{reservation.status},
+    memo = #{reservation.memo}
+    WHERE user_id = #{userId}
+    AND id = #{reservation.id}
   </update>
 
   <!-- 宿泊者の論理削除（削除フラグをON） -->
   <update id="logicalDeleteGuest">
     UPDATE guest
     SET deleted = TRUE
-    WHERE id = #{id}
+    WHERE user_id = #{userId}
+    AND id = #{id}
   </update>
 
   <!-- チェックイン処理（予約ステータスを更新） -->
   <update id="checkIn">
     UPDATE reservation
     SET status = 'CHECKED_IN'
-    WHERE id = #{id}
+    WHERE user_id = #{userId}
+    AND id = #{id}
   </update>
 
   <!-- チェックアウト処理（予約ステータスを更新） -->
   <update id="checkOut">
     UPDATE reservation
     SET status = 'CHECKED_OUT'
-    WHERE id = #{id}
+    WHERE user_id = #{userId}
+    AND id = #{id}
   </update>
 
   <!-- ユーザーの登録処理 -->

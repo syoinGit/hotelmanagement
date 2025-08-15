@@ -12,8 +12,6 @@ import java.time.LocalDate;
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.springframework.security.core.parameters.P;
-import org.springframework.web.service.annotation.PatchExchange;
 
 @Mapper
 public interface HotelRepository {
@@ -80,19 +78,21 @@ public interface HotelRepository {
   void insertReservation(Reservation reservation);
 
   // 宿泊者情報の変更
-  void updateGuest(@Param("guest") Guest guest, @Param("userId") String userId);
+  void updateGuest(@Param("guest") Guest guest,
+      @Param("userId") String userId);
 
   // 宿泊予約の変更
-  void updateReservation(Reservation reservation);
+  void updateReservation(@Param("reservation") Reservation reservation,
+      @Param("userId") String userId);
 
   // 宿泊者の論理削除
-  void logicalDeleteGuest(@Param("id") String id);
+  void logicalDeleteGuest(@Param("id") String id, @Param("userId") String userId);
 
   // チェックイン処理
-  void checkIn(@Param("id") String id);
+  void checkIn(@Param("id") String id, @Param("userId") String userId);
 
   // チェックアウト処理
-  void checkOut(@Param("id") String id);
+  void checkOut(@Param("id") String id, @Param("userId") String userId);
 
   // ユーザーの登録処理
   void insertUser(User user);

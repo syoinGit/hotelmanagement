@@ -433,7 +433,7 @@ class HotelRepositoryTest {
     void IDから合計金額が取得できる() {
       BigDecimal actual = sut.findTotalPriceById(
           "aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "TEST");
-      assertThat(actual).isEqualTo(BigDecimal.valueOf(10000.00));
+      assertThat(actual).isEqualTo(new BigDecimal("10000.00"));
     }
 
     @Test
@@ -487,7 +487,7 @@ class HotelRepositoryTest {
 
     @Test
     void 一致するIDがない場合_nullが帰ってくる() {
-      User actual = sut.findUserById("not-exist");
+      User actual = sut.findUserById("");
       assertThat(actual).isNull();
     }
   }
@@ -579,8 +579,9 @@ class HotelRepositoryTest {
   @Nested
   @DisplayName("宿泊者情報の変更")
   class updateGuest {
+
     @Test
-    void 電話番号のが更新がされている() {
+    void 電話番号が更新がされている() {
       Guest before = sut.findGuestById(
           "11111111-1111-1111-1111-111111111111", "TEST");
       assertThat(before).isNotNull();
@@ -595,7 +596,7 @@ class HotelRepositoryTest {
       update.setRegion("東京");
       update.setEmail("hanako@example.com");
       update.setPhone("07098765432");
-      sut.updateGuest(update,"TEST");
+      sut.updateGuest(update, "TEST");
 
       Guest actual = sut.findGuestById("11111111-1111-1111-1111-111111111111", "TEST");
 
@@ -604,7 +605,11 @@ class HotelRepositoryTest {
     }
 
     @Test
-    void IDが一致しない場合_電話番号が登録されていない() {
+    void IDが一致しない場合_電話番号が更新されない() {
+      Guest before = sut.findGuestById("11111111-1111-1111-1111-111111111111", "TEST");
+      assertThat(before).isNotNull();
+      String beforePhone = before.getPhone();
+
       Guest update = new Guest();
       update.setId("11111111-1111-1111-1111-111111111111");
       update.setName("佐藤花子");
@@ -615,62 +620,133 @@ class HotelRepositoryTest {
       update.setEmail("hanako@example.com");
       update.setPhone("07098765432");
 
-     assertThatThrownBy(() -> sut.updateGuest(update,"not-exist"))
-         .isInstanceOf(DuplicateKeyException.class);
+      sut.updateGuest(update, "not-exist");
+
+      Guest actual = sut.findGuestById("11111111-1111-1111-1111-111111111111", "TEST");
+      assertThat(actual).isNotNull();
+      assertThat(actual.getPhone()).isEqualTo(beforePhone);
     }
   }
 
-  @Test
-  void 宿泊予約の変更_宿泊予約が変更されていること() {
-    Reservation reservation = getReservation();
-    reservation.setId("rsv00001-aaaa-bbbb-cccc-000000000001");
-    sut.updateReservation(reservation);
+  @Nested
+  @DisplayName("宿泊予約の変更")
+  class updateReservation {
 
-    Reservation actual = sut.findReservationById("rsv00001-aaaa-bbbb-cccc-000000000001", "TEST");
-    assertThat(actual.getStatus()).isEqualTo(reservation.getStatus());
+    @Test
+    void 備考欄が更新されている() {
+      Reservation before = sut.findReservationById("rsv00001-aaaa-bbbb-cccc-000000000001", "TEST");
+      assertThat(before).isNotNull();
+      String beforeMemo = before.getMemo();
+
+      before.setMemo("更新");
+      sut.updateReservation(before, "TEST");
+
+      Reservation actual = sut.findReservationById("rsv00001-aaaa-bbbb-cccc-000000000001", "TEST");
+
+      assertThat(actual).isNotNull();
+      assertThat(actual.getMemo()).isEqualTo("更新");
+      assertThat(actual.getMemo()).isNotEqualTo(beforeMemo);
+    }
+
+    @Test
+    void IDが一致しない場合_備考欄が更新されない() {
+      Reservation before = sut.findReservationById("rsv00001-aaaa-bbbb-cccc-000000000001", "TEST");
+      assertThat(before).isNotNull();
+      String beforeMemo = before.getMemo();
+
+      before.setMemo("更新");
+      sut.updateReservation(before, "not-exist");
+
+      Reservation actual = sut.findReservationById("rsv00001-aaaa-bbbb-cccc-000000000001", "TEST");
+
+      assertThat(actual).isNotNull();
+      assertThat(actual.getMemo()).isEqualTo(beforeMemo);
+    }
   }
 
-  @Test
-  void 宿泊者の論理削除_削除フラグがtureになっていること() {
-    String id = "11111111-1111-1111-1111-111111111111";
-    sut.logicalDeleteGuest(id);
 
-    GuestSearchCondition guestSearchCondition = new GuestSearchCondition();
-    guestSearchCondition.setName("佐藤花子");
+  @Nested
+  @DisplayName("宿泊者の論理削除")
+  class logicalDeleteGuest {
 
+    @Test
+    void 削除フラグがtureになっていること() {
+      sut.logicalDeleteGuest("11111111-1111-1111-1111-111111111111", "TEST");
+      Guest actual = sut.findGuestById("11111111-1111-1111-1111-111111111111", "TEST");
+
+      assertThat(actual).isNotNull();
+      assertThat(actual.getDeleted()).isTrue();
+    }
+
+    @Test
+    void IDが一致しない場合_削除フラグが更新されない() {
+
+      sut.logicalDeleteGuest("11111111-1111-1111-1111-111111111111", "not-exist");
+      Guest actual = sut.findGuestById("11111111-1111-1111-1111-111111111111", "TEST");
+
+      assertThat(actual).isNotNull();
+      assertThat(actual.getDeleted()).isFalse();
+    }
   }
 
-  @Test
-  void チェックイン処理_ステータスがチェックインに変わっているか確認() {
-    String reservationId = "rsv00001-aaaa-bbbb-cccc-000000000001";
-    sut.checkIn(reservationId);
-    Reservation actual = sut.findReservationById(reservationId, "TEST");
+  @Nested
+  @DisplayName("チェックイン処理")
+  class checkIn {
 
-    assertThat(actual.getStatus()).isEqualTo(ReservationStatus.CHECKED_IN);
+    @Test
+    void ステータスがチェックインに変更されている() {
+      sut.checkIn("rsv00002-bbbb-cccc-dddd-000000000002", "TEST");
+      Reservation actual = sut.findReservationById("rsv00002-bbbb-cccc-dddd-000000000002", "TEST");
+
+      assertThat(actual.getStatus()).isEqualTo(ReservationStatus.CHECKED_IN);
+    }
+
+    @Test
+    void ユーザーIDが一致しない場合_ステータスが変更されない() {
+      sut.checkIn("rsv00002-bbbb-cccc-dddd-000000000002", "not-exist");
+      Reservation actual = sut.findReservationById("rsv00002-bbbb-cccc-dddd-000000000002", "TEST");
+
+      assertThat(actual.getStatus()).isNotEqualTo(ReservationStatus.CHECKED_IN);
+    }
   }
 
-  @Test
-  void チェックイン処理_ステータスがチェックアウトに変わっているか確認() {
-    String reservationId = "rsv00002-bbbb-cccc-dddd-000000000002";
-    sut.checkOut(reservationId);
-    Reservation actual = sut.findReservationById(reservationId, "TEST");
+  @Nested
+  @DisplayName("チェックアウト処理")
+  class checkOut {
 
-    assertThat(actual.getStatus()).isEqualTo(ReservationStatus.CHECKED_OUT);
+    @Test
+    void ステータスがチェックアウトに変更されている() {
+      sut.checkOut("rsv00001-aaaa-bbbb-cccc-000000000001", "TEST");
+      Reservation actual = sut.findReservationById("rsv00001-aaaa-bbbb-cccc-000000000001", "TEST");
+
+      assertThat(actual.getStatus()).isEqualTo(ReservationStatus.CHECKED_OUT);
+    }
+
+    @Test
+    void ユーザーIDが一致しない場合_ステータスが変更されない() {
+      sut.checkOut("rsv00001-aaaa-bbbb-cccc-000000000001", "not-exist");
+      Reservation actual = sut.findReservationById("rsv00001-aaaa-bbbb-cccc-000000000001", "TEST");
+
+      assertThat(actual.getStatus()).isNotEqualTo(ReservationStatus.CHECKED_OUT);
+    }
   }
 
-  @Test
-  void ユーザーの登録処理_ユーザーが登録されていること() {
-    User actual = new User();
-    actual.setId("123");
-    actual.setPassword("123");
+  @Nested
+  @DisplayName("ユーザーの登録処理")
+  class insertUser {
 
-    sut.insertUser(actual);
-    User update = sut.findUserById("123");
+    @Test
+    void ユーザーが登録されていること() {
+      User actual = new User();
+      actual.setId("123");
+      actual.setPassword("123");
 
-    assertThat(actual.getId()).isEqualTo(update.getId());
+      sut.insertUser(actual);
+      User update = sut.findUserById("123");
 
+      assertThat(actual.getId()).isEqualTo(update.getId());
+    }
   }
-
 
   // 生成用
   private Guest getGuest() {
