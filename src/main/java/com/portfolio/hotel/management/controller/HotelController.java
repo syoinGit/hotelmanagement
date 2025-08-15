@@ -9,11 +9,14 @@ import com.portfolio.hotel.management.data.guest.GuestSearchCondition;
 import com.portfolio.hotel.management.data.reservation.Reservation;
 import com.portfolio.hotel.management.data.user.User;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
 import org.springframework.security.core.Authentication;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -72,11 +75,11 @@ public class HotelController {
     return service.searchGuest(authentication, guestSearchCondition);
   }
 
-  @Operation(summary = "完全一致検索", description = "名前、ふりがな、電話番号から宿泊者情報を完全一致検索します。ここで完全位一致したデータは宿泊者情報登録の際に使われます")
+  @Operation(summary = "完全一致検索", description = "名前、ふりがな、電話番号から宿泊者情報を完全一致検索し、宿泊者登録のためのデータを返します")
   @PostMapping("/guest/match")
   public GuestRegistration matchGuestForInsert(Authentication authentication,
       @RequestBody @Valid GuestMatch guestMatch) {
-    return service.matchGuest(authentication,guestMatch);
+    return service.matchGuest(authentication, guestMatch);
   }
 
   @Operation(summary = "宿泊者情報登録", description = "宿泊者情報を入力し、宿泊者情報を登録します。")
@@ -93,46 +96,51 @@ public class HotelController {
     service.registerBooking(booking);
     return ResponseEntity.ok("宿泊プランの登録が完了しました。");
   }
-  
-@Operation(summary = "宿泊者の更新", description = "宿泊者の情報を更新します。")
-@PutMapping("/guest/update")
-public ResponseEntity<String> updateGuest(@RequestBody Guest guest) {
-  service.updateGuest(guest);
-  return ResponseEntity.ok("宿泊者の更新が完了しました。");
-}
 
-@Operation(summary = "宿泊情報の更新", description = "宿泊予約情報を更新します。")
-@PutMapping("/reservation/update")
-public ResponseEntity<String> updateReservation(@RequestBody Reservation reservation) {
-  System.out.println("受け取ったReservation: " + reservation);
-  service.updateReservation(reservation);
-  return ResponseEntity.ok("宿泊情報の更新が完了しました。");
-}
+  @Operation(summary = "宿泊者の更新", description = "宿泊者の情報を更新します。")
+  @PutMapping("/guest/update")
+  public ResponseEntity<String> updateGuest(Authentication authentication,
+      @RequestBody Guest guest) {
+    service.updateGuest(authentication, guest);
+    return ResponseEntity.ok("宿泊者の更新が完了しました。");
+  }
 
-@Operation(summary = "宿泊者の論理削除", description = "宿泊者の削除フラグをtrueにします。")
-@PutMapping("/Guest/delete")
-public ResponseEntity<String> logicalDeleteGuest(
-    @RequestParam String id,
-    @RequestParam String name) {
-  service.logicalDeleteGuest(id);
-  return ResponseEntity.ok(name + "様の情報を削除しました。");
-}
+  @Operation(summary = "宿泊情報の更新", description = "宿泊予約情報を更新します。")
+  @PutMapping("/reservation/update")
+  public ResponseEntity<String> updateReservation(Authentication authentication,
+      @RequestBody Reservation reservation) {
+    System.out.println("受け取ったReservation: " + reservation);
+    service.updateReservation(authentication, reservation);
+    return ResponseEntity.ok("宿泊情報の更新が完了しました。");
+  }
 
-@Operation(summary = "チェックイン", description = "宿泊客のチェックインを行います。")
-@PutMapping("/guest/checkIn")
-public ResponseEntity<String> checkIn(
-    @RequestParam String id,
-    @RequestParam String name) {
-  service.checkIn(id);
-  return ResponseEntity.ok(name + "様のチェックインが完了しました。");
-}
+  @Operation(summary = "宿泊者の論理削除", description = "宿泊者の削除フラグをtrueにします。")
+  @PutMapping("/guest/delete")
+  public ResponseEntity<String> logicalDeleteGuest(
+      @RequestParam String id,
+      @RequestParam String name,
+      Authentication authentication) {
+    service.logicalDeleteGuest(authentication, id);
+    return ResponseEntity.ok(name + "様の情報を削除しました。");
+  }
+
+  @Operation(summary = "チェックイン", description = "宿泊客のチェックインを行います。")
+  @PutMapping("/guest/checkIn")
+  public ResponseEntity<String> checkIn(
+      Authentication authentication,
+      @RequestParam String id,
+      @RequestParam String name) {
+    service.checkIn(authentication, id);
+    return ResponseEntity.ok(name + "様のチェックインが完了しました。");
+  }
 
   @Operation(summary = "チェックアウト", description = "宿泊客のチェックアウトを行います。")
   @PutMapping("/guest/checkOut")
   public ResponseEntity<String> checkOut(
+      Authentication authentication,
       @RequestParam String id,
       @RequestParam String name) {
-    service.checkOut(id);
+    service.checkOut(authentication, id);
     return ResponseEntity.ok(name + "様のチェックアウトが完了しました。");
   }
 
@@ -141,5 +149,17 @@ public ResponseEntity<String> checkIn(
   public ResponseEntity<String> registerUser(@RequestBody User user) {
     service.registerUser(user);
     return ResponseEntity.ok("ユーザ情報の登録が完了しました。");
+  }
+
+  @Operation(summary = "ログアウトの処理", description = "ログインの情報とcookieを削除")
+  @PostMapping("/user/logout")
+  public ResponseEntity<Void> logout(
+      Authentication auth,
+      HttpServletRequest request,
+      HttpServletResponse response) {
+    if (auth != null) {
+      new SecurityContextLogoutHandler().logout(request, response, auth);
+    }
+    return ResponseEntity.ok().build();
   }
 }

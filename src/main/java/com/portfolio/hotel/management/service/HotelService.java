@@ -115,6 +115,8 @@ public class HotelService implements UserDetailsService {
 
   // 宿泊予約の登録
   private void initReservation(GuestRegistration guestRegistration) {
+    final String userId = guestRegistration.getGuest().getUserId();
+
     Reservation reservation = new Reservation();
 
     reservation.setId(UUID.randomUUID().toString());
@@ -123,14 +125,14 @@ public class HotelService implements UserDetailsService {
     reservation.setBookingId(guestRegistration.getBookingId());
     reservation.setCheckInDate(guestRegistration.getCheckInDate());
     reservation.setStayDays(guestRegistration.getStayDays());
-    reservation.setCheckOutDate(reservation.getCheckInDate().plusDays(guestRegistration.getStayDays()));
-    BigDecimal price = repository.findTotalPriceById(reservation.getBookingId());
+    reservation.setCheckOutDate(
+        reservation.getCheckInDate().plusDays(guestRegistration.getStayDays()));
+    BigDecimal price = repository.findTotalPriceById(reservation.getBookingId(),
+        guestRegistration.getGuest().getUserId());
     BigDecimal total = price.multiply(BigDecimal.valueOf(reservation.getStayDays()));
     reservation.setTotalPrice(total);
     reservation.setMemo(guestRegistration.getMemo());
     reservation.setStatus(ReservationStatus.NOT_CHECKED_IN);
-    reservation.setCheckInDate(LocalDate.now());
-
     repository.insertReservation(reservation);
   }
 
@@ -141,35 +143,35 @@ public class HotelService implements UserDetailsService {
   }
 
   // 宿泊者の編集
-  public void updateGuest(Guest guest) {
-    repository.updateGuest(guest);
+  public void updateGuest(Authentication authentication, Guest guest) {
+    repository.updateGuest(guest, extractLoginId(authentication));
   }
 
   // 宿泊予約の編集
-  public void updateReservation(Reservation reservation) {
-    repository.updateReservation(reservation);
+  public void updateReservation(Authentication authentication, Reservation reservation) {
+    repository.updateReservation(reservation, extractLoginId(authentication));
   }
 
   // 宿泊者の削除
-  public void logicalDeleteGuest(String guestId) {
-    repository.logicalDeleteGuest(guestId);
+  public void logicalDeleteGuest(Authentication authentication, String guestId) {
+    repository.logicalDeleteGuest(guestId, extractLoginId(authentication));
   }
 
-  // チェックイン処理の作成
-  public void checkIn(String reservationId) {
-    ReservationStatus status = repository.findStatusById(reservationId);
+  // チェックイン処理
+  public void checkIn(Authentication authentication, String id) {
+    ReservationStatus status = repository.findStatusById(id, extractLoginId(authentication));
     if (status == ReservationStatus.NOT_CHECKED_IN) {
-      repository.checkIn(reservationId);
+      repository.checkIn(id, extractLoginId(authentication));
     } else {
       throw new IllegalStateException("未チェックインの予約のみチェックイン可能です");
     }
   }
 
-  // チェックアウト処理の作成
-  public void checkOut(String reservationId) {
-    ReservationStatus status = repository.findStatusById(reservationId);
+  // チェックアウト処理
+  public void checkOut(Authentication authentication, String id) {
+    ReservationStatus status = repository.findStatusById(id, extractLoginId(authentication));
     if (status == ReservationStatus.CHECKED_IN) {
-      repository.checkOut(reservationId);
+      repository.checkOut(id, extractLoginId(authentication));
     } else {
       throw new IllegalStateException("チェックイン済みの予約のみチェックアウト可能です");
     }

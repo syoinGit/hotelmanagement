@@ -36,10 +36,10 @@ public interface HotelRepository {
   // 現在宿泊中の宿泊者を検索
   List<Guest> findGuestStayNow(@Param("id") String id);
 
-  //　現在宿泊中の宿泊者を検索
+  //　現在宿泊中の宿泊予約を検索
   List<Reservation> findReservationStayNow(@Param("id") String id);
 
-  // 本日チェックアウト予定の宿泊者情報を検索
+  // 本日チェックアウト予定の宿泊者を検索
   List<Guest> findGuestsTodayCheckOut(@Param("id") String id,
       @Param("today") LocalDate today);
 
@@ -47,25 +47,25 @@ public interface HotelRepository {
   List<Reservation> findReservationTodayCheckOut(@Param("id") String id,
       @Param("today") LocalDate today);
 
-  // 宿泊者ID、名前、かな名、電話番号から宿泊者を検索
+  // 宿泊者ID、名前、かな名、電話番号、チェックイン日、チェックアウト日から宿泊者を検索
   List<Guest> searchGuest(GuestSearchCondition guestSearchCondition);
 
   // 宿泊者IDから宿泊者を完全一致検索
   Guest matchGuest(GuestMatch guestMatch);
 
-  // 宿泊者IDから、宿泊者を検索
-  Guest findByGuestId(@Param("id") String id);
+  // 宿泊者IDから宿泊者を検索
+  Guest findGuestById(@Param("id") String id, @Param("userId") String userId);
 
-  // 宿泊予約IDから、宿泊予約を検索
-  Reservation searchReservation(@Param("id") String id);
+  // 宿泊予約IDから宿泊予約を検索
+  Reservation findReservationById(@Param("id") String id, @Param("userId") String userId);
 
   // 宿泊プランIDから金額を検索
-  BigDecimal findTotalPriceById(@Param("id") String id);
+  BigDecimal findTotalPriceById(@Param("id") String id, @Param("userId") String userId);
 
   // 宿泊予約IDから宿泊予約状況を検索
-  ReservationStatus findStatusById(@Param("id") String id);
+  ReservationStatus findStatusById(@Param("id") String id, @Param("userId") String userId);
 
-  //　ユーザーIDからユーザー情報を検索
+  //　ユーザーIDからユーザーを検索
   User findUserById(@Param("id") String id);
 
   // 宿泊者の登録
@@ -78,18 +78,21 @@ public interface HotelRepository {
   void insertReservation(Reservation reservation);
 
   // 宿泊者情報の変更
-  void updateGuest(Guest guest);
+  void updateGuest(@Param("guest") Guest guest,
+      @Param("userId") String userId);
 
   // 宿泊予約の変更
-  void updateReservation(Reservation reservation);
+  void updateReservation(@Param("reservation") Reservation reservation,
+      @Param("userId") String userId);
 
-  void logicalDeleteGuest(@Param("id") String id);
+  // 宿泊者の論理削除
+  void logicalDeleteGuest(@Param("id") String id, @Param("userId") String userId);
 
   // チェックイン処理
-  void checkIn(@Param("id") String id);
+  void checkIn(@Param("id") String id, @Param("userId") String userId);
 
   // チェックアウト処理
-  void checkOut(@Param("id") String id);
+  void checkOut(@Param("id") String id, @Param("userId") String userId);
 
   // ユーザーの登録処理
   void insertUser(User user);

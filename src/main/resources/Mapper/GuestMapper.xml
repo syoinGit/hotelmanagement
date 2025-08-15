@@ -6,19 +6,22 @@
 <mapper namespace="com.portfolio.hotel.management.repository.HotelRepository">
 
   <!-- 宿泊者全件取得 -->
-  <select id="findAllGuest" parameterType="string" resultType="com.portfolio.hotel.management.data.guest.Guest">
+  <select id="findAllGuest" parameterType="string"
+    resultType="com.portfolio.hotel.management.data.guest.Guest">
     SELECT * FROM guest
     WHERE user_id = #{id}
   </select>
 
   <!-- 宿泊プラン全件取得 -->
-  <select id="findAllBooking" parameterType="string" resultType="com.portfolio.hotel.management.data.booking.Booking">
+  <select id="findAllBooking" parameterType="string"
+    resultType="com.portfolio.hotel.management.data.booking.Booking">
     SELECT * FROM booking
     WHERE user_id = #{id}
   </select>
 
   <!-- 宿泊予約全件取得 -->
-  <select id="findAllReservation" parameterType="string" resultType="com.portfolio.hotel.management.data.reservation.Reservation">
+  <select id="findAllReservation" parameterType="string"
+    resultType="com.portfolio.hotel.management.data.reservation.Reservation">
     SELECT * FROM reservation
     WHERE user_id = #{id}
   </select>
@@ -93,6 +96,7 @@
     FROM guest
     LEFT JOIN reservation ON guest.id = reservation.guest_id
     WHERE guest.deleted = FALSE
+    AND guest.user_id = #{userId}
 
     <if test="name != null and name != ''">
       AND guest.name LIKE CONCAT('%', #{name}, '%')
@@ -107,7 +111,8 @@
     </if>
 
     <if test="checkInDate != null">
-      AND reservation.check_in_date &gt;= #{checkInDate, javaType=java.time.LocalDate, jdbcType=DATE}
+      AND reservation.check_in_date &gt;=
+      #{checkInDate, javaType=java.time.LocalDate, jdbcType=DATE}
     </if>
 
     <if test="checkOutDate != null">
@@ -115,16 +120,6 @@
       #{checkOutDate, javaType=java.time.LocalDate, jdbcType=DATE}
     </if>
 
-    <if test="userId != null">
-      AND guest.user_id = #{userId}
-    </if>
-
-  </select>
-
-  <!-- 宿泊予約IDによる予約情報取得 -->
-  <select id="searchReservation"
-    resultType="com.portfolio.hotel.management.data.reservation.Reservation" parameterType="string">
-    SELECT * FROM reservation WHERE id = #{id}
   </select>
 
   <!-- 宿泊者情報の完全一致検索（マッチング） -->
@@ -138,21 +133,33 @@
   </select>
 
   <!-- 宿泊者IDによる宿泊者検索 -->
-  <select id="findByGuestId" resultType="com.portfolio.hotel.management.data.guest.Guest">
-    SELECT *
-    FROM guest
-    WHERE id = #{id}
+  <select id="findGuestById" resultType="com.portfolio.hotel.management.data.guest.Guest">
+    SELECT * FROM guest
+    WHERE user_id = #{userId}
+    AND id = #{id}
+  </select>
+
+  <!-- 宿泊予約IDによる予約情報取得 -->
+  <select id="findReservationById"
+    resultType="com.portfolio.hotel.management.data.reservation.Reservation" parameterType="string">
+    SELECT * FROM reservation
+    WHERE user_id = #{userId}
+    AND id = #{id}
   </select>
 
   <!-- 宿泊プランIDによる金額取得 -->
   <select id="findTotalPriceById" resultType="java.math.BigDecimal">
-    SELECT price FROM booking WHERE id = #{id}
+    SELECT price FROM booking
+    WHERE user_id = #{userId}
+    AND id = #{id}
   </select>
 
   <!-- 宿泊予約IDによるステータス取得 -->
   <select id="findStatusById"
     resultType="com.portfolio.hotel.management.data.reservation.ReservationStatus">
-    SELECT status FROM reservation WHERE id = #{id}
+    SELECT status FROM reservation
+    WHERE user_id = #{userId}
+    AND id = #{id}
   </select>
 
   <!-- IDによるユーザー取得 -->
@@ -175,9 +182,9 @@
   <!-- 宿泊プラン登録 -->
   <insert id="insertBooking" parameterType="com.portfolio.hotel.management.data.booking.Booking">
     INSERT INTO booking (
-    id, name, description, price, is_available
+    id, name, description, price, is_available, user_id
     ) VALUES (
-    #{id}, #{name}, #{description}, #{price}, #{isAvailable}
+    #{id}, #{name}, #{description}, #{price}, #{isAvailable}, #{userId}
     )
   </insert>
 
@@ -196,49 +203,54 @@
   <!-- 宿泊者情報の更新 -->
   <update id="updateGuest" parameterType="com.portfolio.hotel.management.data.guest.Guest">
     UPDATE guest
-    SET name = #{name},
-    kana_name = #{kanaName},
-    gender = #{gender},
-    age = #{age},
-    region = #{region},
-    email = #{email},
-    phone = #{phone},
-    deleted = #{deleted}
-    WHERE id = #{id}
+    SET name = #{guest.name},
+    kana_name = #{guest.kanaName},
+    gender = #{guest.gender},
+    age = #{guest.age},
+    region = #{guest.region},
+    email = #{guest.email},
+    phone = #{guest.phone},
+    deleted = #{guest.deleted}
+    WHERE user_id = #{userId}
+    AND id = #{guest.id}
   </update>
 
   <!-- 宿泊予約情報の更新 -->
   <update id="updateReservation"
     parameterType="com.portfolio.hotel.management.data.reservation.Reservation">
     UPDATE reservation
-    SET check_in_date = #{checkInDate},
-    check_out_date = #{checkOutDate},
-    stay_days = #{stayDays},
-    total_price = #{totalPrice},
-    status = #{status},
-    memo = #{memo}
-    WHERE id = #{id}
+    SET check_in_date = #{reservation.checkInDate},
+    check_out_date = #{reservation.checkOutDate},
+    stay_days = #{reservation.stayDays},
+    total_price = #{reservation.totalPrice},
+    status = #{reservation.status},
+    memo = #{reservation.memo}
+    WHERE user_id = #{userId}
+    AND id = #{reservation.id}
   </update>
 
   <!-- 宿泊者の論理削除（削除フラグをON） -->
   <update id="logicalDeleteGuest">
     UPDATE guest
     SET deleted = TRUE
-    WHERE id = #{id}
+    WHERE user_id = #{userId}
+    AND id = #{id}
   </update>
 
   <!-- チェックイン処理（予約ステータスを更新） -->
   <update id="checkIn">
     UPDATE reservation
     SET status = 'CHECKED_IN'
-    WHERE id = #{id}
+    WHERE user_id = #{userId}
+    AND id = #{id}
   </update>
 
   <!-- チェックアウト処理（予約ステータスを更新） -->
   <update id="checkOut">
     UPDATE reservation
     SET status = 'CHECKED_OUT'
-    WHERE id = #{id}
+    WHERE user_id = #{userId}
+    AND id = #{id}
   </update>
 
   <!-- ユーザーの登録処理 -->
