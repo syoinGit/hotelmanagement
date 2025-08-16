@@ -42,6 +42,12 @@ public class HotelService implements UserDetailsService {
         repository.findAllReservation(userId));
   }
 
+  // 宿泊コースの全件取得
+  public List<Booking> getAllBooking(Authentication authentication) {
+    String userId = extractLoginId(authentication);
+    return repository.findAllBooking(userId);
+  }
+
   // 本日チェックインの宿泊者を取得
   public List<GuestDetail> getChackInToday(Authentication authentication, LocalDate today) {
     String userId = extractLoginId(authentication);
@@ -69,11 +75,6 @@ public class HotelService implements UserDetailsService {
         repository.findReservationTodayCheckOut(userId, today));
   }
 
-  // 宿泊コースの全件取得
-  public List<Booking> getAllBooking(Authentication authentication) {
-    String userId = extractLoginId(authentication);
-    return repository.findAllBooking(userId);
-  }
 
   // 宿泊者情報の単一検索
   public List<GuestDetail> searchGuest(Authentication authentication,
