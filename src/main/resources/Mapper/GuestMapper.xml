@@ -111,12 +111,12 @@
     </if>
 
     <if test="checkInDate != null">
-      AND reservation.check_in_date &gt;=
+      AND reservation.check_in_date =
       #{checkInDate, javaType=java.time.LocalDate, jdbcType=DATE}
     </if>
 
     <if test="checkOutDate != null">
-      AND DATE_ADD(reservation.check_in_date, INTERVAL reservation.stay_days DAY) &lt;=
+      AND reservation.check_out_date =
       #{checkOutDate, javaType=java.time.LocalDate, jdbcType=DATE}
     </if>
 

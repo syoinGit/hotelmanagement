@@ -57,7 +57,7 @@ class HotelControllerTest {
 
     mockMvc.perform(get("/getCheckInToday")).andExpect(status().isOk())
         .andExpect(content().json("[]"));
-    verify(service, times(1)).getChackInToday(auth, today);
+    verify(service, times(1)).getCheckInToday(auth, today);
   }
 
   @Test
@@ -67,7 +67,7 @@ class HotelControllerTest {
 
     mockMvc.perform(get("/getCheckOutToday")).andExpect(status().isOk())
         .andExpect(content().json("[]"));
-    verify(service, times(1)).getChackOutToday(auth, today);
+    verify(service, times(1)).getCheckOutToday(auth, today);
   }
 
   @Test

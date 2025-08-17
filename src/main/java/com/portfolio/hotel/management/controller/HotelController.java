@@ -52,7 +52,7 @@ public class HotelController {
   @GetMapping("/guests/check-in-today")
   public List<GuestDetail> getChackInToday(Authentication authentication) {
     LocalDate today = LocalDate.now();
-    return service.getChackInToday(authentication, today);
+    return service.getCheckInToday(authentication, today);
   }
 
   @Operation(summary = "現在宿泊中の宿泊者を全件検索", description = "現在宿泊中の宿泊者を全件検索します")
@@ -65,7 +65,7 @@ public class HotelController {
   @GetMapping("/guests/check-out-today")
   public List<GuestDetail> getCheckOutToday(Authentication authentication) {
     LocalDate today = LocalDate.now();
-    return service.getChackOutToday(authentication, today);
+    return service.getCheckOutToday(authentication, today);
   }
 
   @Operation(summary = "単一検索", description = "ID、名前、ふりがな、電話番号、宿泊日から宿泊者情報を検索します。")

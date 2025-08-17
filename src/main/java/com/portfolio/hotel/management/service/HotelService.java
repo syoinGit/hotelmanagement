@@ -49,7 +49,7 @@ public class HotelService implements UserDetailsService {
   }
 
   // 本日チェックインの宿泊者を取得
-  public List<GuestDetail> getChackInToday(Authentication authentication, LocalDate today) {
+  public List<GuestDetail> getCheckInToday(Authentication authentication, LocalDate today) {
     String userId = extractLoginId(authentication);
     return converter.convertGuestDetail(
         repository.findGuestsTodayCheckIn(userId, today),
@@ -67,7 +67,7 @@ public class HotelService implements UserDetailsService {
   }
 
   // 本日チェックアウトの宿泊者を取得
-  public List<GuestDetail> getChackOutToday(Authentication authentication, LocalDate today) {
+  public List<GuestDetail> getCheckOutToday(Authentication authentication, LocalDate today) {
     String userId = extractLoginId(authentication);
     return converter.convertGuestDetail(
         repository.findGuestsTodayCheckOut(userId, today),
@@ -183,6 +183,7 @@ public class HotelService implements UserDetailsService {
     repository.insertUser(user);
   }
 
+  // ログイン処理
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
     User found = repository.findUserById(username);
