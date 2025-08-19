@@ -21,16 +21,19 @@ import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 @WebMvcTest(HotelController.class)
+@AutoConfigureMockMvc
 class HotelControllerTest {
 
   @Autowired
@@ -43,52 +46,67 @@ class HotelControllerTest {
   private final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
   @Test
+  @WithMockUser(username = "TEST", roles = "USER")
   void 宿泊者情報の全件検索_空のリストが帰ってくること() throws Exception {
-    Authentication auth = getAuthentication();
     mockMvc.perform(get("/guests"))
-        .andExpect(status().isOk()).andExpect(content().json("[]"));
-    verify(service, times(1)).getAllGuest(auth);
+        .andExpect(status().isOk())
+        .andExpect(content().json("[]"));
+    verify(service, times(1)).getAllGuest(any(Authentication.class));
   }
 
   @Test
+  @WithMockUser(username = "TEST", roles = "USER")
+  void 宿泊プランの全件検索_空のリストが帰ってくること() throws Exception {
+    mockMvc.perform(get("/bookings"))
+        .andExpect(status().isOk())
+        .andExpect(content().json("[]"));
+    verify(service, times(1)).getAllBooking(any(Authentication.class));
+  }
+
+  @Test
+  @WithMockUser(username = "TEST", roles = "USER")
   void 本日チェックイン予定の宿泊者情報検索_空のリストが帰ってくること() throws Exception {
-    LocalDate today = LocalDate.now();
-    Authentication auth = getAuthentication();
-
-    mockMvc.perform(get("/getCheckInToday")).andExpect(status().isOk())
+    mockMvc.perform(get("/guests/check-in-today"))
+        .andExpect(status().isOk())
         .andExpect(content().json("[]"));
-    verify(service, times(1)).getCheckInToday(auth, today);
+    verify(service, times(1)).getCheckInToday(any(Authentication.class), any(LocalDate.class));
   }
 
   @Test
+  @WithMockUser(username = "TEST", roles = "USER")
+  void 本日宿泊中の宿泊者情報検索_空のリストが帰ってくること() throws Exception {
+    mockMvc.perform(get("/guests/stay"))
+        .andExpect(status().isOk())
+        .andExpect(content().json("[]"));
+    verify(service, times(1)).getStayNow(any(Authentication.class));
+  }
+
+  @Test
+  @WithMockUser(username = "TEST", roles = "USER")
   void 本日チェックアウト予定の宿泊者検索_空のリストが帰ってくること() throws Exception {
-    LocalDate today = LocalDate.now();
-    Authentication auth = getAuthentication();
-
-    mockMvc.perform(get("/getCheckOutToday")).andExpect(status().isOk())
+    mockMvc.perform(get("/guests/check-out-today"))
+        .andExpect(status().isOk())
         .andExpect(content().json("[]"));
-    verify(service, times(1)).getCheckOutToday(auth, today);
+    verify(service, times(1)).getCheckOutToday(any(Authentication.class), any(LocalDate.class));
   }
 
   @Test
+  @WithMockUser(username = "TEST", roles = "USER")
   void 宿泊者情報の単一検索_宿泊者から宿泊者情報を検索できること() throws Exception {
     Guest guest = new Guest();
     guest.setName("佐藤花子");
     guest.setKanaName("サトウハナコ");
     guest.setPhone("08098765432");
 
-    Authentication auth = getAuthentication();
-
     GuestDetail guestDetail = new GuestDetail();
     guestDetail.setGuest(guest);
-    when(service.searchGuest(auth, any())).thenReturn(List.of(guestDetail));
+    when(service.searchGuest(any(Authentication.class), any())).thenReturn(List.of(guestDetail));
 
-    mockMvc.perform(MockMvcRequestBuilders.get("/searchGuest")
+    mockMvc.perform(MockMvcRequestBuilders.post("/guest/search")
             .contentType(MediaType.APPLICATION_JSON)
             .content("""
                   {
-                  "name": "佐藤花子",
-                  "checkInDate": "2025-07-15"
+                  "name": "佐藤花子"
                   }
                 """
             ))
