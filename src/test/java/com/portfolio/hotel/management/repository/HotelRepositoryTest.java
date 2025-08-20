@@ -530,7 +530,7 @@ class HotelRepositoryTest {
     void 宿泊プランが登録されているか確認() {
       Booking booking = getBooking();
       booking.setId("aaaaaa10-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
-      booking.setUserId(getUserId());
+      booking.setUserId("TEST");
       sut.insertBooking(booking);
 
       List<Booking> actual = sut.findAllBooking(getUserId());

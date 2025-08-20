@@ -23,12 +23,9 @@ import com.portfolio.hotel.management.data.guest.GuestDetail;
 import com.portfolio.hotel.management.data.reservation.Reservation;
 import com.portfolio.hotel.management.repository.HotelRepository;
 import java.math.BigDecimal;
-import java.time.Clock;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -314,8 +311,9 @@ class HotelServiceTest {
     HotelService sut = new HotelService(repository, converter);
     Booking booking = createBooking();
 
-    sut.registerBooking(booking);
-    verify(repository, times(1)).insertBooking(booking);
+    sut.registerBooking(any(Authentication.class), booking);
+    verify(repository, times(1))
+        .insertBooking(booking);
   }
 
   @Test

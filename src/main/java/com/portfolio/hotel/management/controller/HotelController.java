@@ -91,9 +91,11 @@ public class HotelController {
   }
 
   @Operation(summary = "宿泊プラン登録", description = "宿泊プランを入力し、登録します。")
-  @PutMapping("/registerBooking")
-  public ResponseEntity<String> registerBooking(@RequestBody @Valid Booking booking) {
-    service.registerBooking(booking);
+  @PutMapping("/booking/register")
+  public ResponseEntity<String> registerBooking(
+      Authentication authentication,
+      @RequestBody @Valid Booking booking) {
+    service.registerBooking(authentication,booking);
     return ResponseEntity.ok("宿泊プランの登録が完了しました。");
   }
 
@@ -109,7 +111,6 @@ public class HotelController {
   @PutMapping("/reservation/update")
   public ResponseEntity<String> updateReservation(Authentication authentication,
       @RequestBody Reservation reservation) {
-    System.out.println("受け取ったReservation: " + reservation);
     service.updateReservation(authentication, reservation);
     return ResponseEntity.ok("宿泊情報の更新が完了しました。");
   }

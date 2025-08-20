@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -20,6 +21,7 @@ import jakarta.validation.Validator;
 import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -43,7 +45,6 @@ class HotelControllerTest {
   @MockBean
   private HotelService service;
   private HotelRepository repository;
-  private final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
   @Test
   @WithMockUser(username = "TEST", roles = "USER")
@@ -103,33 +104,39 @@ class HotelControllerTest {
     when(service.searchGuest(any(Authentication.class), any())).thenReturn(List.of(guestDetail));
 
     mockMvc.perform(MockMvcRequestBuilders.post("/guest/search")
+            .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content("""
                   {
-                  "name": "佐藤花子"
+                  "name": "佐藤花子",
+                  "check_in_date": "2025-07-24"
                   }
                 """
             ))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$[0].guest.name").value("佐藤花子"));
+
+    verify(service, times(1))
+        .searchGuest(any(Authentication.class), any());
   }
 
   @Test
+  @WithMockUser(username = "TEST", roles = "USER")
   void 宿泊者情報の完全一致検索_名前_かな名_電話番号から宿泊者情報を検索できること()
       throws Exception {
-    Authentication auth = getAuthentication();
 
     Guest guest = new Guest();
-    guest.setGender("FEMALE");
+    guest.setGender("女性");
     guest.setAge(28);
 
     GuestRegistration guestRegistration = new GuestRegistration();
     guestRegistration.setGuest(guest);
 
-    when(service.matchGuest(auth, any())).thenReturn(guestRegistration);
+    when(service.matchGuest(any(Authentication.class), any())).thenReturn(guestRegistration);
 
-    mockMvc.perform(MockMvcRequestBuilders.post("/matchGuest")
+    mockMvc.perform(MockMvcRequestBuilders.post("/guest/match")
             .contentType(MediaType.APPLICATION_JSON)
+            .with(csrf())
             .content("""
                   {
                   "name": "佐藤花子",
@@ -139,20 +146,26 @@ class HotelControllerTest {
                 """
             ))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.guest.gender").value("FEMALE"))
+        .andExpect(jsonPath("$.guest.gender").value("女性"))
         .andExpect(jsonPath("$.guest.age").value(28));
+
+    verify(service, times(1))
+        .matchGuest(any(Authentication.class), any());
   }
 
+  // 後から修正する
   @Test
+  @WithMockUser(username = "TEST", roles = "USER")
   void 宿泊者情報の登録_宿泊者情報が登録できること() throws Exception {
-    mockMvc.perform(put("/registerGuest")
+    mockMvc.perform(put("/guest/register")
+            .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content("""
                 {
                   "guest": {
                     "name": "佐藤花子",
                     "kanaName": "サトウハナコ",
-                    "gender": "FEMALE",
+                    "gender": "女性",
                     "age": 28,
                     "region": "東京",
                     "email": "hanako@example.com",
@@ -160,17 +173,22 @@ class HotelControllerTest {
                   },
                   "bookingId": "123e4567-e89b-12d3-a456-426614174000",
                   "stayDays": 2,
-                  "checkInDate": "2025-07-31",
+                  "checkInDate": "2025-09-30",
                   "memo": "観光で利用"
                 }
                 """))
         .andExpect(status().isOk())
         .andExpect(content().string("宿泊者情報の登録が完了しました。"));
+
+    verify(service, times(1))
+        .registerGuest(any(Authentication.class), any());
   }
 
   @Test
+  @WithMockUser(username = "TEST", roles = "USER")
   void 宿泊プランの登録_宿泊プランが登録できること() throws Exception {
-    mockMvc.perform(put(("/registerBooking"))
+    mockMvc.perform(put(("/booking/register"))
+            .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content("""
                 {
@@ -179,20 +197,26 @@ class HotelControllerTest {
                     "price": 10000,
                     "available": true
                 }
-                """)).andExpect(status().isOk())
+                """))
+        .andExpect(status().isOk())
         .andExpect(content().string("宿泊プランの登録が完了しました。"));
+
+    verify(service, times(1))
+        .registerBooking(any(Authentication.class), any());
   }
 
   @Test
+  @WithMockUser(username = "TEST", roles = "USER")
   void 宿泊者の変更_宿泊者が変更できているかの確認() throws Exception {
-    mockMvc.perform(put("/updateGuest")
+    mockMvc.perform(put("/guest/update")
+            .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content("""
                 {
                   "guest": {
                     "name": "佐藤花子",
                     "kanaName": "サトウハナコ",
-                    "gender": "FEMALE",
+                    "gender": "女性",
                     "age": 28,
                     "region": "東京",
                     "email": "hanako@example.com",
@@ -202,13 +226,17 @@ class HotelControllerTest {
                 """))
         .andExpect(status().isOk())
         .andExpect(content().string("宿泊者の更新が完了しました。"));
+
+    verify(repository, times(1))
+        .updateGuest(any(Guest.class), any());
   }
 
   @Test
+  @WithMockUser(username = "TEST", roles = "USER")
   void 宿泊情報の編集_宿泊情報が変更できているかの確認() throws Exception {
-
-    mockMvc.perform(put("/updateReservation")
+    mockMvc.perform(put("/reservation/update")
             .contentType(MediaType.APPLICATION_JSON)
+            .with(csrf())
             .content("""
                 {
                   "id": "e1f7d3aa-4c59-4f9d-a8a1-8b9c3a6b91e7",
@@ -227,11 +255,13 @@ class HotelControllerTest {
   }
 
   @Test
+  @WithMockUser(username = "TEST", roles = "USER")
   void 宿泊者の論理削除_削除完了のメッセージが返ってくること() throws Exception {
-    String id = "dummy-id-123";
-    String name = "山田";
+    String id = "dummyId";
+    String name = "山田太郎";
 
-    mockMvc.perform(put("/deleteGuest")
+    mockMvc.perform(put("/guest/delete")
+            .with(csrf())
             .param("id", id)
             .param("name", name))
         .andExpect(status().isOk())
@@ -239,12 +269,14 @@ class HotelControllerTest {
   }
 
   @Test
+  @WithMockUser(username = "TEST", roles = "USER")
   void チェックイン処理_チェックイン完了のメッセージが返ってくること() throws Exception {
     String id = "dummy-id-123";
     String name = "山田";
 
     mockMvc.perform(
-            put("/checkIn")
+            put("/guest/checkIn")
+                .with(csrf())
                 .param("id", id)
                 .param("name", name))
         .andExpect(status().isOk())
@@ -252,12 +284,14 @@ class HotelControllerTest {
   }
 
   @Test
+  @WithMockUser(username = "TEST", roles = "USER")
   void チェックアウト処理_チェックアウト完了のメッセージが帰ってくること() throws Exception {
-    String name = "山田";
     String id = "dummy-id-123";
+    String name = "山田";
 
     mockMvc.perform(
-            put("/checkOut")
+            put("/guest/checkOut")
+                .with(csrf())
                 .param("id", id)
                 .param("name", name))
         .andExpect(status().isOk())
@@ -265,22 +299,18 @@ class HotelControllerTest {
   }
 
   @Test
+  @WithMockUser(username = "TEST", roles = "USER")
   void ユーザーの登録処理_登録完了のメッセージが返ってくるか確認() throws Exception {
     mockMvc.perform(put("/user/register")
+            .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content("""
                 {
-                   "id": "testuser01",
-                   "password": "testpass123"
+                   "id": "Test01",
+                   "password": "Pass123"
                  }
                 """))
         .andExpect(status().isOk())
         .andExpect(content().string("ユーザ情報の登録が完了しました。"));
   }
-
-  private static Authentication getAuthentication() {
-    return new UsernamePasswordAuthenticationToken("TEST", "pass",
-        List.of(new SimpleGrantedAuthority("ROLE_USER")));
-  }
-
 }
