@@ -27,6 +27,5 @@ public class Booking {
 
   private Boolean isAvailable = true;
 
-  @NotNull
   String userId;
 }

@@ -138,7 +138,9 @@ public class HotelService implements UserDetailsService {
   }
 
   // 宿泊プランの登録
-  public void registerBooking(Booking booking) {
+  public void registerBooking(
+      Authentication authentication,
+      Booking booking) {
     booking.setId(UUID.randomUUID().toString());
     repository.insertBooking(booking);
   }
