@@ -1,6 +1,7 @@
 package com.portfolio.hotel.management.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -227,8 +228,8 @@ class HotelControllerTest {
         .andExpect(status().isOk())
         .andExpect(content().string("宿泊者の更新が完了しました。"));
 
-    verify(repository, times(1))
-        .updateGuest(any(Guest.class), any());
+    verify(service, times(1))
+        .updateGuest(any(Authentication.class), any());
   }
 
   @Test
@@ -252,6 +253,9 @@ class HotelControllerTest {
                 """))
         .andExpect(status().isOk())
         .andExpect(content().string("宿泊情報の更新が完了しました。"));
+
+    verify(service, times(1))
+        .updateReservation(any(Authentication.class), any());
   }
 
   @Test
@@ -266,6 +270,9 @@ class HotelControllerTest {
             .param("name", name))
         .andExpect(status().isOk())
         .andExpect(content().string(name + "様の情報を削除しました。"));
+
+    verify(service, times(1))
+        .logicalDeleteGuest(any(Authentication.class), anyString());
   }
 
   @Test
@@ -281,6 +288,9 @@ class HotelControllerTest {
                 .param("name", name))
         .andExpect(status().isOk())
         .andExpect(content().string(name + "様のチェックインが完了しました。"));
+
+    verify(service, times(1))
+        .checkIn(any(Authentication.class), anyString());
   }
 
   @Test
@@ -296,6 +306,9 @@ class HotelControllerTest {
                 .param("name", name))
         .andExpect(status().isOk())
         .andExpect(content().string(name + "様のチェックアウトが完了しました。"));
+
+    verify(service, times(1))
+        .checkOut(any(Authentication.class), anyString());
   }
 
   @Test
@@ -312,5 +325,8 @@ class HotelControllerTest {
                 """))
         .andExpect(status().isOk())
         .andExpect(content().string("ユーザ情報の登録が完了しました。"));
+
+    verify(service, times(1))
+        .registerUser(any());
   }
 }

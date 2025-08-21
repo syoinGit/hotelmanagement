@@ -371,8 +371,11 @@ class HotelServiceTest {
       when(repository.findStatusById("22222222-2222-2222-2222-222222222222", "TEST"))
           .thenReturn(ReservationStatus.CHECKED_IN);
 
-      sut.checkIn(auth, "22222222-2222-2222-2222-222222222222");
-      verify(repository, times(1)).checkIn("22222222-2222-2222-2222-222222222222", "TEST");
+      IllegalStateException ex = assertThrows(IllegalStateException.class,
+          () -> sut.checkIn(auth, "22222222-2222-2222-2222-222222222222"));
+
+      verify(repository, times(0)).checkIn("22222222-2222-2222-2222-222222222222", "TEST");
+      verify(repository, times(1)).findStatusById("22222222-2222-2222-2222-222222222222", "TEST");
     }
   }
 
