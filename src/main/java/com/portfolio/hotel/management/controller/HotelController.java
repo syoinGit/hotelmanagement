@@ -95,7 +95,7 @@ public class HotelController {
   public ResponseEntity<String> registerBooking(
       Authentication authentication,
       @RequestBody @Valid Booking booking) {
-    service.registerBooking(authentication,booking);
+    service.registerBooking(authentication, booking);
     return ResponseEntity.ok("宿泊プランの登録が完了しました。");
   }
 
@@ -116,12 +116,11 @@ public class HotelController {
   }
 
   @Operation(summary = "宿泊者の論理削除", description = "宿泊者の削除フラグをtrueにします。")
-  @PutMapping("/guest/delete")
+  @PutMapping("/guest/deleted")
   public ResponseEntity<String> logicalDeleteGuest(
-      @RequestParam String id,
-      @RequestParam String name,
-      Authentication authentication) {
-    service.logicalDeleteGuest(authentication, id);
+      @RequestParam String id, @RequestParam String name,
+      @RequestParam boolean deleted, Authentication authentication) {
+    service.logicalDeleteGuest(authentication, id, deleted);
     return ResponseEntity.ok(name + "様の情報を削除しました。");
   }
 

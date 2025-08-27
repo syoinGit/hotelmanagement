@@ -156,8 +156,8 @@ public class HotelService implements UserDetailsService {
   }
 
   // 宿泊者の削除
-  public void logicalDeleteGuest(Authentication authentication, String guestId) {
-    repository.logicalDeleteGuest(guestId, extractLoginId(authentication));
+  public void logicalDeleteGuest(Authentication authentication, String id, boolean deleted) {
+    repository.updateGuestDeletedFlag(id, extractLoginId(authentication), deleted);
   }
 
   // チェックイン処理

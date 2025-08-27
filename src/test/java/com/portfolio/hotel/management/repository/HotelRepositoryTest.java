@@ -670,8 +670,10 @@ class HotelRepositoryTest {
   class logicalDeleteGuest {
 
     @Test
-    void 削除フラグがtureになっていること() {
-      sut.logicalDeleteGuest("11111111-1111-1111-1111-111111111111", "TEST");
+    void 削除フラグがtrueになっていること() {
+      boolean deleted = false;
+
+      sut.updateGuestDeletedFlag("11111111-1111-1111-1111-111111111111", "TEST", deleted);
       Guest actual = sut.findGuestById("11111111-1111-1111-1111-111111111111", "TEST");
 
       assertThat(actual).isNotNull();
@@ -680,14 +682,13 @@ class HotelRepositoryTest {
 
     @Test
     void IDが一致しない場合_削除フラグが更新されない() {
-
-      sut.logicalDeleteGuest("11111111-1111-1111-1111-111111111111", "not-exist");
       Guest actual = sut.findGuestById("11111111-1111-1111-1111-111111111111", "TEST");
 
       assertThat(actual).isNotNull();
       assertThat(actual.getDeleted()).isFalse();
     }
   }
+
 
   @Nested
   @DisplayName("チェックイン処理")

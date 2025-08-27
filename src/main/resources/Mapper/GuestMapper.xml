@@ -229,12 +229,12 @@
     AND id = #{reservation.id}
   </update>
 
-  <!-- 宿泊者の論理削除（削除フラグをON） -->
-  <update id="logicalDeleteGuest">
+  <!-- 宿泊者の削除フラグを更新 -->
+  <update id="updateGuestDeletedFlag">
     UPDATE guest
-    SET deleted = TRUE
-    WHERE user_id = #{userId}
-    AND id = #{id}
+    SET deleted = #{deleted}
+    WHERE id = #{id}
+    AND user_id = #{userId}
   </update>
 
   <!-- チェックイン処理（予約ステータスを更新） -->

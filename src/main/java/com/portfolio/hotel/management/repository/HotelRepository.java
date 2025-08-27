@@ -85,8 +85,9 @@ public interface HotelRepository {
   void updateReservation(@Param("reservation") Reservation reservation,
       @Param("userId") String userId);
 
-  // 宿泊者の論理削除
-  void logicalDeleteGuest(@Param("id") String id, @Param("userId") String userId);
+  // ゲスト情報の論理削除フラグの変更
+  void updateGuestDeletedFlag(@Param("id") String id, @Param("userId") String userId,
+      @Param("deleted") boolean deleted);
 
   // チェックイン処理
   void checkIn(@Param("id") String id, @Param("userId") String userId);
