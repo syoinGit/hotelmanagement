@@ -17,20 +17,15 @@ import com.portfolio.hotel.management.data.guest.GuestRegistration;
 import com.portfolio.hotel.management.service.HotelService;
 import com.portfolio.hotel.management.data.guest.GuestDetail;
 import com.portfolio.hotel.management.repository.HotelRepository;
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
 import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -258,6 +253,7 @@ class HotelControllerTest {
         .updateReservation(any(Authentication.class), any());
   }
 
+  // 修正予定 //
   @Test
   @WithMockUser(username = "TEST", roles = "USER")
   void 宿泊者の論理削除_削除完了のメッセージが返ってくること() throws Exception {
@@ -272,7 +268,7 @@ class HotelControllerTest {
         .andExpect(content().string(name + "様の情報を削除しました。"));
 
     verify(service, times(1))
-        .logicalDeleteGuest(any(Authentication.class), anyString());
+        .logicalDeleteGuest(any(Authentication.class), anyString(),any());
   }
 
   @Test
