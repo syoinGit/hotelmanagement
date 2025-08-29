@@ -1,255 +1,474 @@
-<img width="800" height="800" alt="mainmenu" src="https://github.com/user-attachments/assets/bdd93be6-bacc-41b8-859c-bc81af37cf77" />
+# 🏨 Hotel Management App
+
+<img width="800" alt="top" src="https://github.com/user-attachments/assets/a1194a7a-65f9-4ccd-91e8-9ff5242f96c9" />
+
+小規模宿泊施設向けの **宿泊者・予約管理アプリ**  
+Spring Boot (バックエンド) + React (フロント) 構成で、タブレット1台で完結する運用を想定しました。
+
+## ✨ 本アプリの特徴
+- 宿泊者情報の管理と登録、チェックインとアウトの宿泊業務
+- 完全一致検索による宿泊者の重複登録防止
+- Spring Securityによるログイン・セッション管理
 
 ---
 
-# 📌 制作背景
+## 📌 制作背景
+一人旅でゲストハウスを利用した際、紙で宿泊予約の管理をしている場面に遭遇。<br>
+検索性の向上やチェックイン状況の曖昧さを改善するために作成しました。
 
-一人旅の中で、ゲストハウスや民宿を利用する機会が多くありました。  
-そういった小規模な宿泊施設では、宿泊者情報やチェックイン状況を紙で管理しているケースが多く、<br>
-情報の整理や管理が煩雑になりがちです。
+---
+## 🛠使用技術
 
-本アプリは、**「タブレット1台で完結するような宿泊者管理ツール」**を目指し、  
-チェックイン業務や宿泊者情報の管理を効率化できるように設計しました。  
-特に、IT環境が整っていない施設でも直感的に使えるよう、シンプルかつ視認性の高いUI/UXを意識しています。
+### バックエンド
+- Java 21 / Spring Boot
+- Spring Security
+- MyBatis / MySQL
+- JUnit
+
+### フロントエンド
+- React 18
+- Axios（API通信）
+- TailwindCSS
+
+## 📋 機能一覧
+
+| 機能カテゴリ   | 機能内容 |
+|----------------|--------------------------------------|
+| ログイン機能   | ユーザーログイン（Spring Security） |
+| 登録処理 | 宿泊者登録 / 宿泊予約の登録 |
+| 宿泊者管理     |  検索 / 更新 / 論理削除（復元可） |
+| 業務処理       | チェックイン / チェックアウト |
+| テスト      | Repository・Service・Controller 単体テスト|
+---
+
+## 🔑 ログイン機能
+
+<img width="800" alt="login" src="https://github.com/user-attachments/assets/942a74f4-a535-4d4d-9e54-a4f97bf0fdb7" />
 
 ---
 
-# 🛠 使用技術
+Spring Security による認証を実装しています。<br>  
+ログイン成功時にCookieが発行され、<br>
+以降のAPIでは`Authentication`を通してユーザーIDを取得できます。
 
-- Java 21  
-- Spring Boot (Framework)  
-- MySQL  
-- React  
-- JavaScript  
+```java
+// SecurityConfig 抜粋
+.formLogin(form -> form
+    .loginProcessingUrl("/login")
+    .usernameParameter("id")
+    .passwordParameter("password")
+    .successHandler((req, res, auth) -> {
+        res.setStatus(HttpServletResponse.SC_OK);
+        res.setContentType("application/json");
+        res.getWriter().write("{\"message\": \"Login successful\"}");
+    })
+)
+.userDetailsService(service);
 
----
-
-# 📋 機能一覧
-| 機能カテゴリ       | 機能内容 |
-|--------------------|--------------------------------------------|
-| 宿泊者管理| ・宿泊者情報の一覧表示<br>・宿泊者の検索<br>・論理削 |
-| 予約管理 | ・新規予約の登録<br>・チェックイン / チェックアウト|
-| 宿泊プラン管理| ・宿泊プランの一覧表示<br>・宿泊プランの登録 |
-
-# 新規予約の登録
-
-<img width="1000" height="1000" alt="スクリーンショット03" src="https://github.com/user-attachments/assets/28149829-28a7-451a-b2b8-4136afb259c9" />
-「新規予約登録」ボタンをタップすると、名前・ふりがな・電話番号を入力して宿泊者を検索する画面が表示されます。
-<br><br>
-検索結果が既存の宿泊者情報と完全一致する場合、その情報が自動的に入力されます。<br>
-一致しない場合は、入力された情報のみがフォームに自動入力されます。
-
-<pre><code>
-HotelController
-  
-  @Operation(summary = "完全一致検索", description = "名前、ふりがな、電話番号から宿泊者情報を完全一致検索します。
-  ここで完全位一致したデータは宿泊者情報登録の際に使われます")
-  @PostMapping("/matchGuest")
-  public GuestDetail matchGuestForInsert(@RequestBody @Valid GuestMatch guestMatch) {
-    return service.matchGuest(guestMatch);
-  }
-  </code></pre>
-
-<img width="800" height="800" alt="スクリーンショット04" src="https://github.com/user-attachments/assets/ac4b0d95-1827-4fdb-856b-33160bd4e71e" />
-
-
-一致する宿泊者が存在しない場合、入力された情報を基にGuestDetailを作成して返却します。
-
-<pre><code>
-  HotelServie
-  
-  // 宿泊者の完全一致検索
-  public GuestDetail matchGuest(GuestMatch guestMatch) {
-    Guest guest = repository.matchGuest(guestMatch);
-    GuestDetail guestDetail = new GuestDetail();
-    // 一致するものがなかった場合、guestの数値を入れる。
-    if (guest == null) {
-      guestDetail.setGuest(converter.toGuest(guestMatch));
-  </code></pre>
-
-
-<img width="800" height="800" alt="スクリーンショット05" src="https://github.com/user-attachments/assets/6ce84d67-8eb7-41f1-b544-6d99a813263b" />
-
-一致する場合は、既存の宿泊者情報をGuestDetailとして返します。
-（GuestRegistrationで返すように今後変更予定）
-
-<pre><code>
-  HotelServie
-  
-  // 宿泊者の完全一致検索
-  public GuestDetail matchGuest(GuestMatch guestMatch) {
-    Guest guest = repository.matchGuest(guestMatch);
-    GuestDetail guestDetail = new GuestDetail();
-    // 一致するものがなかった場合、guestの数値を入れる。
-    if (guest == null) {
-      guestDetail.setGuest(converter.toGuest(guestMatch));
-      // 一致した場合、取得したguestを入れる。
-    } else {
-      guestDetail.setGuest(guest);
+// HotelService - Spring Security による認証処理
+@Override
+public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    User found = repository.findUserById(username);
+    if (found == null) {
+        throw new UsernameNotFoundException("ユーザーが見つかりません");
     }
-    return guestDetail;
-  }
-
-</code></pre>
-
-## **宿泊者の登録処理**
-
-<img width="1440" height="900" alt="スクリーンショット07" src="https://github.com/user-attachments/assets/b16262c1-db2e-4700-966f-2a7f6fe38a2c" />
-
-登録処理にはGuestRegistrationクラスを使用します。<br><br>
-
-<pre><code>
-public class GuestRegistration {
-
-  private Guest guest;
-
-  @Pattern(
-      regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
-      message = "IDはUUID形式である必要があります"
-  )
-  private String bookingId;
-
-  @NotNull(message = "滞在日は必須です")
-  private Integer stayDays;
-
-  @NotNull
-  @FutureOrPresent(message = "チェックイン日に過去の日付は使用できません")
-  private LocalDate checkInDate;
-
-  private String memo;
-
+    return new org.springframework.security.core.userdetails.User(
+        found.getId(),
+        found.getPassword(),
+        List.of(new SimpleGrantedAuthority("ROLE_USER"))
+    );
 }
-  </code></pre>
+```
+---
+## 🏠　ホーム画面
 
-GuestDetailを使用しない理由は以下の通りです：<br>
-	•	booking情報はIDのみ必要で、<br>
-	•	reservationデータはサービス層で作成されるため、<br>
-送信されるデータを明確にする目的で個別クラスを使用しています。
+<img width="800" alt="home" src="https://github.com/user-attachments/assets/a5f94aea-ea1d-4a15-91c7-f22637a79ec3" />
 
+---
 
+現在宿泊中の宿泊者を一覧表示します。<br><br>
+バックエンドでは ログインユーザーの ID を Authentication から抽出し、<br>
+そのユーザーに紐づく宿泊者を SQL で取得しています。
 
-コントローラ側では、フロントエンドから送られてくるJSONを受け取って登録処理を行います。<br>
-入力がバリデーションに違反していた場合はエラーが返されます。
+```java
 
-<pre><code>
-HoteLController
-  
-  @Operation(summary = "宿泊者情報登録", description = "宿泊者情報を入力し、宿泊者情報を登録します。")
-  @PutMapping("/registerGuest")
-  public ResponseEntity<String> registerGuest(
-      @RequestBody @Valid GuestRegistration guestRegistration) {
-    service.registerGuest(guestRegistration);
-    return ResponseEntity.ok("宿泊者情報の登録が完了しました。");
+// Controller
+  @GetMapping("/guests/stay")
+  public List<GuestDetail> getStay(Authentication authentication) {
+    return service.getStayNow(authentication);
   }
-  
-  </code></pre>
+
+// Service -- 現在宿泊中の宿泊者情報を作成
+  public List<GuestDetail> getStayNow(Authentication authentication) {
+    String userId = extractLoginId(authentication);　// ← ユーザーIDの取得
+    return converter.convertGuestDetail(
+        repository.findGuestStayNow(userId),　// ← ユーザーIDが一致するものを取得
+        repository.findAllBooking(userId),
+        repository.findReservationStayNow(userId));
+  }
+
+// Converter -- Guest,Booking,ReservationをGuestDetailに変換
+public List<GuestDetail> convertGuestDetail(List<Guest> guests,
+      List<Booking> bookings, List<Reservation> reservations) {
+
+    List<GuestDetail> guestDetails = new ArrayList<>();
+
+    for (Guest guest : guests) {
+      GuestDetail guestDetail = new GuestDetail();
+      guestDetail.setGuest(guest);
+
+      List<Reservation> matchedReservations = reservations.stream()
+          .filter(s -> s.getGuestId().equals(guestDetail.getGuest().getId()))
+          .toList();
+      guestDetail.setReservations(matchedReservations);
+
+      List<String> bookingIds = guestDetail.getReservations().stream()
+          .map(Reservation::getBookingId)
+          .distinct()
+          .toList();
+
+      List<Booking> matchBookings = bookings.stream()
+          .filter(s -> bookingIds.contains(s.getId()))
+          .toList();
+
+      guestDetail.setBookings(matchBookings);
+
+      guestDetails.add(guestDetail);
+    }
+    return guestDetails;
+  }
+
+```
+---
+## 📝 新規予約の登録
+
+<img width="800" alt="register" src="https://github.com/user-attachments/assets/1acdb381-5d59-4dd4-8778-44629c85ac03"/>
+
+---
+名前 / フリガナ / 電話番号で完全一致検索を行います。<br>
+既存があれば既存 Guest に紐付け、なければ新規登録。
+
+```java
+
+👤 完全一致検索
+
+// Controller　　
+@PostMapping("/guest/match")
+public GuestRegistration matchGuestForInsert(
+        Authentication authentication,
+        @RequestBody @Valid GuestMatch guestMatch) {
+    return service.matchGuest(authentication, guestMatch);
+}
+
+// Service -- 完全一致検索
+public GuestRegistration matchGuest(Authentication authentication, GuestMatch guestMatch) {
+    guestMatch.setUserId(authentication.getName());
+    Guest guest = repository.matchGuest(guestMatch);
+
+// ユーザーIDの取得メソッド
+  private String extractLoginId(Authentication authentication) {
+    return authentication.getName();
+  }
+
+```
 
 
-## **宿泊者の登録ロジック**
+### 一致した場合は取得した宿泊者を返す
+<img width="600" height="800" alt="register3" src="https://github.com/user-attachments/assets/e2533444-cbc9-47e8-b8d4-cdb6e4bfc125" />
 
-受け取ったGuestRegistrationの内容を元に、宿泊者情報を登録します。<br>
+---
+```java
 
-直前の一致検索で既に登録されている宿泊者と一致していた場合、登録処理はスキップされます。<br>
-スキップの判断には、IDがnullであるかどうかを条件としています。
+    GuestRegistration guestRegistration = new GuestRegistration();
+    if (guest != null) {
+        guestRegistration.setGuest(guest);
 
-<pre><code>
-  HotelService
-  
-  // 宿泊者の登録
-  public void registerGuest(GuestRegistration guestRegistration) {
-    // 直前の検索で一致する宿泊者がなかった場合新規登録
-    if (guestRegistration.getGuest().getId() == null) {
+```
+
+### 一致しない場合は入力した情報を返す
+<img width="600" height="800" alt="register4" src="https://github.com/user-attachments/assets/b394458f-6d7a-4d67-b57c-5e03934a21bc" />
+
+---
+```java
+
+ } else {
+        guestRegistration.setGuest(converter.toGuest(guestMatch));
+    }
+    return guestRegistration;
+
+```
+
+---
+## 👤 宿泊者/予約の登録
+
+<img width="800" alt="new guest" src="https://github.com/user-attachments/assets/930dabba-ae83-47fe-855f-4972cee91f51" /><br>
+登録ボタンを押すとモーダルが開き、登録処理が行われます。
+
+---
+```java
+
+// Controller
+@PutMapping("/guest/register")
+public ResponseEntity<String> registerGuest(
+        Authentication authentication,
+        @RequestBody @Valid GuestRegistration guestRegistration) {
+    service.registerGuest(authentication, guestRegistration);
+    return ResponseEntity.ok("宿泊者情報の登録が完了しました。");
+}
+
+// Service -- 宿泊者の登録
+  public void registerGuest(Authentication authentication, GuestRegistration guestRegistration) {
+    guestRegistration.getGuest().setUserId(extractLoginId(authentication));
+   
+    if (guestRegistration.getGuest().getId() == null) { // <- IDが登録されているかどうかで分岐
       guestRegistration.getGuest().setId(UUID.randomUUID().toString());
       repository.insertGuest(guestRegistration.getGuest());
     }
     initReservation(guestRegistration);
   }
-  </code></pre>
 
-## **宿泊予約の登録**<br>
-宿泊者情報を、引数のguestRegistrationを使用して作成します。<br>
-
-チェックイン状態は初期値として「未チェックイン（NOT_CHECKED_IN）」に設定されます。<br>
-これは当日のチェックイン処理や検索条件に使用され、<br>
-登録直後から「チェックイン予定」ページに表示されるようになります。
-
-<pre><code>
-  HotelService
-  
+  // 宿泊予約の登録
   private void initReservation(GuestRegistration guestRegistration) {
     Reservation reservation = new Reservation();
 
     reservation.setId(UUID.randomUUID().toString());
+    reservation.setUserId(guestRegistration.getGuest().getUserId());
     reservation.setGuestId(guestRegistration.getGuest().getId());
     reservation.setBookingId(guestRegistration.getBookingId());
     reservation.setCheckInDate(guestRegistration.getCheckInDate());
     reservation.setStayDays(guestRegistration.getStayDays());
-    reservation.setCheckOutDate(reservation.getCheckInDate().plusDays(guestRegistration.getStayDays()));
-    BigDecimal price = repository.findTotalPriceById(reservation.getBookingId());
+    reservation.setCheckOutDate(
+        reservation.getCheckInDate().plusDays(guestRegistration.getStayDays()));
+    BigDecimal price = repository.findTotalPriceById(reservation.getBookingId(),
+        guestRegistration.getGuest().getUserId());
     BigDecimal total = price.multiply(BigDecimal.valueOf(reservation.getStayDays()));
     reservation.setTotalPrice(total);
     reservation.setMemo(guestRegistration.getMemo());
     reservation.setStatus(ReservationStatus.NOT_CHECKED_IN);
-    reservation.setCheckInDate(LocalDate.now());
-
     repository.insertReservation(reservation);
   }
-  </code></pre>
 
-<img width="1440" height="900" alt="スクリーンショット08" src="https://github.com/user-attachments/assets/89d7a206-3166-4b19-becc-568e7a248e7e" />
+```
+___
+## 👤 宿泊者の検索
+<img width="800" height="900" alt="search" src="https://github.com/user-attachments/assets/325e4f3a-05bb-4f40-ac4e-80e2cc414f76" />
 
-登録が完了すると、以下のようなデータ構造で保存されます：
+---
+宿泊者情報を、名前/フリガナ/電話番号/日付条件から検索します。
 
-  <pre><code>
-    {
-        "guest": {
-            "id": "4238c959-6f70-40e4-9256-f7bf8b04f473",
-            "name": "織田信長",
-            "kanaName": "オダノブナガ",
-            "gender": "男性",
-            "age": 28,
-            "region": "滋賀県",
-            "email": "nobunaga@ne.jp",
-            "phone": "123456789",
-            "deleted": false
-        },
-        "bookings": [
-            {
-                "id": "044d45d0-c10a-4eb6-9a05-444740f9d9d4",
-                "name": "朝食付きプラン",
-                "description": "朝食が付いている快適なプランです。",
-                "price": 8500.00,
-                "isAvailable": true
-            }
-        ],
-        "reservations": [
-            {
-                "id": "da995b97-5695-4607-a106-8be30a91d98c",
-                "guestId": "4238c959-6f70-40e4-9256-f7bf8b04f473",
-                "bookingId": "044d45d0-c10a-4eb6-9a05-444740f9d9d4",
-                "checkInDate": "2025-07-29",
-                "checkOutDate": "2025-08-04",
-                "stayDays": 5,
-                "totalPrice": 42500.00,
-                "status": "NOT_CHECKED_IN",
-                "memo": "",
-                "createdAt": "2025-07-29T19:33:49"
-            }
-        ]
-  </code></pre>
-## **補足:完全一致検索の意図**<br>
+```java
 
-実際のホテル現場でフロントシステムを運用していた際、<br>
-「同一の宿泊者が名前で複数表示される」ケースが頻発していました。<br>
+// Controller
+  @PostMapping("/guest/search")
+  public List<GuestDetail> searchGuest(Authentication authentication,
+      @RequestBody GuestSearchCondition guestSearchCondition) {
+    return service.searchGuest(authentication, guestSearchCondition);
+  }
 
-この問題を回避するため、完全一致による宿泊者検索を導入し、<br>
-宿泊者情報と予約情報を自然に紐付けられる仕様としました。<br>
+// service
+  public List<GuestDetail> searchGuest(
+      Authentication authentication,
+      GuestSearchCondition guestSearchCondition) {
+    String userId = extractLoginId(authentication);
+    guestSearchCondition.setUserId(userId);
 
-この仕組みによって：<br>
-	•	宿泊者情報の入力ミス防止や<br>
-	•	入力作業の時短<br>
-が実現でき、特に小規模宿泊施設においては、<br>
-	•	常連客や継続利用者の把握がしやすくなり、<br>
-	•	顔なじみの対応や個別サービスが可能になります。<br>
+    return converter.convertGuestDetail(
+        repository.searchGuest(guestSearchCondition),
+        repository.findAllBooking(userId),
+        repository.findAllReservation(userId));
+  }
+
+```
+
+## 情報の更新
+<img width="800" height="900" alt="seaech1" src="https://github.com/user-attachments/assets/e9a9a427-050f-4c81-bd9f-9fb2d1a8401f" />
+
+---
+<br>情報を編集ボタンを押すと編集画面のモーダルが開き、入力された内容を更新します。<br>
+宿泊者、宿泊予約の両方が更新可能です。
+
+```java
+ // Controller
+  @PutMapping("/guest/update")
+  public ResponseEntity<String> updateGuest(Authentication authentication,
+      @RequestBody Guest guest) {
+    service.updateGuest(authentication, guest);
+    return ResponseEntity.ok("宿泊者の更新が完了しました。");
+  }
+
+  // Service
+  public void updateGuest(Authentication authentication, Guest guest) {
+    repository.updateGuest(guest, extractLoginId(authentication));
+  }
+  
+```
+<img width="800" height="900" alt="update" src="https://github.com/user-attachments/assets/d7297033-53c5-4a89-b992-1fe94451ffee" />
+
+---
+
+## 宿泊者の論理削除
+<img width="800" height="900" alt="delete" src="https://github.com/user-attachments/assets/f6816c4b-3717-451f-9f41-b05145ccb22f" />
+
+---
+<br>削除するボタンを押すと、宿泊者の削除フラグが更新されます。
+
+
+```java
+@PutMapping("/guest/deleted")
+  public ResponseEntity<String> logicalDeleteGuest(
+      @RequestParam String id, @RequestParam String name,
+      Authentication authentication) {
+    service.logicalDeleteGuest(authentication, id);
+    return ResponseEntity.ok(name + "様の情報を削除しました。");
+  }
+
+ public void logicalDeleteGuest(Authentication authentication, String id) {
+    repository.toggleGuestDeletedFlag(id, extractLoginId(authentication));
+  }
+
+```
+
+## 🏠チェックイン・チェックアウト
+<img width="800" height="900" alt="ci" src="https://github.com/user-attachments/assets/306f2da3-f41a-4c9e-9f98-b577f0c0428e" />
+
+---
+<br>ページを開くと本日チェックイン予定の宿泊者が表示されます。
+
+```java
+// Controller -- ユーザーIDと今日の日付をServiceに渡す
+@GetMapping("/guests/check-in-today")
+  public List<GuestDetail> getChackInToday(Authentication authentication) {
+    LocalDate today = LocalDate.now();
+    return service.getCheckInToday(authentication, today);
+  }
+
+// Sercice
+  public List<GuestDetail> getCheckInToday(Authentication authentication, LocalDate today) {
+    String userId = extractLoginId(authentication);
+    return converter.convertGuestDetail(
+        repository.findGuestsTodayCheckIn(userId, today),
+        repository.findAllBooking(userId),
+        repository.findReservationTodayCheckIn(userId, today));
+  }
+```
+
+<img width="800" height="900" alt="ci2" src="https://github.com/user-attachments/assets/ef4124e2-cba2-4592-902f-e8880adb4427" />
+<br>チェックインボタンを押すと、チェックインの処理が実行されます。
+
+---
+```java
+
+// Controrrer
+  @PutMapping("/guest/checkIn")
+  public ResponseEntity<String> checkIn(
+      Authentication authentication,
+      @RequestParam String id,
+      @RequestParam String name) {
+    service.checkIn(authentication, id);
+    return ResponseEntity.ok(name + "様のチェックインが完了しました。");
+  }
+
+// Service
+public void checkIn(Authentication authentication, String id) {
+    ReservationStatus status = repository.findStatusById(id, extractLoginId(authentication));
+    if (status == ReservationStatus.NOT_CHECKED_IN) {
+      repository.checkIn(id, extractLoginId(authentication));
+    } else {
+      throw new IllegalStateException("未チェックインの予約のみチェックイン可能です");
+    }
+  }
+```
+<img width="800" height="900" alt="home" src="https://github.com/user-attachments/assets/59a7add9-784c-4031-a035-a225a6078ece" />
+<br>ステータスがチェックイン済みになると、Homeに表示されます。
+チェックアウト処理も、同様の処理を行います。
+
+---
+## 🛠️自動テスト
+### Repository：SQLクエリの動作確認（存在/非存在パターン）
+```java
+
+// repository抜粋
+  @Nested
+  @DisplayName("宿泊者の全件検索")
+  class FindAllGuest {
+
+    @Test
+    void 登録された2件の宿泊者が取得できる() {
+      List<Guest> actual = sut.findAllGuest(getUserId());
+
+      assertThat(actual)
+          .extracting(Guest::getName)
+          .containsExactlyInAnyOrder("佐藤花子", "田中太郎");
+    }
+
+    @Test
+    void ユーザーIDが一致しなかった場合_空のリストが返る() {
+      List<Guest> actual = sut.findAllGuest("not-exist");
+      assertThat(actual).isEmpty();
+    }
+```
+___
+### Service：Repository・Converter呼び出し検証（Mockito）
+```java
+
+// Service抜粋
+  @Test
+  void 宿泊者情報の全件検索_リポジトリとコンバーターが呼び出せている() {
+    HotelService sut = new HotelService(repository, converter);
+    Authentication auth = getAuthentication();
+    String userId = getUserId(auth);
+
+    List<Guest> guest = new ArrayList<>();
+    List<Booking> booking = new ArrayList<>();
+    List<Reservation> reservation = new ArrayList<>();
+    List<GuestDetail> converted = new ArrayList<>();
+
+    when(repository.findAllGuest(userId)).thenReturn(guest);
+    when(repository.findAllBooking(userId)).thenReturn(booking);
+    when(repository.findAllReservation(userId)).thenReturn(reservation);
+    when(converter.convertGuestDetail(guest, booking, reservation))
+        .thenReturn(converted);
+
+    List<GuestDetail> actual = sut.getAllGuest(auth);
+
+    verify(repository, times(1)).findAllGuest(userId);
+    verify(repository, times(1)).findAllBooking(userId);
+    verify(repository, times(1)).findAllReservation(userId);
+
+    verify(converter, times(1))
+        .convertGuestDetail(guest, booking, reservation);
+
+    assertNotNull(actual);
+    assertEquals(actual, converted);
+  }
+```
+
+### Controller：MockMvcでエンドポイント疎通テスト
+
+```java
+
+  @Test
+  @WithMockUser(username = "TEST", roles = "USER")
+  void 宿泊者情報の全件検索_空のリストが帰ってくること() throws Exception {
+    mockMvc.perform(get("/guests"))
+        .andExpect(status().isOk())
+        .andExpect(content().json("[]"));
+    verify(service, times(1)).getAllGuest(any(Authentication.class));
+  }
+```
+
+## 🎯こだわった点
+
+実際にホテルフロント業務に携わった際、宿泊者と宿泊予約が1:1で紐づいている運用に課題を感じました。<br>
+この仕組みの影響で、同姓同名の宿泊者が存在すると、検索画面に「同じ名前が複数表示され、<br>
+どの予約がどの宿泊者か分からない」という状態が発生していました。
+
+この問題を解決するために、アプリでは以下の工夫を取り入れました。
+	•	完全一致検索を挟むことによる宿泊者の重複登録防止
+	•	1人の宿泊者に複数予約を紐づけられるデータ構造
+	•	入力情報を最小化し、予約入力時の業務負担を軽減
 <br>
-結果として、小さな宿の強みを活かす運用が可能となります。
+
+## 🚀 今後の展望
+- 決済機能の実装（クレジット・QR対応）
+- ルーム管理機能（部屋ごとの稼働状況の可視化）
