@@ -42,11 +42,8 @@ Spring Boot (バックエンド) + React (フロント) 構成で、タブレッ
 ---
 
 ## 🔑 ログイン機能
-
 <img width="800" alt="login" src="https://github.com/user-attachments/assets/942a74f4-a535-4d4d-9e54-a4f97bf0fdb7" />
-
----
-
+<br><br>
 Spring Security による認証を実装しています。<br>  
 ログイン成功時にCookieが発行され、<br>
 以降のAPIでは`Authentication`を通してユーザーIDを取得できます。
@@ -81,12 +78,9 @@ public UserDetails loadUserByUsername(String username) throws UsernameNotFoundEx
 ```
 ---
 ## 🏠　ホーム画面
-
 <img width="800" alt="home" src="https://github.com/user-attachments/assets/a5f94aea-ea1d-4a15-91c7-f22637a79ec3" />
-
----
-
-現在宿泊中の宿泊者を一覧表示します。<br><br>
+<br><br>
+現在宿泊中の宿泊者を一覧表示します。<br>
 バックエンドでは ログインユーザーの ID を Authentication から抽出し、<br>
 そのユーザーに紐づく宿泊者を SQL で取得しています。
 
@@ -139,12 +133,11 @@ public List<GuestDetail> convertGuestDetail(List<Guest> guests,
   }
 
 ```
+
 ---
 ## 📝 新規予約の登録
-
 <img width="800" alt="register" src="https://github.com/user-attachments/assets/1acdb381-5d59-4dd4-8778-44629c85ac03"/>
-
----
+<br><br>
 名前 / フリガナ / 電話番号で完全一致検索を行います。<br>
 既存があれば既存 Guest に紐付け、なければ新規登録。
 
@@ -175,7 +168,7 @@ public GuestRegistration matchGuest(Authentication authentication, GuestMatch gu
 
 ### 一致した場合は取得した宿泊者を返す
 <img width="600" height="800" alt="register3" src="https://github.com/user-attachments/assets/e2533444-cbc9-47e8-b8d4-cdb6e4bfc125" />
-
+<br>
 
 ```java
 
@@ -184,10 +177,10 @@ public GuestRegistration matchGuest(Authentication authentication, GuestMatch gu
         guestRegistration.setGuest(guest);
 
 ```
----
+
 ### 一致しない場合は入力した情報を返す
 <img width="600" height="800" alt="register4" src="https://github.com/user-attachments/assets/b394458f-6d7a-4d67-b57c-5e03934a21bc" />
-
+<br>
 
 ```java
 
@@ -200,8 +193,8 @@ public GuestRegistration matchGuest(Authentication authentication, GuestMatch gu
 
 ---
 ## 👤 宿泊者/予約の登録
----
-<img width="800" alt="new guest" src="https://github.com/user-attachments/assets/930dabba-ae83-47fe-855f-4972cee91f51" /><br>
+<img width="800" alt="new guest" src="https://github.com/user-attachments/assets/930dabba-ae83-47fe-855f-4972cee91f51" />
+<br><br>
 登録ボタンを押すとモーダルが開き、登録処理が行われます。
 
 
@@ -252,8 +245,7 @@ public ResponseEntity<String> registerGuest(
 ___
 ## 👤 宿泊者の検索
 <img width="800" height="900" alt="search" src="https://github.com/user-attachments/assets/325e4f3a-05bb-4f40-ac4e-80e2cc414f76" />
-
----
+<br> <br>
 宿泊者情報を、名前/フリガナ/電話番号/日付条件から検索します。
 
 ```java
@@ -281,14 +273,10 @@ ___
 ```
 
 ## 情報の更新
-<img width="800" height="900" alt="seaech1" src="https://github.com/user-attachments/assets/e9a9a427-050f-4c81-bd9f-9fb2d1a8401f" />
-
----
-<br>情報を編集ボタンを押すと編集画面のモーダルが開き、入力された内容を更新します。<br>
-宿泊者、宿泊予約の両方が更新可能です。
-
----
 <img width="800" height="900" alt="update" src="https://github.com/user-attachments/assets/d7297033-53c5-4a89-b992-1fe94451ffee" />
+<br><br>
+情報を編集ボタンを押すと編集画面のモーダルが開き、入力された内容を更新します。<br>
+宿泊者、宿泊予約の両方が更新可能です。
 
 ```java
  // Controller
@@ -307,13 +295,10 @@ ___
 ```
 
 ---
-
 ## 宿泊者の論理削除
 <img width="800" height="900" alt="delete" src="https://github.com/user-attachments/assets/f6816c4b-3717-451f-9f41-b05145ccb22f" />
-
----
-<br>削除するボタンを押すと、宿泊者の削除フラグが更新されます。
-
+<br><br>
+削除するボタンを押すと、宿泊者の削除フラグが更新されます。
 
 ```java
 @PutMapping("/guest/deleted")
@@ -329,12 +314,11 @@ ___
   }
 
 ```
-
+___
 ## 🏠チェックイン・チェックアウト
 <img width="800" height="900" alt="ci" src="https://github.com/user-attachments/assets/306f2da3-f41a-4c9e-9f98-b577f0c0428e" />
-
----
-<br>ページを開くと本日チェックイン予定の宿泊者が表示されます。
+<br><br>
+ページを開くと本日チェックイン予定の宿泊者が表示されます。
 
 ```java
 // Controller -- ユーザーIDと今日の日付をServiceに渡す
@@ -353,11 +337,11 @@ ___
         repository.findReservationTodayCheckIn(userId, today));
   }
 ```
-
+<br><br>
 <img width="800" height="900" alt="ci2" src="https://github.com/user-attachments/assets/ef4124e2-cba2-4592-902f-e8880adb4427" />
-
----
-<br>チェックインボタンを押すと、チェックインの処理が実行されます。
+<br><br>
+チェックインボタンを押すと、チェックインの処理が実行されます。
+<br>チェックアウト処理も、同様の処理を行います。
 
 ```java
 
@@ -381,9 +365,6 @@ public void checkIn(Authentication authentication, String id) {
     }
   }
 ```
-<img width="800" height="900" alt="home" src="https://github.com/user-attachments/assets/59a7add9-784c-4031-a035-a225a6078ece" />
-<br>ステータスがチェックイン済みになると、Homeに表示されます。
-チェックアウト処理も、同様の処理を行います。
 
 ---
 ## 🛠️自動テスト
@@ -410,7 +391,7 @@ public void checkIn(Authentication authentication, String id) {
       assertThat(actual).isEmpty();
     }
 ```
-___
+
 ### Service：Repository・Converter呼び出し検証（Mockito）
 ```java
 
@@ -459,7 +440,7 @@ ___
     verify(service, times(1)).getAllGuest(any(Authentication.class));
   }
 ```
-
+___
 ## 🎯こだわった点
 
 実際にホテルフロント業務に携わった際、宿泊者と宿泊予約が1:1で紐づいている運用に課題を感じました。<br>
@@ -471,7 +452,7 @@ ___
 	•	1人の宿泊者に複数予約を紐づけられるデータ構造
 	•	入力情報を最小化し、予約入力時の業務負担を軽減
 <br>
-
+___
 ## 🚀 今後の展望
 - 決済機能の実装（クレジット・QR対応）
 - ルーム管理機能（部屋ごとの稼働状況の可視化）
