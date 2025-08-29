@@ -171,12 +171,12 @@ public GuestRegistration matchGuest(Authentication authentication, GuestMatch gu
   }
 
 ```
-
+---
 
 ### 一致した場合は取得した宿泊者を返す
 <img width="600" height="800" alt="register3" src="https://github.com/user-attachments/assets/e2533444-cbc9-47e8-b8d4-cdb6e4bfc125" />
 
----
+
 ```java
 
     GuestRegistration guestRegistration = new GuestRegistration();
@@ -184,11 +184,11 @@ public GuestRegistration matchGuest(Authentication authentication, GuestMatch gu
         guestRegistration.setGuest(guest);
 
 ```
-
+---
 ### 一致しない場合は入力した情報を返す
 <img width="600" height="800" alt="register4" src="https://github.com/user-attachments/assets/b394458f-6d7a-4d67-b57c-5e03934a21bc" />
 
----
+
 ```java
 
  } else {
@@ -200,11 +200,11 @@ public GuestRegistration matchGuest(Authentication authentication, GuestMatch gu
 
 ---
 ## 👤 宿泊者/予約の登録
-
+---
 <img width="800" alt="new guest" src="https://github.com/user-attachments/assets/930dabba-ae83-47fe-855f-4972cee91f51" /><br>
 登録ボタンを押すとモーダルが開き、登録処理が行われます。
 
----
+
 ```java
 
 // Controller
@@ -287,6 +287,9 @@ ___
 <br>情報を編集ボタンを押すと編集画面のモーダルが開き、入力された内容を更新します。<br>
 宿泊者、宿泊予約の両方が更新可能です。
 
+---
+<img width="800" height="900" alt="update" src="https://github.com/user-attachments/assets/d7297033-53c5-4a89-b992-1fe94451ffee" />
+
 ```java
  // Controller
   @PutMapping("/guest/update")
@@ -302,7 +305,6 @@ ___
   }
   
 ```
-<img width="800" height="900" alt="update" src="https://github.com/user-attachments/assets/d7297033-53c5-4a89-b992-1fe94451ffee" />
 
 ---
 
@@ -353,9 +355,10 @@ ___
 ```
 
 <img width="800" height="900" alt="ci2" src="https://github.com/user-attachments/assets/ef4124e2-cba2-4592-902f-e8880adb4427" />
-<br>チェックインボタンを押すと、チェックインの処理が実行されます。
 
 ---
+<br>チェックインボタンを押すと、チェックインの処理が実行されます。
+
 ```java
 
 // Controrrer
