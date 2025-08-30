@@ -30,6 +30,10 @@ Spring Boot (バックエンド) + React (フロント) 構成で、タブレッ
 - Axios（API通信）
 - TailwindCSS
 
+## ER図
+
+作成中
+
 ## 📋 機能一覧
 
 | 機能カテゴリ   | 機能内容 |
@@ -357,8 +361,8 @@ ___
 
 // Service
 public void checkIn(Authentication authentication, String id) {
-    ReservationStatus status = repository.findStatusById(id, extractLoginId(authentication));
-    if (status == ReservationStatus.NOT_CHECKED_IN) {
+    ReservationStatus status = repository.findStatusById(id, extractLoginId(authentication)); // <- 現在のチェックイン状態を取得
+    if (status == ReservationStatus.NOT_CHECKED_IN) { // <- 未チェックインの場合チェックイン処理を行う
       repository.checkIn(id, extractLoginId(authentication));
     } else {
       throw new IllegalStateException("未チェックインの予約のみチェックイン可能です");
@@ -374,7 +378,7 @@ public void checkIn(Authentication authentication, String id) {
 // repository抜粋
   @Nested
   @DisplayName("宿泊者の全件検索")
-  class FindAllGuest {
+  class findAllGuest {
 
     @Test
     void 登録された2件の宿泊者が取得できる() {
@@ -447,11 +451,14 @@ ___
 この仕組みの影響で、同姓同名の宿泊者が存在すると、検索画面に「同じ名前が複数表示され、<br>
 どの予約がどの宿泊者か分からない」という状態が発生していました。
 
-この問題を解決するために、アプリでは以下の工夫を取り入れました。
-	•	完全一致検索を挟むことによる宿泊者の重複登録防止
-	•	1人の宿泊者に複数予約を紐づけられるデータ構造
-	•	入力情報を最小化し、予約入力時の業務負担を軽減
+この問題を解決するためにこのアプリでは、
+<br>登録時に完全一致検索を挟むことで一人の宿泊者に対して複数の予約データを無理なく紐付け、
+- 情報入力工程の削減
+- 検索時の利便性の向上
+- 常連の宿泊者の把握
 <br>
+が可能になっています。
+
 ___
 ## 🚀 今後の展望
 - 決済機能の実装（クレジット・QR対応）
