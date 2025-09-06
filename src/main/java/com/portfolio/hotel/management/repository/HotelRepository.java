@@ -34,7 +34,7 @@ public interface HotelRepository {
       @Param("today") LocalDate today);
 
   // 現在宿泊中の宿泊者を検索
-  List<Guest> findGuestStayNow(@Param("id") String id);
+  List<Guest> findGuestStayNow(@Param("userId") String id);
 
   //　現在宿泊中の宿泊予約を検索
   List<Reservation> findReservationStayNow(@Param("id") String id);
@@ -85,9 +85,13 @@ public interface HotelRepository {
   void updateReservation(@Param("reservation") Reservation reservation,
       @Param("userId") String userId);
 
-  // ゲスト情報の論理削除フラグの変更
-  void updateGuestDeletedFlag(@Param("id") String id, @Param("userId") String userId,
-      @Param("deleted") boolean deleted);
+  // ゲスト情報の論理削除フラグをTrueにする
+  void toggleGuestDeletedFlag(
+      @Param("id") String id, @Param("userId") String userId);
+
+  // 宿泊プランの論理削除フラグの変更
+  void toggleBookingDeleteFlag(
+      @Param("id") String id, @Param("userId") String userId);
 
   // チェックイン処理
   void checkIn(@Param("id") String id, @Param("userId") String userId);

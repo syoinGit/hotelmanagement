@@ -54,7 +54,7 @@
     guest.region, guest.email, guest.phone, guest.deleted, guest.user_Id
     FROM guest
     INNER JOIN reservation ON guest.id = reservation.guest_id
-    WHERE reservation.user_id = #{id}
+    WHERE reservation.user_id = #{userId}
     AND reservation.status = 'CHECKED_IN'
   </select>
 
@@ -230,9 +230,17 @@
   </update>
 
   <!-- 宿泊者の削除フラグを更新 -->
-  <update id="updateGuestDeletedFlag">
+  <update id="toggleGuestDeletedFlag">
     UPDATE guest
-    SET deleted = #{deleted}
+    SET deleted = NOT deleted
+    WHERE id = #{id}
+    AND user_id = #{userId}
+  </update>
+
+  <!-- BookingMapper.xml -->
+  <update id="toggleBookingDeleteFlag">
+    UPDATE booking
+    SET deleted = NOT deleted
     WHERE id = #{id}
     AND user_id = #{userId}
   </update>

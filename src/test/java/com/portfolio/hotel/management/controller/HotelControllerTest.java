@@ -253,22 +253,21 @@ class HotelControllerTest {
         .updateReservation(any(Authentication.class), any());
   }
 
-  // 修正予定 //
   @Test
   @WithMockUser(username = "TEST", roles = "USER")
   void 宿泊者の論理削除_削除完了のメッセージが返ってくること() throws Exception {
     String id = "dummyId";
     String name = "山田太郎";
 
-    mockMvc.perform(put("/guest/delete")
+    mockMvc.perform(put("/guest/deleted")
             .with(csrf())
             .param("id", id)
             .param("name", name))
         .andExpect(status().isOk())
-        .andExpect(content().string(name + "様の情報を削除しました。"));
+        .andExpect(content().string(name + "様の情報を変更しました。"));
 
     verify(service, times(1))
-        .logicalDeleteGuest(any(Authentication.class), anyString(),any());
+        .logicalDeleteGuest(any(Authentication.class), anyString());
   }
 
   @Test

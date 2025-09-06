@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class HotelConverter {
 
-  // 宿泊者、宿泊プラン、宿泊予約を宿泊者情報に統合
+  // 宿泊者、宿泊プラン、宿泊予約を宿泊者情報に変換
   public List<GuestDetail> convertGuestDetail(List<Guest> guests,
       List<Booking> bookings, List<Reservation> reservations) {
 

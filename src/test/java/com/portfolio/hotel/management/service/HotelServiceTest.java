@@ -341,16 +341,10 @@ class HotelServiceTest {
   void 宿泊者の論理削除_リポジトリが呼び呼び出せていること() {
     HotelService sut = new HotelService(repository, converter);
     Authentication auth = getAuthentication();
-    Guest guest = createGuest();
-    guest.setDeleted(false);
-    boolean deleted = false;
 
-    when(repository.findGuestById("11111111-1111-1111-1111-111111111111", "TEST")).thenReturn(
-        guest);
-
-    sut.logicalDeleteGuest(auth, "11111111-1111-1111-1111-111111111111", deleted);
-    verify(repository, times(1)).updateGuestDeletedFlag("11111111-1111-1111-1111-111111111111",
-        "TEST", deleted);
+    sut.logicalDeleteGuest(auth, "11111111-1111-1111-1111-111111111111");
+    verify(repository, times(1))
+        .toggleGuestDeletedFlag("11111111-1111-1111-1111-111111111111", "TEST");
   }
 
   @Nested
