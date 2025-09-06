@@ -115,13 +115,21 @@ public class HotelController {
     return ResponseEntity.ok("宿泊情報の更新が完了しました。");
   }
 
-  @Operation(summary = "宿泊者の論理削除", description = "宿泊者の削除フラグをtrueにします。")
+  @Operation(summary = "宿泊者の論理削除", description = "宿泊者の削除フラグを変更します。")
   @PutMapping("/guest/deleted")
   public ResponseEntity<String> logicalDeleteGuest(
       @RequestParam String id, @RequestParam String name,
-      @RequestParam boolean deleted, Authentication authentication) {
-    service.logicalDeleteGuest(authentication, id, deleted);
-    return ResponseEntity.ok(name + "様の情報を削除しました。");
+      Authentication authentication) {
+    service.logicalDeleteGuest(authentication, id);
+    return ResponseEntity.ok(name + "様の情報を変更しました。");
+  }
+
+  @Operation(summary = "宿泊プランの論理削除", description = "宿泊者プランの削除フラグを変更します。")
+  public ResponseEntity<String> logicalDeleteBooking(
+      @RequestParam String id, @RequestParam String name,
+      Authentication authentication) {
+    service.logicalDeleteBooking(authentication, id);
+    return ResponseEntity.ok(name + "のプラン情報を変更しました。");
   }
 
   @Operation(summary = "チェックイン", description = "宿泊客のチェックインを行います。")

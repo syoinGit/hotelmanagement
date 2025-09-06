@@ -44,11 +44,13 @@ dependencies {
 	//　セキュリティ関連
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 
+	// H2データベース
+	implementation 'com.h2database:h2:2.2.224'
+
 	// テスト関連
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.3'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-	testImplementation 'com.h2database:h2:2.2.224'
 	testImplementation 'org.springframework.security:spring-security-test'
 }
 

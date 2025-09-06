@@ -1,3 +1,8 @@
+DROP TABLE IF EXISTS reservation;
+DROP TABLE IF EXISTS booking;
+DROP TABLE IF EXISTS guest;
+DROP TABLE IF EXISTS users;
+
 -- guests テーブル
 CREATE TABLE guest (
   id CHAR(36) NOT NULL PRIMARY KEY,

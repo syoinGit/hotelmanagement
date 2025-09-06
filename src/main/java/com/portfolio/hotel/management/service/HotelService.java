@@ -57,7 +57,7 @@ public class HotelService implements UserDetailsService {
         repository.findReservationTodayCheckIn(userId, today));
   }
 
-  // 現在宿泊中の宿泊者を取得
+  // 現在宿泊中の宿泊者情報を作成
   public List<GuestDetail> getStayNow(Authentication authentication) {
     String userId = extractLoginId(authentication);
     return converter.convertGuestDetail(
@@ -77,7 +77,8 @@ public class HotelService implements UserDetailsService {
 
 
   // 宿泊者情報の単一検索
-  public List<GuestDetail> searchGuest(Authentication authentication,
+  public List<GuestDetail> searchGuest(
+      Authentication authentication,
       GuestSearchCondition guestSearchCondition) {
     String userId = extractLoginId(authentication);
     guestSearchCondition.setUserId(userId);
@@ -99,7 +100,6 @@ public class HotelService implements UserDetailsService {
     } else {
       guestRegistration.setGuest(converter.toGuest(guestMatch));
     }
-
     return guestRegistration;
   }
 
@@ -116,8 +116,6 @@ public class HotelService implements UserDetailsService {
 
   // 宿泊予約の登録
   private void initReservation(GuestRegistration guestRegistration) {
-    final String userId = guestRegistration.getGuest().getUserId();
-
     Reservation reservation = new Reservation();
 
     reservation.setId(UUID.randomUUID().toString());
@@ -156,8 +154,12 @@ public class HotelService implements UserDetailsService {
   }
 
   // 宿泊者の削除
-  public void logicalDeleteGuest(Authentication authentication, String id, boolean deleted) {
-    repository.updateGuestDeletedFlag(id, extractLoginId(authentication), deleted);
+  public void logicalDeleteGuest(Authentication authentication, String id) {
+    repository.toggleGuestDeletedFlag(id, extractLoginId(authentication));
+  }
+
+  public void logicalDeleteBooking(Authentication authentication, String id) {
+    repository.toggleGuestDeletedFlag(id, extractLoginId(authentication));
   }
 
   // チェックイン処理
@@ -199,7 +201,7 @@ public class HotelService implements UserDetailsService {
     );
   }
 
-  private static String extractLoginId(Authentication authentication) {
+  private String extractLoginId(Authentication authentication) {
     return authentication.getName();
   }
 }
