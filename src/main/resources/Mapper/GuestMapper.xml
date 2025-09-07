@@ -139,6 +139,13 @@
     AND id = #{id}
   </select>
 
+  <!-- 宿泊者IDによる宿泊者検索 -->
+  <select id="findBookingById" resultType="com.portfolio.hotel.management.data.booking.Booking">
+    SELECT * FROM booking
+    WHERE user_id = #{userId}
+    AND id = #{id}
+  </select>
+
   <!-- 宿泊予約IDによる予約情報取得 -->
   <select id="findReservationById"
     resultType="com.portfolio.hotel.management.data.reservation.Reservation" parameterType="string">
@@ -237,10 +244,10 @@
     AND user_id = #{userId}
   </update>
 
-  <!-- BookingMapper.xml -->
+  <!-- 宿泊プランのフラグを更新 -->
   <update id="toggleBookingDeleteFlag">
     UPDATE booking
-    SET deleted = NOT deleted
+    SET is_available = NOT is_available
     WHERE id = #{id}
     AND user_id = #{userId}
   </update>

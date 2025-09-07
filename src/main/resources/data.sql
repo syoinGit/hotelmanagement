@@ -8,7 +8,7 @@ VALUES
 
 INSERT INTO booking (id, name, description, price, is_available, user_id)
 VALUES
-  ('aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '朝食付きプラン', '和洋朝食が選べるプラン', 10000.00, 1, 'testuser01'),
+  ('aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '朝食付きプラン', '和洋朝食が選べるプラン', 10000.00, 0, 'testuser01'),
   ('aaaaaaa2-aaaa-aaaa-aaaa-aaaaaaaaaaaa', '素泊まりプラン', '食事なし・シンプルステイ', 7000.00, 1, 'testuser01');
 
 INSERT INTO reservation (

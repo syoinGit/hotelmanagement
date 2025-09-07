@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.security.core.parameters.P;
 
 @Mapper
 public interface HotelRepository {
@@ -55,6 +56,9 @@ public interface HotelRepository {
 
   // 宿泊者IDから宿泊者を検索
   Guest findGuestById(@Param("id") String id, @Param("userId") String userId);
+
+  // 宿泊プランIDから宿泊プランを検索
+  Booking findBookingById(@Param("id") String id, @P("userId") String userId);
 
   // 宿泊予約IDから宿泊予約を検索
   Reservation findReservationById(@Param("id") String id, @Param("userId") String userId);
