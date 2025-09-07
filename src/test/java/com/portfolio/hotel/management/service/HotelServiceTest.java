@@ -347,6 +347,16 @@ class HotelServiceTest {
         .toggleGuestDeletedFlag("11111111-1111-1111-1111-111111111111", "TEST");
   }
 
+  @Test
+  void 宿泊プランの論理削除_リポジトリが呼び出せていること() {
+    HotelService sut = new HotelService(repository, converter);
+    Authentication auth = getAuthentication();
+
+    sut.logicalDeleteBooking(auth, "aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+    verify(repository, times(1)).toggleBookingDeleteFlag(
+        "aaaaaaa1-aaaa-aaaa-aaaa-aaaaaaaaaaaa", "TEST");
+  }
+
   @Nested
   @DisplayName("チェックイン処理の作成")
   class checkIn {

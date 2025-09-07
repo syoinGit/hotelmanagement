@@ -159,7 +159,7 @@ public class HotelService implements UserDetailsService {
   }
 
   public void logicalDeleteBooking(Authentication authentication, String id) {
-    repository.toggleGuestDeletedFlag(id, extractLoginId(authentication));
+    repository.toggleBookingDeleteFlag(id, extractLoginId(authentication));
   }
 
   // チェックイン処理
