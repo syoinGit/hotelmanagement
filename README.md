@@ -33,6 +33,9 @@ http://hotelmanagement-env.eba-jf25s8xt.ap-northeast-1.elasticbeanstalk.com
 - Axios（API通信）
 - TailwindCSS
 
+### インフラ
+- AWS Elastic Beanstalk
+
 ## ER図
 
 作成中
