@@ -140,12 +140,18 @@ public class HotelService implements UserDetailsService {
       Authentication authentication,
       Booking booking) {
     booking.setId(UUID.randomUUID().toString());
+    booking.setUserId(extractLoginId(authentication));
     repository.insertBooking(booking);
   }
 
   // 宿泊者の編集
   public void updateGuest(Authentication authentication, Guest guest) {
     repository.updateGuest(guest, extractLoginId(authentication));
+  }
+
+  // 宿泊プランの編集
+  public void updateBooking(Authentication authentication, Booking booking) {
+    repository.updateBooking(booking, extractLoginId(authentication));
   }
 
   // 宿泊予約の編集

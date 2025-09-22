@@ -85,6 +85,10 @@ public interface HotelRepository {
   void updateGuest(@Param("guest") Guest guest,
       @Param("userId") String userId);
 
+  // 宿泊プランの変更
+  void updateBooking(@Param("booking") Booking booking,
+      @Param("userId") String userId);
+
   // 宿泊予約の変更
   void updateReservation(@Param("reservation") Reservation reservation,
       @Param("userId") String userId);

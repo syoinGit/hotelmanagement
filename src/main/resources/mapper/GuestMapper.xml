@@ -222,6 +222,18 @@
     AND id = #{guest.id}
   </update>
 
+  <!-- 宿泊者プランの更新 -->
+  <update id="updateBooking" parameterType="com.portfolio.hotel.management.data.booking.Booking">
+    UPDATE booking
+    SET
+    name = #{booking.name},
+    description = #{booking.description},
+    price = #{booking.price},
+    is_available = #{booking.isAvailable},
+    user_id = #{userId}
+    WHERE id = #{booking.id}
+  </update>
+
   <!-- 宿泊予約情報の更新 -->
   <update id="updateReservation"
     parameterType="com.portfolio.hotel.management.data.reservation.Reservation">

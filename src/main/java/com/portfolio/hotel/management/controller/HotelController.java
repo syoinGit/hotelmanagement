@@ -18,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.Mapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -97,13 +98,22 @@ public class HotelController {
     return ResponseEntity.ok("宿泊プランの登録が完了しました。");
   }
 
-  @Operation(summary = "宿泊者の更新", description = "宿泊者の情報を更新します。")
+  @Operation(summary = "宿泊者の更新", description = "宿泊者を更新します。")
   @PutMapping("/guest/update")
   public ResponseEntity<String> updateGuest(Authentication authentication,
       @RequestBody Guest guest) {
     service.updateGuest(authentication, guest);
     return ResponseEntity.ok("宿泊者の更新が完了しました。");
   }
+
+  @Operation(summary = "宿泊プランの更新", description = "宿泊プランを更新します。")
+  @PutMapping("/booking/update")
+  public ResponseEntity<String> updateBooking(Authentication authentication,
+      @RequestBody Booking booking) {
+    service.updateBooking(authentication, booking);
+    return ResponseEntity.ok("宿泊プランの更新が完了しました");
+  }
+
 
   @Operation(summary = "宿泊情報の更新", description = "宿泊予約情報を更新します。")
   @PutMapping("/reservation/update")
@@ -123,6 +133,7 @@ public class HotelController {
   }
 
   @Operation(summary = "宿泊プランの論理削除", description = "宿泊者プランの削除フラグを変更します。")
+  @PutMapping("/booking/deleted")
   public ResponseEntity<String> logicalDeleteBooking(
       @RequestParam String id, @RequestParam String name,
       Authentication authentication) {
