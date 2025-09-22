@@ -5,6 +5,9 @@
 小規模宿泊施設向けの **宿泊者・予約管理アプリ**  
 Spring Boot (バックエンド) + React (フロント) 構成で、タブレット1台で完結する運用を想定しました。
 
+### アプリケーションURL
+http://hotelmanagement-env.eba-jf25s8xt.ap-northeast-1.elasticbeanstalk.com
+
 ## ✨ 本アプリの特徴
 - 宿泊者情報の管理と登録、チェックインとアウトの宿泊業務
 - 完全一致検索による宿泊者の重複登録防止
@@ -82,7 +85,7 @@ public UserDetails loadUserByUsername(String username) throws UsernameNotFoundEx
 ```
 ---
 ## 🏠　ホーム画面
-<img width="800" alt="home" src="https://github.com/user-attachments/assets/a5f94aea-ea1d-4a15-91c7-f22637a79ec3" />
+<img width="800" alt="Home" src="https://github.com/user-attachments/assets/41f9a02f-cdf5-472b-8b44-f297a07718a3" />
 <br><br>
 現在宿泊中の宿泊者を一覧表示します。<br>
 バックエンドでは ログインユーザーの ID を Authentication から抽出し、<br>
@@ -105,45 +108,15 @@ public UserDetails loadUserByUsername(String username) throws UsernameNotFoundEx
         repository.findReservationStayNow(userId));
   }
 
-// Converter -- Guest,Booking,ReservationをGuestDetailに変換
-public List<GuestDetail> convertGuestDetail(List<Guest> guests,
-      List<Booking> bookings, List<Reservation> reservations) {
-
-    List<GuestDetail> guestDetails = new ArrayList<>();
-
-    for (Guest guest : guests) {
-      GuestDetail guestDetail = new GuestDetail();
-      guestDetail.setGuest(guest);
-
-      List<Reservation> matchedReservations = reservations.stream()
-          .filter(s -> s.getGuestId().equals(guestDetail.getGuest().getId()))
-          .toList();
-      guestDetail.setReservations(matchedReservations);
-
-      List<String> bookingIds = guestDetail.getReservations().stream()
-          .map(Reservation::getBookingId)
-          .distinct()
-          .toList();
-
-      List<Booking> matchBookings = bookings.stream()
-          .filter(s -> bookingIds.contains(s.getId()))
-          .toList();
-
-      guestDetail.setBookings(matchBookings);
-
-      guestDetails.add(guestDetail);
-    }
-    return guestDetails;
-  }
 
 ```
 
 ---
-## 📝 新規予約の登録
-<img width="800" alt="register" src="https://github.com/user-attachments/assets/1acdb381-5d59-4dd4-8778-44629c85ac03"/>
+## 📝 予約の登録
+<img width="800" alt="match" src="https://github.com/user-attachments/assets/05f92de7-8c08-4c8b-8a21-27970afd4188" />
 <br><br>
 名前 / フリガナ / 電話番号で完全一致検索を行います。<br>
-既存があれば既存 Guest に紐付け、なければ新規登録。
+既存の情報があれば追加登録、なければ新規登録を行います。
 
 ```java
 
@@ -162,17 +135,12 @@ public GuestRegistration matchGuest(Authentication authentication, GuestMatch gu
     guestMatch.setUserId(authentication.getName());
     Guest guest = repository.matchGuest(guestMatch);
 
-// ユーザーIDの取得メソッド
-  private String extractLoginId(Authentication authentication) {
-    return authentication.getName();
-  }
-
 ```
 ---
 
-### 一致した場合は取得した宿泊者を返す
-<img width="600" height="800" alt="register3" src="https://github.com/user-attachments/assets/e2533444-cbc9-47e8-b8d4-cdb6e4bfc125" />
-<br>
+### 
+<img width="800" alt="match" src="https://github.com/user-attachments/assets/5c0e87f4-8213-418f-bf49-84e08131b035" />
+
 
 ```java
 
@@ -182,25 +150,13 @@ public GuestRegistration matchGuest(Authentication authentication, GuestMatch gu
 
 ```
 
-### 一致しない場合は入力した情報を返す
-<img width="600" height="800" alt="register4" src="https://github.com/user-attachments/assets/b394458f-6d7a-4d67-b57c-5e03934a21bc" />
-<br>
-
-```java
-
- } else {
-        guestRegistration.setGuest(converter.toGuest(guestMatch));
-    }
-    return guestRegistration;
-
-```
-
 ---
 ## 👤 宿泊者/予約の登録
-<img width="800" alt="new guest" src="https://github.com/user-attachments/assets/930dabba-ae83-47fe-855f-4972cee91f51" />
-<br><br>
-登録ボタンを押すとモーダルが開き、登録処理が行われます。
 
+<img width="800" alt="register" src="https://github.com/user-attachments/assets/0a10625a-ea5d-44ce-a6a7-db245056cfa5" />
+
+<br><br>
+登録ボタンを押すとモーダルが開き、登録処理が行われます。<br>
 
 ```java
 
@@ -247,10 +203,12 @@ public ResponseEntity<String> registerGuest(
 
 ```
 ___
-## 👤 宿泊者の検索
-<img width="800" height="900" alt="search" src="https://github.com/user-attachments/assets/325e4f3a-05bb-4f40-ac4e-80e2cc414f76" />
-<br> <br>
-宿泊者情報を、名前/フリガナ/電話番号/日付条件から検索します。
+## 👤 宿泊者一覧
+
+<img width="800" alt="guests" src="https://github.com/user-attachments/assets/0bc0c7dc-4308-4439-ba5e-5d15212720ed" />
+
+宿泊者情報を確認できます。<br>
+上部の検索欄に情報を入力すると、詳細検索ができます。
 
 ```java
 
@@ -277,10 +235,14 @@ ___
 ```
 
 ## 情報の更新
-<img width="800" height="900" alt="update" src="https://github.com/user-attachments/assets/d7297033-53c5-4a89-b992-1fe94451ffee" />
+<img width="800" alt="update" src="https://github.com/user-attachments/assets/79516fb8-3f92-4e8c-b9b0-bb7123040323" />
+
 <br><br>
 情報を編集ボタンを押すと編集画面のモーダルが開き、入力された内容を更新します。<br>
 宿泊者、宿泊予約の両方が更新可能です。
+<br>
+
+加えて、削除フラグの切り替えも可能です。
 
 ```java
  // Controller
@@ -295,16 +257,7 @@ ___
   public void updateGuest(Authentication authentication, Guest guest) {
     repository.updateGuest(guest, extractLoginId(authentication));
   }
-  
-```
 
----
-## 宿泊者の論理削除
-<img width="800" height="900" alt="delete" src="https://github.com/user-attachments/assets/f6816c4b-3717-451f-9f41-b05145ccb22f" />
-<br><br>
-削除するボタンを押すと、宿泊者の削除フラグが更新されます。
-
-```java
 @PutMapping("/guest/deleted")
   public ResponseEntity<String> logicalDeleteGuest(
       @RequestParam String id, @RequestParam String name,
@@ -316,11 +269,13 @@ ___
  public void logicalDeleteGuest(Authentication authentication, String id) {
     repository.toggleGuestDeletedFlag(id, extractLoginId(authentication));
   }
-
+  
 ```
-___
+<img width="800" alt="cack" src="https://github.com/user-attachments/assets/53a49818-7790-434b-941f-8498d4f56e0f" />
+
+---
 ## 🏠チェックイン・チェックアウト
-<img width="800" height="900" alt="ci" src="https://github.com/user-attachments/assets/306f2da3-f41a-4c9e-9f98-b577f0c0428e" />
+
 <br><br>
 ページを開くと本日チェックイン予定の宿泊者が表示されます。
 
@@ -342,7 +297,7 @@ ___
   }
 ```
 <br><br>
-<img width="800" height="900" alt="ci2" src="https://github.com/user-attachments/assets/ef4124e2-cba2-4592-902f-e8880adb4427" />
+<img width="800" alt="co" src="https://github.com/user-attachments/assets/d7c042ec-f3db-4293-baad-aae5a027c544" />
 <br><br>
 チェックインボタンを押すと、チェックインの処理が実行されます。
 <br>チェックアウト処理も、同様の処理を行います。
