@@ -25,7 +25,7 @@ http://hotelmanagement-env.eba-jf25s8xt.ap-northeast-1.elasticbeanstalk.com
 ### バックエンド
 - Java 21 / Spring Boot
 - Spring Security
-- MyBatis / MySQL
+- MyBatis / MySQL(デプロイ環境ではh2を使用)
 - JUnit
 
 ### フロントエンド
