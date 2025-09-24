@@ -36,10 +36,6 @@ http://hotelmanagement-env.eba-jf25s8xt.ap-northeast-1.elasticbeanstalk.com
 ### インフラ
 - AWS Elastic Beanstalk
 
-## ER図
-
-作成中
-
 ## 📋 機能一覧
 
 | 機能カテゴリ   | 機能内容 |
