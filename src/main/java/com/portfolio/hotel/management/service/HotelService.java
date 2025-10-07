@@ -156,6 +156,7 @@ public class HotelService implements UserDetailsService {
 
   // 宿泊予約の編集
   public void updateReservation(Authentication authentication, Reservation reservation) {
+    reservation.setCheckOutDate(reservation.getCheckOutDate().plusDays(reservation.getStayDays()));
     repository.updateReservation(reservation, extractLoginId(authentication));
   }
 

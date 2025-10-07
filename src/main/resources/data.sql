@@ -1,5 +1,5 @@
 -- =========================
--- guests
+-- guests（そのまま）
 -- =========================
 INSERT INTO guest (id, name, kana_name, gender, age, region, email, phone, deleted, user_id)
 VALUES
@@ -18,7 +18,7 @@ VALUES
   ('cccc3333-cccc-cccc-cccc-cccccccccccc', '森田悠斗', 'モリタユウト',   '男性', 30, '福島', 'yuto@example.com',  '08078787878', 0, 'testuser01');
 
 -- =========================
--- bookings
+-- bookings（そのまま）
 -- =========================
 INSERT INTO booking (id, name, description, price, is_available, user_id)
 VALUES
@@ -26,128 +26,85 @@ VALUES
   ('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', '素泊まりプラン', '食事なし・シンプルステイ', 7000.00, 1, 'testuser01');
 
 -- =========================
--- reservations（booking_id は上の UUID）
+-- reservations（2025-10-06 用）
 -- =========================
-INSERT INTO reservation (
-  id, guest_id, booking_id, check_in_date, check_out_date,
-  stay_days, total_price, status, memo, created_at, user_id
-) VALUES
-  ('11111111-aaaa-4bbb-8ccc-111111111111',
-   '11111111-1111-1111-1111-111111111111',
-   'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
-   '2025-07-23', '2025-07-27', 4, 20000.00,
-   'CHECKED_IN', '観光で利用', '2025-07-01 10:00:00', 'testuser01'),
+DELETE FROM reservation;
 
-  ('22222222-bbbb-4ccc-8ddd-222222222222',
-   '22222222-2222-2222-2222-222222222222',
-   'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
-   '2025-07-24', '2025-07-25', 1, 7000.00,
-   'NOT_CHECKED_IN', '出張で利用', '2025-07-02 15:30:00', 'testuser01'),
-
-  ('33333333-bbbb-4ccc-8ddd-333333333333',
-   '22222222-3333-3333-3333-222222222222',
-   'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
-   '2025-07-20', '2025-07-30', 10, 7000.00,
-   'NOT_CHECKED_IN', '出張で利用', '2025-07-02 15:30:00', 'testuser01');
-
--- 11) 本日チェックイン予定（夕方IN）
+-- ▼ チェックイン中（5件）: 10/6 を滞在日に含む
 INSERT INTO reservation VALUES
-('aaaa0001-aaaa-4aaa-8aaa-aaaa00000001',
- '88888888-8888-8888-8888-888888888888',
+('res3001-aaaa-4aaa-8aaa-aaaa00000001',
+ 'aaaa1111-aaaa-aaaa-aaaa-aaaaaaaaaaaa',          -- 加藤亮
+ 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',          -- 朝食付き
+ '2025-10-04','2025-10-07',3,30000.00,
+ 'CHECKED_IN','出張で滞在中（延泊）','2025-10-04 12:10:00','testuser01');
+
+INSERT INTO reservation VALUES
+('res3002-aaaa-4aaa-8aaa-aaaa00000002',
+ 'bbbb2222-bbbb-bbbb-bbbb-bbbbbbbbbbbb',          -- 佐々木優子
  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
- '2025-09-22','2025-09-25',3,30000.00,
- 'NOT_CHECKED_IN','仕事仲間と利用','2025-09-21 18:00:00','testuser01');
+ '2025-10-05','2025-10-07',2,20000.00,
+ 'CHECKED_IN','観光で滞在中','2025-10-05 09:00:00','testuser01');
 
--- 12) 本日チェックイン（深夜IN予定）
 INSERT INTO reservation VALUES
-('aaaa0002-aaaa-4aaa-8aaa-aaaa00000002',
- '99999999-9999-9999-9999-999999999999',
+('res3003-aaaa-4aaa-8aaa-aaaa00000003',
+ 'cccc3333-cccc-cccc-cccc-cccccccccccc',          -- 森田悠斗
+ 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',          -- 素泊まり
+ '2025-10-03','2025-10-07',4,28000.00,
+ 'CHECKED_IN','ワーケーション中','2025-10-03 18:30:00','testuser01');
+
+INSERT INTO reservation VALUES
+('res3004-aaaa-4aaa-8aaa-aaaa00000004',
+ '55555555-5555-5555-5555-555555555555',          -- 高橋桜
+ 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+ '2025-10-06','2025-10-08',2,20000.00,
+ 'CHECKED_IN','本日午前にチェックイン','2025-10-06 10:05:00','testuser01');
+
+INSERT INTO reservation VALUES
+('res3005-aaaa-4aaa-8aaa-aaaa00000005',
+ '66666666-6666-6666-6666-666666666666',          -- 小林翔
+ 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+ '2025-10-04','2025-10-08',4,40000.00,
+ 'CHECKED_IN','長期滞在中','2025-10-04 11:20:00','testuser01');
+
+-- ▼ 本日チェックアウト予定（2件）: check_out_date = 2025-10-06
+INSERT INTO reservation VALUES
+('res3006-aaaa-4aaa-8aaa-aaaa00000006',
+ '33333333-3333-3333-3333-333333333333',          -- 中村葵
  'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
- '2025-09-22','2025-09-23',1,7000.00,
- 'NOT_CHECKED_IN','ライブ帰りで深夜IN','2025-09-21 23:10:00','testuser01');
+ '2025-10-04','2025-10-06',2,14000.00,
+ 'CHECKED_IN','本日チェックアウト予定','2025-10-04 14:00:00','testuser01');
 
--- 13)
 INSERT INTO reservation VALUES
-('aaaa0003-aaaa-4aaa-8aaa-aaaa00000003',
- 'aaaa1111-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
- 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
- '2025-09-19','2025-09-22',3,30000.00,
- 'CHECKED_IN','連泊の最終日','2025-09-17 12:00:00','testuser01');
-
--- 14)
-INSERT INTO reservation VALUES
-('aaaa0004-aaaa-4aaa-8aaa-aaaa00000004',
- 'bbbb2222-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+('res3007-aaaa-4aaa-8aaa-aaaa00000007',
+ '44444444-4444-4444-4444-444444444444',          -- 鈴木健
  'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
- '2025-09-21','2025-09-24',3,21000.00,
- 'CHECKED_IN','観光旅行2日目','2025-09-19 09:30:00','testuser01');
+ '2025-10-05','2025-10-06',1,7000.00,
+ 'CHECKED_IN','本日チェックアウト予定（1泊）','2025-10-05 21:15:00','testuser01');
 
--- 15)
+-- ▼ 本日チェックイン予定（未到着 3件）: check_in_date = 2025-10-06, status = NOT_CHECKED_IN
 INSERT INTO reservation VALUES
-('aaaa0005-aaaa-4aaa-8aaa-aaaa00000005',
- 'cccc3333-cccc-cccc-cccc-cccccccccccc',
+('res3008-aaaa-4aaa-8aaa-aaaa00000008',
+ '88888888-8888-8888-8888-888888888888',          -- 渡辺美咲
  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
- '2025-09-20','2025-09-26',6,60000.00,
- 'CHECKED_IN','大型連休滞在','2025-09-15 10:20:00','testuser01');
+ '2025-10-06','2025-10-08',2,20000.00,
+ 'NOT_CHECKED_IN','夕方到着予定','2025-10-05 18:00:00','testuser01');
 
--- 16)
 INSERT INTO reservation VALUES
-('aaaa0006-aaaa-4aaa-8aaa-aaaa00000006',
- '33333333-3333-3333-3333-333333333333',
+('res3009-aaaa-4aaa-8aaa-aaaa00000009',
+ '99999999-9999-9999-9999-999999999999',          -- 石井舞
  'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
- '2025-09-21','2025-09-22',1,7000.00,
- 'CHECKED_OUT','早朝退室','2025-09-20 08:00:00','testuser01');
+ '2025-10-06','2025-10-07',1,7000.00,
+ 'NOT_CHECKED_IN','ライブ後に深夜IN予定','2025-10-05 23:10:00','testuser01');
 
--- 17)
 INSERT INTO reservation VALUES
-('aaaa0007-aaaa-4aaa-8aaa-aaaa00000007',
- '44444444-4444-4444-4444-444444444444',
+('res3010-aaaa-4aaa-8aaa-aaaa00000010',
+ '11111111-1111-1111-1111-111111111111',          -- 佐藤花子
  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
- '2025-09-22','2025-09-23',1,10000.00,
- 'CANCELLED','体調不良で前日キャンセル','2025-09-21 19:00:00','testuser01');
-
--- 18)
-INSERT INTO reservation VALUES
-('aaaa0008-aaaa-4aaa-8aaa-aaaa00000008',
- '55555555-5555-5555-5555-555555555555',
- 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
- '2025-09-21','2025-09-22',1,7000.00,
- 'NOT_CHECKED_IN','未到着（ノーショー）','2025-09-20 15:00:00','testuser01');
-
--- 19)
-INSERT INTO reservation VALUES
-('aaaa0009-aaaa-4aaa-8aaa-aaaa00000009',
- '66666666-6666-6666-6666-666666666666',
- 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
- '2025-09-25','2025-09-27',2,20000.00,
- 'NOT_CHECKED_IN','来週の出張予約','2025-09-10 09:00:00','testuser01');
-
--- 20)
-INSERT INTO reservation VALUES
-('aaaa0010-aaaa-4aaa-8aaa-aaaa00000010',
- '77777777-7777-7777-7777-777777777777',
- 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
- '2025-10-05','2025-10-08',3,21000.00,
- 'NOT_CHECKED_IN','秋旅行','2025-09-15 17:00:00','testuser01');
-
--- 21)
-INSERT INTO reservation VALUES
-('aaaa0011-aaaa-4aaa-8aaa-aaaa00000011',
- '11111111-1111-1111-1111-111111111111',
- 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
- '2025-08-15','2025-08-17',2,20000.00,
- 'CHECKED_OUT','夏休み利用','2025-08-01 12:00:00','testuser01');
-
--- 22)
-INSERT INTO reservation VALUES
-('aaaa0012-aaaa-4aaa-8aaa-aaaa00000012',
- '88888888-8888-8888-8888-888888888888',
- 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
- '2025-09-22','2025-09-23',1,10000.00,
- 'NOT_CHECKED_IN','団体旅行（代表者）','2025-09-10 18:00:00','testuser01');
+ '2025-10-06','2025-10-09',3,30000.00,
+ 'NOT_CHECKED_IN','出張で来館予定','2025-10-05 09:45:00','testuser01');
 
 -- =========================
--- users
+-- users（そのまま）
 -- =========================
 INSERT INTO users (id, password) VALUES
   ('testuser01','testpass123'),

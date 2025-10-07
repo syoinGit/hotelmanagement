@@ -18,7 +18,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.Mapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -115,12 +114,12 @@ public class HotelController {
   }
 
 
-  @Operation(summary = "宿泊情報の更新", description = "宿泊予約情報を更新します。")
+  @Operation(summary = "宿泊予約の更新", description = "宿泊予約情報を更新します。")
   @PutMapping("/reservation/update")
   public ResponseEntity<String> updateReservation(Authentication authentication,
       @RequestBody Reservation reservation) {
     service.updateReservation(authentication, reservation);
-    return ResponseEntity.ok("宿泊情報の更新が完了しました。");
+    return ResponseEntity.ok("宿泊予約の更新が完了しました。");
   }
 
   @Operation(summary = "宿泊者の論理削除", description = "宿泊者の削除フラグを変更します。")
