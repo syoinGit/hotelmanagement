@@ -29,7 +29,7 @@ http://hotelmanagement-env.eba-jf25s8xt.ap-northeast-1.elasticbeanstalk.com
 - JUnit
 
 ### フロントエンド
-- React 18
+- React 18 (ChatGPT駆動開発)
 - Axios（API通信）
 - TailwindCSS
 
